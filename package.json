@@ -58,5 +58,8 @@
     "eslint-plugin-unused-imports": "^3.0.0",
     "prettier": "^3.2.4",
     "typescript": "^5.0.2"
+  },
+  "overrides": {
+    "typescript": "^5.0.2"
   }
 }

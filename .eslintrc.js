@@ -66,12 +66,6 @@ module.exports = {
         },
       },
     ],
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: ['../*'],
-      },
-    ],
 
     // React-specific rules
     'react/jsx-uses-react': 'off',
@@ -95,9 +89,7 @@ module.exports = {
   settings: {
     'import/resolver': {
       typescript: {},
-      node: {
-        paths: ['src'],
-      },
+      node: {},
     },
     react: {
       version: 'detect',
