@@ -1,0 +1,55 @@
+{
+    "compilerOptions": {
+      "target": "ES2020",
+      "useDefineForClassFields": true,
+      "lib": ["ES2020", "DOM", "DOM.Iterable"],
+      "module": "ESNext",
+      "skipLibCheck": true,
+  
+      /* Bundler mode */
+      "moduleResolution": "bundler",
+      "allowImportingTsExtensions": true,
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": true,
+      "jsx": "react-jsx",
+  
+      /* Linting */
+      "strict": true,
+      "strictNullChecks": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noFallthroughCasesInSwitch": true,
+      "types": ["node", "@testing-library/jest-dom"],
+      "declaration": true,
+      "removeComments": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true,
+      "outDir": "./build",
+      "baseUrl": "./",
+      "incremental": true,
+      "rootDir": "./",
+      "paths": {
+        "*": ["*"]
+      },
+      "esModuleInterop": true,
+      "noImplicitAny": true,
+      "strictBindCallApply": true,
+      "forceConsistentCasingInFileNames": true,
+      "alwaysStrict": true,
+      "allowUnreachableCode": false,
+      "strictFunctionTypes": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noUncheckedIndexedAccess": true,
+
+      
+      "composite": true,
+      "allowSyntheticDefaultImports": true,   
+      "verbatimModuleSyntax": true,
+      "allowJs": true,
+      "moduleDetection": "force"
+    },
+    "include": ["src", "scripts", "tests"],
+  }
