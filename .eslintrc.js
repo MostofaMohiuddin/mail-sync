@@ -3,7 +3,15 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'prettier',
+    'plugin:prettier/recommended',
+    'plugin:import/recommended',
+    'airbnb',
+  ],
   overrides: [
     {
       env: {
@@ -17,10 +25,13 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks'],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'import'],
   rules: {
     // TypeScript-specific rules
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -32,6 +43,33 @@ module.exports = {
       'error',
       {
         'ts-ignore': 'allow-with-description',
+      },
+    ],
+    'import/no-unresolved': ['error', { commonjs: true, amd: true, caseSensitive: true }],
+    'import/extensions': ['error', 'ignorePackages', { tsx: 'never', ts: 'never' }],
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'external', 'internal'],
+        pathGroups: [
+          {
+            pattern: 'react',
+            group: 'external',
+            position: 'before',
+          },
+        ],
+        pathGroupsExcludedImportTypes: ['react'],
+        'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: ['../*'],
       },
     ],
 
@@ -52,5 +90,17 @@ module.exports = {
     'no-shadow': 'off',
     'no-undef': 'off',
     'no-use-before-define': 'off',
+    'prettier/prettier': ['error', { endOfLine: 'auto' }],
+  },
+  settings: {
+    'import/resolver': {
+      typescript: {},
+      node: {
+        paths: ['src'],
+      },
+    },
+    react: {
+      version: 'detect',
+    },
   },
 };

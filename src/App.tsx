@@ -1,5 +1,3 @@
-import './App.css';
-
 export default function App() {
   const getName = () => 'React';
 

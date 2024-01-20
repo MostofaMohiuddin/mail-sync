@@ -31,7 +31,7 @@
       "incremental": true,
       "rootDir": "./",
       "paths": {
-        "*": ["*"]
+        "@src/*":["src/*"]
       },
       "esModuleInterop": true,
       "noImplicitAny": true,
@@ -52,4 +52,5 @@
       "moduleDetection": "force"
     },
     "include": ["src", "scripts", "tests"],
+    "exclude": ["node_modules", "build", "dist"]
   }
