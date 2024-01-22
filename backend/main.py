@@ -3,7 +3,7 @@ from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
 
 # from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
-# from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from src.common.misc_routes import router as misc_router
 from src.constants import VERSION
 from src.env_config import LOG_LEVEL, RUNTIME_ENVIRONMENT, SERVER_HOST, SERVER_PORT
@@ -46,20 +46,17 @@ def create_app():
     #     return response
 
     # add your CORS settings here. This is a sample CORS middleware. Update this as per your needs.
-    # origins = [
-    #     "http://localhost.tiangolo.com",
-    #     "https://localhost.tiangolo.com",
-    #     "http://localhost",
-    #     "http://localhost:8080",
-    # ]
+    origins = [
+        "http://localhost:3000",
+    ]
 
-    # app.add_middleware(
-    #     CORSMiddleware,
-    #     allow_origins=origins,
-    #     allow_credentials=True,
-    #     allow_methods=["*"],
-    #     allow_headers=["*"],
-    # )
+    new_app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     new_app.add_middleware(AsgiAccessLogMiddleware)
     new_app.add_middleware(CorrelationIdMiddleware, validator=bool)

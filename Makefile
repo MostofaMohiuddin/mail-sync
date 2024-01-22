@@ -11,7 +11,7 @@ dev-stop:
 	docker compose -f docker-compose.dev.yml down
 
 dev-restart:
-	docker compose -f docker-compose.dev.yml restart
+	docker compose -f docker-compose.dev.yml up -d --build
 
 dev-clean:
 	docker-compose down -v
