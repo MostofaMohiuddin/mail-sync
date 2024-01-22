@@ -1,5 +1,5 @@
 export default function App() {
-  const getName = () => 'React';
+  const getName = () => 'React LOL';
 
   return <div>{getName()}</div>;
 }
