@@ -1,5 +1,8 @@
 import asyncio
 
+from motor.motor_asyncio import AsyncIOMotorClient
+from src.common.database.connection import get_db_session
+
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Path, Query, status
 
@@ -36,8 +39,12 @@ router = APIRouter(
 # This route has a dependency injection. The dependency is authentication ingress.
 # The response of the API contains product_id which is the return value of the dependency as an example.
 @router.get("/path", status_code=status.HTTP_200_OK)
-def path(product_id: str = Depends(Authentication(AuthenticationMechanism.AUTH2))) -> str:
-    return "This returns a simple string and the product_id = " + product_id
+async def path(
+    db: AsyncIOMotorClient = Depends(get_db_session),
+) -> dict:
+    collection = db["temperatureSensor"]
+    result = await collection.insert_one({"key": "value"})
+    return {"message": "Document inserted", "inserted_id": "123"}
 
 
 # This route will handle any get request that comes to /api/path/{path_param}

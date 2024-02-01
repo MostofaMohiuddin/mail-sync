@@ -20,7 +20,9 @@ services:
       - ./backend/src:/app/src
       - ./backend/.env:/app/.env
     command: python -m debugpy --listen 0.0.0.0:7901 main.py
-
+    depends_on:
+      mongodb:
+        condition: service_healthy
     networks:
       - bridge_network
     extra_hosts:
@@ -40,6 +42,17 @@ services:
     environment:
       CHOKIDAR_USEPOLLING: "true" # Enable hot reload with file polling
     command: npm start
+
+  mongodb:
+    image: mongo
+    container_name: mail-sync-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    networks:
+      - bridge_network
 
 networks:
   bridge_network:
