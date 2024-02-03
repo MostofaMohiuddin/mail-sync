@@ -1,16 +1,16 @@
+from typing import Annotated
+
 from fastapi import Depends
-
-from motor.motor_asyncio import AsyncIOMotorClient
-
-from src.logger import LOGGER
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from src.env_config import (
-    MONGO_PREFIX,
     MONGO_HOST,
     MONGO_PASSWORD,
     MONGO_PORT,
+    MONGO_PREFIX,
     MONGO_USERNAME,
 )
+from src.logger import LOGGER
 
 
 class MongoDB:
@@ -31,7 +31,7 @@ class MongoDB:
         return self._client
 
 
-async def get_db_session(db_name: str = "admin", mongo_db: MongoDB = Depends()):
+async def get_db_session(mongo_db: Annotated[MongoDB, Depends()]) -> AsyncIOMotorDatabase:
     LOGGER.debug("Get DB session")
     client = await mongo_db.get_client()
-    return client[db_name]
+    return client["admin"]
