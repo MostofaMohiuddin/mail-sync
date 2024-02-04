@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from src.authentication.ingress.basic_auth.auth import PasswordBasedAuthentication
-from src.authentication.ingress.basic_auth.models import Token
+from src.authentication.models import Token
+from src.authentication.service import PasswordBasedAuthentication
 from src.common.exceptions.http import NotFoundException, UnauthorizedException
 
 from .models import User, UserResponse, UserUpdate
