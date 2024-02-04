@@ -2,6 +2,7 @@
 Auth1 Ingress Models
 """
 from typing import Optional
+
 from pydantic import BaseModel
 
 
