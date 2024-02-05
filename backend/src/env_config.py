@@ -30,9 +30,10 @@ MONGO_DB = os.getenv("MONGO_DB", "admin")
 PASSWORD_HASHING_KEY = os.getenv("PASSWORD_HASHING_KEY", "gRNCcDPDnSzqT2RT4nFJA6MYtsJkBG85sMEy9TogRYg=")
 
 # GOOGLE OAUTH
-GOOGLE_CLIENT_ID = os.getenv(
-    "GOOGLE_CLIENT_ID", "394638145623-mofp9qn2s2bn55f2h2f3q7rv1van8690.apps.googleusercontent.com"
-)
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "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")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", None)
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://mailsync.com:3000/oauth/google/callback")
 GOOGLE_OAUTH_BASE_URI = os.getenv("GOOGLE_OAUTH_BASE_URI", "https://accounts.google.com/o/oauth2/v2/auth")
+GOOGLE_TOKEN_URI = os.getenv("GOOGLE_TOKEN_URI", "https://oauth2.googleapis.com/token")
+GOOGLE_OAUTH_CERT_URL = os.getenv("GOOGLE_OAUTH_CERT_URL", "https://www.googleapis.com/oauth2/v1/certs")
+GOOGLE_PROJECT_ID = os.getenv("GOOGLE_PROJECT_ID", "mail-sync-413222")
