@@ -6,18 +6,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.authentication.routes import router as auth_router
-from src.common.misc_routes import router as misc_router
 from src.constants import VERSION
 from src.env_config import LOG_LEVEL, RUNTIME_ENVIRONMENT, SERVER_HOST, SERVER_PORT
+from src.link_mail_address.routes import router as link_mail_address_router
 from src.logger.asgi_access_log import AsgiAccessLogMiddleware
 from src.user.routes import router as user_router
 
 
 def init_routers(fastapi_app: FastAPI):
     # add your routers here
-    fastapi_app.include_router(misc_router)
     fastapi_app.include_router(auth_router)
     fastapi_app.include_router(user_router)
+    fastapi_app.include_router(link_mail_address_router)
 
 
 def init_openapi(fastapi_app: FastAPI):
@@ -53,7 +53,7 @@ def create_app():
 
     # add your CORS settings here. This is a sample CORS middleware. Update this as per your needs.
     origins = [
-        "http://localhost:3000",
+        "http://mailsync.com:3000",
     ]
 
     new_app.add_middleware(
