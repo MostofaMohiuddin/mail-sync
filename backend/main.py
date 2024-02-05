@@ -4,18 +4,18 @@ from fastapi import FastAPI
 
 # from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-
 from src.common.misc_routes import router as misc_router
 from src.constants import VERSION
 from src.env_config import LOG_LEVEL, RUNTIME_ENVIRONMENT, SERVER_HOST, SERVER_PORT
+from src.example_module.containers import Container
+from src.example_module.routes import router as example_router
 from src.logger.asgi_access_log import AsgiAccessLogMiddleware
-from src.user.routes import router as user_router
 
 
 def init_routers(fastapi_app: FastAPI):
     # add your routers here
     fastapi_app.include_router(misc_router)
-    fastapi_app.include_router(user_router)
+    fastapi_app.include_router(example_router)
 
 
 def init_openapi(fastapi_app: FastAPI):
@@ -25,10 +25,6 @@ def init_openapi(fastapi_app: FastAPI):
     fastapi_app.description = (
         "<a href='https://github.com/optimizely/dex-fastapi-boilerplate' target='_blank'>Github repository</a>"
     )
-
-
-def init_handlers(fastapi_app: FastAPI):
-    pass
 
 
 def create_app():
@@ -66,7 +62,8 @@ def create_app():
     new_app.add_middleware(CorrelationIdMiddleware, validator=bool)
     init_routers(new_app)
     init_openapi(new_app)
-    init_handlers(new_app)
+    container = Container()
+    new_app.container = container
     return new_app
 
 

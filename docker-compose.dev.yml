@@ -20,9 +20,9 @@ services:
       - ./backend/src:/app/src
       - ./backend/.env:/app/.env
     command: python -m debugpy --listen 0.0.0.0:7901 main.py
-    # depends_on:
-    #   mongodb:
-    #     condition: service_healthy
+    depends_on:
+      mongodb:
+        condition: service_healthy
     networks:
       - bridge_network
     extra_hosts:
@@ -53,11 +53,6 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     networks:
       - bridge_network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
 
 networks:
   bridge_network:
