@@ -25,6 +25,3 @@ MONGO_PORT = int(os.getenv("MONGO_PORT", "27017"))
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "admin")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "password")
 MONGO_DB = os.getenv("MONGO_DB", "admin")
-
-# Password hashing key
-PASSWORD_HASHING_KEY = os.getenv("PASSWORD_HASHING_KEY", "gRNCcDPDnSzqT2RT4nFJA6MYtsJkBG85sMEy9TogRYg=")
