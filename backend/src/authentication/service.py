@@ -14,7 +14,7 @@ from .models import Token
 access_security = JwtAccessBearer(
     secret_key="secret_key",
     auto_error=True,
-    access_expires_delta=timedelta(minutes=120),
+    access_expires_delta=timedelta(minutes=10),
 )
 
 refresh_security = JwtRefreshBearer(
