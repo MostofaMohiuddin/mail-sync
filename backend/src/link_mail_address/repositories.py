@@ -32,5 +32,6 @@ class LinkMailAddressRepository(BaseRepository):
         except DuplicateKeyError as exc:
             raise ConflictException(detail="Email already exists for the user") from exc
 
-    async def get_tokens(self, user_id: str, email: str):
-        return await self.query(self.collection, {"username": user_id, "email": email})
+    async def get_tokens(self, username: str, email: str):
+        data = await self.query(self.collection, {"username": username, "email": email})
+        return data.get("credentials")

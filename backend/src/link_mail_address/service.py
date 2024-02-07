@@ -38,7 +38,7 @@ class LinkMailAddressService:
         user = GoogleApiClient(credentials).get_user_info()
         data = LinkMailAddress(
             **{
-                "user_id": username,
+                "username": username,
                 "email": user.email,
                 "picture": user.picture,
                 "email_type": request_body.email_type,
@@ -47,3 +47,6 @@ class LinkMailAddressService:
         )
         await self.link_mail_address_repository.save_tokens(data)
         return {"message": "Email linked successfully"}
+
+    async def get_oauth_tokens(self, username: str, email: str):
+        return await self.link_mail_address_repository.get_tokens(username, email)

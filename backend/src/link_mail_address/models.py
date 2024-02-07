@@ -18,7 +18,7 @@ class LinkMailRequest(BaseModel):
 
 
 class LinkMailAddress(BaseModel):
-    user_id: str
+    username: str
     email: str
     picture: Optional[str] = None
     email_type: EmailType
@@ -27,7 +27,7 @@ class LinkMailAddress(BaseModel):
     @model_serializer
     def to_dict(self):
         return {
-            "user_id": self.user_id,
+            "username": self.username,
             "email": self.email,
             "picture": self.picture,
             "email_type": self.email_type.value,
