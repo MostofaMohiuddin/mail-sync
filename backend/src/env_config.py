@@ -37,3 +37,6 @@ GOOGLE_OAUTH_BASE_URI = os.getenv("GOOGLE_OAUTH_BASE_URI", "https://accounts.goo
 GOOGLE_TOKEN_URI = os.getenv("GOOGLE_TOKEN_URI", "https://oauth2.googleapis.com/token")
 GOOGLE_OAUTH_CERT_URL = os.getenv("GOOGLE_OAUTH_CERT_URL", "https://www.googleapis.com/oauth2/v1/certs")
 GOOGLE_PROJECT_ID = os.getenv("GOOGLE_PROJECT_ID", "mail-sync-413222")
+
+# OPENAI
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", None)

@@ -2,12 +2,12 @@ import google_auth_oauthlib.flow
 
 from src.common.exceptions.http import BadRequestException
 from src.env_config import (
-    GOOGLE_REDIRECT_URI,
-    GOOGLE_OAUTH_BASE_URI,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
+    GOOGLE_OAUTH_BASE_URI,
     GOOGLE_OAUTH_CERT_URL,
     GOOGLE_PROJECT_ID,
+    GOOGLE_REDIRECT_URI,
     GOOGLE_TOKEN_URI,
 )
 
