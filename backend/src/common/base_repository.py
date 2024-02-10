@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from src.common.database.connection import get_db_session
+from src.common.models import PaginationData, SortData
 
 
 class BaseRepository(ABC):
@@ -27,6 +28,23 @@ class BaseRepository(ABC):
 
     async def query(self, collection: AsyncIOMotorCollection, query: dict):
         return await collection.find_one(query)
+
+    async def query_all(
+        self,
+        collection: AsyncIOMotorCollection,
+        query: dict,
+        sort: SortData = None,
+        pagination: PaginationData = None,
+    ):
+        cursor = collection.find(query)
+        # Modify the query before iterating
+        if pagination:
+            offset = (pagination.page_no - 1) * pagination.page_size
+            page_size = pagination.page_size
+            cursor = cursor.skip(offset).limit(page_size)
+        if sort:
+            cursor = cursor.sort(sort.key, sort.value)
+        return [document async for document in cursor]
 
     # def save(self) -> None:
     #     try:

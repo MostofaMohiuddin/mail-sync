@@ -10,6 +10,7 @@ from src.constants import VERSION
 from src.env_config import LOG_LEVEL, RUNTIME_ENVIRONMENT, SERVER_HOST, SERVER_PORT
 from src.link_mail_address.routes import router as link_mail_address_router
 from src.logger.asgi_access_log import AsgiAccessLogMiddleware
+from src.mails.routes import router as mails_router
 from src.user.routes import router as user_router
 
 
@@ -18,6 +19,7 @@ def init_routers(fastapi_app: FastAPI):
     fastapi_app.include_router(auth_router)
     fastapi_app.include_router(user_router)
     fastapi_app.include_router(link_mail_address_router)
+    fastapi_app.include_router(mails_router)
 
 
 def init_openapi(fastapi_app: FastAPI):

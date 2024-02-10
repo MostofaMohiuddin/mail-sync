@@ -22,7 +22,7 @@ class LinkMailAddressRepository(BaseRepository):
         """
         await self.collection.create_index([("username", 1), ("email", 1)], unique=True)
 
-    async def save_tokens(self, data: LinkMailAddress):
+    async def save_credentials(self, data: LinkMailAddress):
         try:
             await self.create_indexes()
             return await self.insert(
@@ -32,5 +32,10 @@ class LinkMailAddressRepository(BaseRepository):
         except DuplicateKeyError as exc:
             raise ConflictException(detail="Email already exists for the user") from exc
 
-    async def get_tokens(self, user_id: str, email: str):
-        return await self.query(self.collection, {"username": user_id, "email": email})
+    async def get_oauth_token_by_email(self, username: str, email: str) -> dict:
+        data = await self.query(self.collection, {"username": username, "email": email})
+        return data.get("oauth_tokens")
+
+    async def get_all_oauth_tokens(self, username: str):
+        documents = await self.query_all(self.collection, {"username": username})
+        return [doc["oauth_tokens"] for doc in documents]
