@@ -28,3 +28,11 @@ async def link_mail_address(
     credentials: JwtAuthorizationCredentials = Security(access_security),
 ) -> dict:
     return await link_mail_address_service.save_oauth_tokens(credentials.subject.get("username"), request_body)
+
+
+@router.get("/", status_code=status.HTTP_200_OK)
+async def get_linked_mail_address(
+    link_mail_address_service: LinkMailAddressService = Depends(),
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+) -> dict:
+    return await link_mail_address_service.get_all_oauth_tokens(credentials.subject.get("username"))

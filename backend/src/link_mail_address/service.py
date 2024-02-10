@@ -5,10 +5,12 @@ from fastapi import Depends
 from src.authentication.service import PasswordBasedAuthentication
 from src.google.google_api_client import GoogleApiClient
 from src.google.google_oath import GoogleOauthService
+from src.google.models import GoogleOAuthCredentials
 from src.link_mail_address.models import (
     EmailType,
     LinkMailAddress,
     LinkMailRequest,
+    OauthTokensResponse,
     RedirectLinkResponse,
 )
 
@@ -38,12 +40,21 @@ class LinkMailAddressService:
         user = GoogleApiClient(credentials).get_user_info()
         data = LinkMailAddress(
             **{
-                "user_id": username,
+                "username": username,
                 "email": user.email,
                 "picture": user.picture,
                 "email_type": request_body.email_type,
-                "credentials": credentials.dict(),
+                "oauth_tokens": credentials.dict(),
             }
         )
-        await self.link_mail_address_repository.save_tokens(data)
+        await self.link_mail_address_repository.save_credentials(data)
         return {"message": "Email linked successfully"}
+
+    async def get_all_oauth_tokens(self, username: str) -> OauthTokensResponse:
+        documents = await self.link_mail_address_repository.get_all_oauth_tokens(username)
+        return OauthTokensResponse(**{"oauth_tokens": documents})
+
+    async def get_oauth_token_by_email(self, username: str, email: str) -> GoogleOAuthCredentials:
+        return GoogleOAuthCredentials(
+            **await self.link_mail_address_repository.get_oauth_token_by_email(username, email)
+        )
