@@ -1,12 +1,16 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
+import { Route, Routes } from 'react-router-dom';
+
+import Layout from './components/layout';
+import routes from './routes';
 
 export default function App() {
-  const getName = () => 'React LOL';
-  const getRes = async () => {
-    const res2 = await axios.get('http://localhost:7900/api/path');
-    console.log('res2', res2);
-  };
-  getRes();
-  return <div>{getName()}</div>;
+  return (
+    <>
+      <Routes>
+        {routes.map(({ path, component, title }) => (
+          <Route element={<Layout title={title}>{component}</Layout>} key={path} path={path}></Route>
+        ))}
+      </Routes>
+    </>
+  );
 }
