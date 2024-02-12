@@ -1,10 +1,10 @@
-import SignIn from './pages/sign-in';
+import Mail from './pages/mails';
 
 const routes = [
   {
-    title: 'Sign In',
-    path: '/sign-in',
-    component: <SignIn />,
+    title: 'Mails',
+    path: '/',
+    component: <Mail />,
   },
 ];
 
