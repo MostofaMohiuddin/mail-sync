@@ -3,9 +3,11 @@ import React, { useState, type ReactNode } from 'react';
 import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
+
+import CustomHeader from './Header';
 // import Title from 'antd/lib/typography/Title';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -39,9 +41,7 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
-          <div style={{ fontWeight: 'bold', fontSize: '1.3rem', marginLeft: '16px' }}>{title}</div>
-        </Header>
+        <CustomHeader title={title} />
         <Content style={{ margin: '0 16px' }}>
           <div
             style={{

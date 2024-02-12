@@ -1,22 +1,26 @@
 import { Route, Routes } from 'react-router-dom';
 
+import { RequireAuth } from './components/auth';
 import Layout from './components/layout';
+import { SessionProvider } from './hooks/userSession';
 import SignIn from './pages/sign-in';
 import SignUp from './pages/sign-up';
 import routes from './routes';
 
 export default function App() {
-  const accessToken = localStorage.getItem('access_token');
   return (
     <>
-      <Routes>
-        {accessToken &&
-          routes.map(({ path, component, title }) => (
-            <Route element={<Layout title={title}>{component}</Layout>} key={path} path={path}></Route>
+      <SessionProvider>
+        <Routes>
+          {routes.map(({ path, component, title }) => (
+            <Route element={<RequireAuth />} key={path} path={path}>
+              <Route element={<Layout title={title}>{component}</Layout>} path="" />
+            </Route>
           ))}
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
-      </Routes>
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+        </Routes>
+      </SessionProvider>
     </>
   );
 }
