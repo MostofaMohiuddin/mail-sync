@@ -1,13 +1,23 @@
 import { Form, Input, Button } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import type { ISignInData } from '../../common/types';
 import { useAuthentication } from '../../hooks/authentication';
+import { useSession } from '../../hooks/userSession';
 
 export default function SignIn() {
   const { signIn, loading } = useAuthentication();
+  const { setAccessToken, setRefreshToken } = useSession();
+  const navigate = useNavigate();
   const onFinish = async (data: ISignInData) => {
-    await signIn(data);
+    const res = await signIn(data);
+    if (res) {
+      setAccessToken(res.access_token);
+      setRefreshToken(res.refresh_token);
+      localStorage.setItem('access_token', res.access_token);
+      localStorage.setItem('refresh_token', res.refresh_token);
+      navigate('/');
+    }
   };
 
   return (

@@ -27,13 +27,21 @@ const apiRequestWrapper =
 const authorizedApiRequestWrapper =
   (apiEndpoint: string, method: AxiosRequestConfig['method']) =>
   async (data?: unknown): Promise<IApiResponse> => {
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      return {
+        error: 'Not Authenticated',
+        response: null,
+      };
+    }
+
     try {
       const response = await axiosClient.request({
         url: apiEndpoint,
         method: method,
         data: data,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
       return {

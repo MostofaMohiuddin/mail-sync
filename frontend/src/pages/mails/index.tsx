@@ -1,3 +1,7 @@
+import { useSession } from '../../hooks/userSession';
+
 export default function Mail() {
-  return <div>Mail</div>;
+  const { user } = useSession();
+
+  return <div>Mail: {user?.username}</div>;
 }
