@@ -25,3 +25,13 @@ export interface ISignUpData {
 export interface IUser {
   username: string;
 }
+
+export interface IApiRequest {
+  data?: unknown;
+  query?: string;
+}
+
+export enum EmailType {
+  GMAIL = 'gmail',
+  YAHOO = 'yahoo',
+}

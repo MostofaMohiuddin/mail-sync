@@ -29,6 +29,7 @@ class GoogleOauthService:
     def __init__(self):
         self.scopes = [
             "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
             "openid",
             "https://mail.google.com/",
         ]
@@ -63,4 +64,5 @@ class GoogleOauthService:
                 }
             )
         except Exception as e:
+            print(e)
             raise BadRequestException(detail="Invalid code") from e

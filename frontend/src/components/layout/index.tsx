@@ -29,7 +29,7 @@ const items: MenuItem[] = [
 ];
 
 export default function CustomLayout({ children, title }: { children: ReactNode; title: string }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -37,7 +37,7 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <div className="demo-logo-vertical">hi</div>
+        <div className="demo-logo-vertical">LOGO</div>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
       </Sider>
       <Layout>
@@ -46,7 +46,7 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
           <div
             style={{
               padding: 24,
-              minHeight: 360,
+              minHeight: '85vh',
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
               marginTop: '16px',
@@ -55,7 +55,7 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
             {children}
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Ant Design ©{new Date().getFullYear()} Created by Ant UED</Footer>
+        <Footer style={{ textAlign: 'center' }}>Mail Sync</Footer>
       </Layout>
     </Layout>
   );
