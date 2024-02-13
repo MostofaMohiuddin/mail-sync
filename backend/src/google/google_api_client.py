@@ -50,6 +50,7 @@ class GoogleApiClient:
     def get_user_info(self) -> UserInfo:
         service = googleapiclient_builder("oauth2", "v2", credentials=self.google_oauth_credentials)
         user = service.userinfo().get().execute()
+        print(user)
         return UserInfo(**user)
 
     def get_user_mails(self):

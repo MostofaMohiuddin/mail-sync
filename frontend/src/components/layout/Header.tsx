@@ -1,3 +1,4 @@
+import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { Header } from 'antd/es/layout/layout';
@@ -15,18 +16,20 @@ export default function CustomHeader({ title }: { title: string }) {
     {
       key: '1',
       label: (
-        <Link rel="noopener noreferrer" to="/mails">
-          1st menu item
+        <Link rel="noopener noreferrer" to="/profile" style={{ fontSize: '0.9rem' }}>
+          Profile
         </Link>
       ),
+      icon: <UserOutlined />,
     },
     {
       key: '2',
       label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-          2nd menu item (disabled)
-        </a>
+        <Link rel="noopener noreferrer" to="/sign-out" style={{ fontSize: '0.9rem' }}>
+          Sign Out
+        </Link>
       ),
+      icon: <LogoutOutlined />,
     },
   ];
 

@@ -39,3 +39,7 @@ class LinkMailAddressRepository(BaseRepository):
     async def get_all_oauth_tokens(self, username: str):
         documents = await self.query_all(self.collection, {"username": username})
         return [doc["oauth_tokens"] for doc in documents]
+
+    async def get_all_linked_mail_address(self, username: str):
+        documents = await self.query_all(self.collection, {"username": username})
+        return [doc for doc in documents]

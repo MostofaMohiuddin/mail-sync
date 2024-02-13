@@ -13,7 +13,7 @@ const Loader = ({ loading }: { loading: boolean }) => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        zIndex: 9999,
+        zIndex: loading ? 9999 : -1,
       }}
     >
       <Spin size="large" spinning={loading} />

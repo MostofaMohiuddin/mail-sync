@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { Form, Input, Button } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -19,6 +21,16 @@ export default function SignIn() {
       navigate('/');
     }
   };
+  useEffect(() => {
+    const storedAccessToken = localStorage.getItem('access_token');
+    const storedRefreshToken = localStorage.getItem('refresh_token');
+
+    if (storedAccessToken && storedRefreshToken) {
+      setAccessToken(storedAccessToken);
+      setRefreshToken(storedRefreshToken);
+      navigate('/');
+    }
+  }, []);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
