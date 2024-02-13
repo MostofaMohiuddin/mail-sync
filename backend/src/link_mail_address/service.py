@@ -10,6 +10,7 @@ from src.link_mail_address.models import (
     EmailType,
     LinkMailAddress,
     LinkMailRequest,
+    LinkMailAddressResponse,
     OauthTokensResponse,
     RedirectLinkResponse,
 )
@@ -45,6 +46,7 @@ class LinkMailAddressService:
                 "picture": user.picture,
                 "email_type": request_body.email_type,
                 "oauth_tokens": credentials.dict(),
+                "email_name": user.name,
             }
         )
         await self.link_mail_address_repository.save_credentials(data)
@@ -58,3 +60,9 @@ class LinkMailAddressService:
         return GoogleOAuthCredentials(
             **await self.link_mail_address_repository.get_oauth_token_by_email(username, email)
         )
+
+    async def get_all_linked_mail_address(self, username: str) -> list[LinkMailAddressResponse]:
+        response = await self.link_mail_address_repository.get_all_linked_mail_address(username)
+        if not response:
+            return []
+        return [LinkMailAddressResponse(**doc) for doc in response]

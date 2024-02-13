@@ -3,7 +3,7 @@ from fastapi_jwt import JwtAuthorizationCredentials
 
 from src.authentication.service import access_security
 
-from .models import EmailType, LinkMailRequest, RedirectLinkResponse
+from .models import EmailType, LinkMailAddressResponse, LinkMailRequest, RedirectLinkResponse
 from .service import LinkMailAddressService
 
 router = APIRouter(
@@ -34,5 +34,5 @@ async def link_mail_address(
 async def get_linked_mail_address(
     link_mail_address_service: LinkMailAddressService = Depends(),
     credentials: JwtAuthorizationCredentials = Security(access_security),
-) -> dict:
-    return await link_mail_address_service.get_all_oauth_tokens(credentials.subject.get("username"))
+) -> list[LinkMailAddressResponse]:
+    return await link_mail_address_service.get_all_linked_mail_address(credentials.subject.get("username"))

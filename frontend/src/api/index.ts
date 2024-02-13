@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig } from 'axios';
 
 import axiosClient from './AxiosClient';
-import type { IApiResponse } from '../common/types';
+import type { IApiResponse, IApiRequest } from '../common/types';
 
 const apiRequestWrapper =
   (apiEndpoint: string, method: AxiosRequestConfig['method']) =>
@@ -23,11 +23,11 @@ const apiRequestWrapper =
       };
     }
   };
-
 const authorizedApiRequestWrapper =
   (apiEndpoint: string, method: AxiosRequestConfig['method']) =>
-  async (data?: unknown): Promise<IApiResponse> => {
+  async (param?: IApiRequest): Promise<IApiResponse> => {
     const accessToken = localStorage.getItem('access_token');
+    const { data, query } = param || {};
     if (!accessToken) {
       return {
         error: 'Not Authenticated',
@@ -37,7 +37,7 @@ const authorizedApiRequestWrapper =
 
     try {
       const response = await axiosClient.request({
-        url: apiEndpoint,
+        url: query ? `${apiEndpoint}?${query}` : apiEndpoint,
         method: method,
         data: data,
         headers: {

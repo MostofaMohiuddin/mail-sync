@@ -20,6 +20,7 @@ class LinkMailRequest(BaseModel):
 class LinkMailAddress(BaseModel):
     username: str
     email: str
+    email_name: str
     picture: Optional[str] = None
     email_type: EmailType
     oauth_tokens: dict
@@ -32,8 +33,16 @@ class LinkMailAddress(BaseModel):
             "picture": self.picture,
             "email_type": self.email_type.value,
             "oauth_tokens": self.oauth_tokens,
+            "email_name": self.email_name,
         }
 
 
 class OauthTokensResponse(BaseModel):
     oauth_tokens: list[dict]
+
+
+class LinkMailAddressResponse(BaseModel):
+    username: str
+    email: str
+    email_name: str
+    picture: Optional[str] = None

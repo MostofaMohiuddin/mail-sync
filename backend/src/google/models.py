@@ -15,3 +15,4 @@ class GoogleOAuthCredentials(BaseModel):
 class UserInfo(BaseModel):
     email: str
     picture: str
+    name: str
