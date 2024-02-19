@@ -1,7 +1,7 @@
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Divider } from 'antd';
 
-import EmailList from './EmailList';
+import EmailAddressList from './EmailAddressList';
 import { useSession } from '../../hooks/userSession';
 
 export default function Profile() {
@@ -13,7 +13,7 @@ export default function Profile() {
         <h2>{user?.username}</h2>
         <Divider />
         <div style={{ width: '60%', maxHeight: '80px !important' }}>
-          <EmailList />
+          <EmailAddressList />
         </div>
       </div>
     </>

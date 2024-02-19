@@ -16,7 +16,9 @@ from src.link_mail_address.repositories import LinkMailAddressRepository
 from src.logger.default_logger import LOGGER
 from src.mails.models import MailRequestBody
 
-from .models import GoogleOAuthCredentials, UserInfo
+from .models import EmailBody, EmailFullData, GoogleOAuthCredentials, UserInfo, EmailMetadata
+
+import re
 
 
 class GoogleApiClient:
@@ -53,15 +55,90 @@ class GoogleApiClient:
         print(user)
         return UserInfo(**user)
 
-    def get_user_mails(self):
+    def _extract_email_and_name(self, sample: str) -> UserInfo:
+        # Extracting name and email using regular expressions
+        match = re.match(r"(.*)<([^<>]+)>", sample)
+        if match:
+            name = match.group(1).strip()
+            email = match.group(2)
+        else:
+            # If no name is provided, extract email only
+            name = None
+            match = re.match(r"[^<>]+<([^<>]+)>", sample)
+            if match:
+                email = match.group(1)
+            else:
+                # If no angle brackets are provided, consider the entire string as email
+                email = sample.strip()
+        return UserInfo(
+            email=email,
+            name=name,
+        )
+
+    def get_user_mails(self) -> list[EmailMetadata]:
         service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
         response = service.users().messages().list(userId="me", maxResults=5).execute()
         message_list = response.get("messages", [])
         services = [
-            service.users().messages().get(userId="me", id=message["id"], format="full") for message in message_list
+            service.users().messages().get(userId="me", id=message["id"], format="metadata") for message in message_list
         ]
         batch = service.new_batch_http_request()
-        return self._batch_request(batch, services)
+        message_list_with_metadata = self._batch_request(batch, services)
+        email_metadata_list = []
+        for message in message_list_with_metadata:
+            headers = {header["name"]: header["value"] for header in message["payload"]["headers"]}
+            if "SENT" not in message.get("labelIds", []):
+                email_metadata_list.append(
+                    EmailMetadata(
+                        sender=self._extract_email_and_name(
+                            headers.get("From", ""),
+                        ),
+                        receiver=self._extract_email_and_name(
+                            headers.get("To", ""),
+                        ),
+                        subject=headers.get("Subject", ""),
+                        date=headers.get("Date", ""),
+                        snippet=message["snippet"],
+                        id=message["id"],
+                    )
+                )
+        return email_metadata_list
+
+    def get_user_mail(self, mail_id: str) -> EmailMetadata:
+        service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
+        message = service.users().messages().get(userId="me", id=mail_id, format="full").execute()
+        headers = {header["name"]: header["value"] for header in message["payload"]["headers"]}
+        print(message)
+        html, plain = None, None
+        if "multipart" in message["payload"]["mimeType"]:
+            for part in message["payload"]["parts"]:
+                if part["mimeType"] == "text/html":
+                    html = base64.urlsafe_b64decode(part["body"]["data"]).decode()
+                elif part["mimeType"] == "text/plain":
+                    plain = base64.urlsafe_b64decode(part["body"]["data"]).decode()
+        elif message["payload"]["mimeType"] == "text/html":
+            html = base64.urlsafe_b64decode(message["payload"]["body"]["data"]).decode()
+            plain = None
+        elif message["payload"]["mimeType"] == "text/plain":
+            plain = base64.urlsafe_b64decode(message["payload"]["body"]["data"]).decode()
+            html = plain
+
+        return EmailFullData(
+            sender=self._extract_email_and_name(
+                headers.get("From", ""),
+            ),
+            receiver=self._extract_email_and_name(
+                headers.get("To", ""),
+            ),
+            subject=headers.get("Subject", ""),
+            date=headers.get("Date", ""),
+            snippet=message["snippet"],
+            id=message["id"],
+            body=EmailBody(
+                html=html,
+                plain=plain,
+            ),
+        )
 
     def send_mail(self, message: MailRequestBody):
         service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)

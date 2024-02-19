@@ -3,35 +3,50 @@ import { useEffect, useState } from 'react';
 import { SmileOutlined, FrownOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router';
 import { Link, useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
 
+import * as api from '../../api/LinkMailAddress';
 import { EmailType } from '../../common/types';
 import Loader from '../../components/Loader';
-import { useMail } from '../../hooks/useMail';
 
 export default function OauthCallback() {
   const params = useParams();
   const [searchParams] = useSearchParams();
 
-  const { loading, linkMailAddress } = useMail();
   const [linkSuccess, setLinkSuccess] = useState<boolean | null>(null);
+  const email_type = params.email_type === 'google' ? EmailType.GMAIL : EmailType.YAHOO;
+  const code = searchParams.get('code');
+  // useEffect(() => {
+  // const email_type = params.email_type === 'google' ? EmailType.GMAIL : EmailType.YAHOO;
+  // const code = searchParams.get('code');
+  // //   const makeRequest = async () => {
+  // //     if (code) {
+  // //       const res = await linkMailAddress(code, email_type);
+  // //       console.log(res);
 
-  console.log(params.email_type);
-  console.log(searchParams.get('code'));
+  // //       if (res) setLinkSuccess(true);
+  // //       else setLinkSuccess(false);
+  // //     }
+  // //   };
+  // //   makeRequest();
+  // // }, []);
+
+  const { data, isLoading } = useSWR(['/link-mail-address', code], () =>
+    api.linkMailAddress({
+      data: {
+        code: code,
+        email_type: email_type,
+      },
+    }),
+  );
 
   useEffect(() => {
-    const email_type = params.email_type === 'google' ? EmailType.GMAIL : EmailType.YAHOO;
-    const code = searchParams.get('code');
-    const makeRequest = async () => {
-      if (code) {
-        const res = await linkMailAddress(code, email_type);
-        console.log(res);
-
-        if (res) setLinkSuccess(true);
-        else setLinkSuccess(false);
-      }
-    };
-    makeRequest();
-  }, []);
+    if (data) {
+      setLinkSuccess(true);
+    } else {
+      setLinkSuccess(false);
+    }
+  }, [data]);
 
   const successMessage = () => (
     <>
@@ -51,8 +66,8 @@ export default function OauthCallback() {
     </>
   );
 
-  return loading ? (
-    <Loader loading={loading} />
+  return isLoading ? (
+    <Loader loading={isLoading} />
   ) : (
     linkSuccess !== null && (
       <>

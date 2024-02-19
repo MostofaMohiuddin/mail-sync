@@ -25,24 +25,22 @@ const apiRequestWrapper =
   };
 const authorizedApiRequestWrapper =
   (apiEndpoint: string, method: AxiosRequestConfig['method']) =>
-  async (param?: IApiRequest): Promise<IApiResponse> => {
-    const accessToken = localStorage.getItem('access_token');
-    const { data, query } = param || {};
-    if (!accessToken) {
-      return {
-        error: 'Not Authenticated',
-        response: null,
-      };
+  async (request?: IApiRequest): Promise<IApiResponse> => {
+    // const accessToken = localStorage.getItem('access_token');
+    const { data, query, param } = request || {};
+
+    let url = apiEndpoint;
+    if (param) {
+      Object.keys(param).forEach((key) => {
+        url = url.replace(`:${key}`, encodeURIComponent(param[key]!));
+      });
     }
 
     try {
       const response = await axiosClient.request({
-        url: query ? `${apiEndpoint}?${query}` : apiEndpoint,
+        url: query ? `${url}?${query}` : url,
         method: method,
         data: data,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
       });
       return {
         response,
@@ -56,4 +54,46 @@ const authorizedApiRequestWrapper =
     }
   };
 
-export { apiRequestWrapper, authorizedApiRequestWrapper };
+const authorizedApiRequestWrapper2 =
+  (apiEndpoint: string, method: AxiosRequestConfig['method']) =>
+  async (request?: IApiRequest): Promise<any> => {
+    const { data, query, param } = request || {};
+    // const accessToken = localStorage.getItem('access_token');
+    let url = apiEndpoint;
+    if (param) {
+      Object.keys(param).forEach((key) => {
+        url = url.replace(`:${key}`, encodeURIComponent(param[key]!));
+      });
+    }
+
+    // try {
+    //   const response = await axiosClient.request({
+    //     url: query ? `${url}?${query}` : url,
+    //     method: method,
+    //     data: data,
+    //     headers: {
+    //       Authorization: `Bearer ${accessToken}`,
+    //     },
+    //   });
+    //   return {
+    //     response,
+    //     error: null,
+    //   };
+    // } catch (error) {
+    //   return {
+    //     error,
+    //     response: null,
+    //   };
+    // }
+
+    return await axiosClient.request({
+      url: query ? `${url}?${query}` : url,
+      method: method,
+      data: data,
+      // headers: {
+      //   Authorization: `Bearer ${accessToken}`,
+      // },
+    });
+  };
+
+export { apiRequestWrapper, authorizedApiRequestWrapper, authorizedApiRequestWrapper2 };
