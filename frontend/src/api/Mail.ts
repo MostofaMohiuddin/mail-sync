@@ -1,9 +1,9 @@
-import { authorizedApiRequestWrapper } from '.';
+import { authorizedApiRequestWrapper2 } from '.';
 
-const getLinkedMailAddress = authorizedApiRequestWrapper('/link-mail-address', 'get');
+const getMails = authorizedApiRequestWrapper2('/mails', 'get');
 
-const getOauthUrl = authorizedApiRequestWrapper('/link-mail-address/oauth-url', 'get');
+const getMail = authorizedApiRequestWrapper2('/mails/:mail_address/:mail_id', 'get');
 
-const linkMailAddress = authorizedApiRequestWrapper('/link-mail-address', 'post');
+const summarizeMail = authorizedApiRequestWrapper2('/mails/process-with-ai', 'post');
 
-export { getLinkedMailAddress, getOauthUrl, linkMailAddress };
+export { getMails, getMail, summarizeMail };

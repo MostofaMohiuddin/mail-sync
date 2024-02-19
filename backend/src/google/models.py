@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -14,5 +14,23 @@ class GoogleOAuthCredentials(BaseModel):
 
 class UserInfo(BaseModel):
     email: str
-    picture: str
-    name: str
+    picture: Optional[str] = None
+    name: Optional[str] = None
+
+
+class EmailMetadata(BaseModel):
+    sender: UserInfo
+    receiver: UserInfo
+    subject: str
+    date: str
+    snippet: str
+    id: str
+
+
+class EmailBody(BaseModel):
+    html: Optional[str] = None
+    plain: Optional[str] = None
+
+
+class EmailFullData(EmailMetadata):
+    body: EmailBody

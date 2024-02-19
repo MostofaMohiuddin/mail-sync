@@ -10,13 +10,13 @@ export default function CustomHeader({ title }: { title: string }) {
   const {
     token: { colorBgContainer, colorPrimary },
   } = theme.useToken();
-  const { user } = useSession();
+  const { user, signOut } = useSession();
 
   const items: MenuProps['items'] = [
     {
       key: '1',
       label: (
-        <Link rel="noopener noreferrer" to="/profile" style={{ fontSize: '0.9rem' }}>
+        <Link rel="noopener noreferrer" to="/profile" style={{ fontSize: '0.92rem' }}>
           Profile
         </Link>
       ),
@@ -25,9 +25,9 @@ export default function CustomHeader({ title }: { title: string }) {
     {
       key: '2',
       label: (
-        <Link rel="noopener noreferrer" to="/sign-out" style={{ fontSize: '0.9rem' }}>
+        <div rel="noopener noreferrer" style={{ fontSize: '0.92rem' }} onClick={signOut}>
           Sign Out
-        </Link>
+        </div>
       ),
       icon: <LogoutOutlined />,
     },
@@ -36,17 +36,20 @@ export default function CustomHeader({ title }: { title: string }) {
   return (
     <Header
       style={{
-        padding: 0,
+        padding: '0 16px',
         background: colorBgContainer,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
       }}
     >
-      <div style={{ fontWeight: 'bold', fontSize: '1.3rem', marginLeft: '16px' }}>{title}</div>
-      <Dropdown menu={{ items }} trigger={['hover']}>
+      <div style={{ fontWeight: 'bold', fontSize: '1.3rem' }}>{title}</div>
+      <Dropdown menu={{ items }} trigger={['hover']} placement="bottomRight">
         <div style={{ cursor: 'pointer' }}>
-          <Avatar style={{ backgroundColor: colorPrimary, verticalAlign: 'middle', marginRight: '16px' }} size="large">
+          <Avatar
+            style={{ backgroundColor: colorPrimary, verticalAlign: 'middle', fontWeight: 'bold', fontSize: '1.2rem' }}
+            size="large"
+          >
             {user?.username.charAt(0).toUpperCase()}
           </Avatar>
         </div>

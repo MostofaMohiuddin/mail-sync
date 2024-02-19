@@ -1,62 +1,70 @@
 import { createContext, useContext, useState, type ReactNode, useEffect } from 'react';
 
-import * as api from '../../api/User';
-import type { IUser } from '../../common/types';
+import { useNavigate } from 'react-router-dom';
+import useSWR from 'swr';
+
+import * as authApi from '../../api/Authentication';
+import * as userApi from '../../api/User';
+import type { ISignInData, IUser } from '../../common/types';
+import Loader from '../../components/Loader';
 
 interface IUserCtx {
-  loading: boolean;
-  accessToken: string | null;
-  setAccessToken: any;
-  refreshToken: string | null;
   user: IUser | null;
-  getUser: () => Promise<void>;
-  setRefreshToken: any;
-  error: string | null;
+  isAuthenticated: boolean;
+  signIn: (data: ISignInData) => Promise<void>;
+  signOut: () => void;
 }
 
 const SessionContext = createContext<IUserCtx>({
-  loading: false,
-  accessToken: null,
-  setAccessToken: null,
-  refreshToken: null,
   user: null,
-  getUser: async () => {},
-  setRefreshToken: null,
-  error: null,
+  isAuthenticated: !!localStorage.getItem('access_token'),
+  signIn: async () => {},
+  signOut: () => {},
 });
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
-  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [error, setError] = useState<string | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
-
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const navigate = useNavigate();
   useEffect(() => {
-    const storedAccessToken = localStorage.getItem('access_token');
-    const storedRefreshToken = localStorage.getItem('refresh_token');
-    if (storedAccessToken) setAccessToken(storedAccessToken);
-    if (storedRefreshToken) setRefreshToken(storedRefreshToken);
-    getUser();
+    // Check if access token exists in local storage
+    const accessToken = localStorage.getItem('access_token');
+    if (accessToken) {
+      // If access token exists, update isAuthenticated to true
+      setIsAuthenticated(true);
+    }
   }, []);
 
-  const getUser = async () => {
-    try {
-      setLoading(true);
-      const { response } = await api.getUser();
-      setUser(response?.data);
-    } catch (e) {
-      setError('Error fetching user data');
-    } finally {
-      setLoading(false);
+  const hasAccessToken = !!localStorage.getItem('access_token');
+
+  const { data, isLoading } = useSWR(hasAccessToken ? '/user' : null, userApi.getUser, { revalidateOnFocus: false });
+
+  useEffect(() => {
+    setUser(data?.data);
+  }, [data]);
+
+  const signIn = async (data: ISignInData) => {
+    const { response } = await authApi.signIn({ ...data });
+    if (response) {
+      localStorage.setItem('access_token', response.data.access_token);
+      localStorage.setItem('refresh_token', response.data.refresh_token);
+      setIsAuthenticated(true); // Update isAuthenticated after signing in
+      navigate('/');
     }
+  };
+  const signOut = () => {
+    // Remove access token from local storage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    // Update isAuthenticated to false
+    setIsAuthenticated(false);
+    // Navigate to login page or any other route
+    navigate('/sign-in');
   };
 
   return (
-    <SessionContext.Provider
-      value={{ loading, accessToken, setAccessToken, refreshToken, setRefreshToken, user, getUser, error }}
-    >
-      {children}
+    <SessionContext.Provider value={{ user, isAuthenticated, signIn, signOut }}>
+      {isLoading ? <Loader loading /> : children}
     </SessionContext.Provider>
   );
 };

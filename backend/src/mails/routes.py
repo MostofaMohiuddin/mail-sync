@@ -18,6 +18,15 @@ async def get_mails(
     return await mail_sync_service.get_mails()
 
 
+@router.get("/{mail_address}/{mail_id}", status_code=status.HTTP_200_OK)
+async def get_mail(
+    mail_id: str,
+    mail_address: str,
+    mail_sync_service: MailSyncService = Depends(),
+) -> Any:
+    return await mail_sync_service.get_mail(mail_id, mail_address)
+
+
 @router.post("/", status_code=status.HTTP_200_OK)
 async def send_mail(
     message: MailRequestBody,
