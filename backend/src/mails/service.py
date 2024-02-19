@@ -34,10 +34,16 @@ class MailSyncService:
         google_api_clients = [
             get_google_api_client(GoogleOAuthCredentials(**token)) for token in oauth_tokens.oauth_tokens
         ]
-        data = [google_api_client.get_user_mails() for google_api_client in google_api_clients]
+        data = (user_mails for client in google_api_clients for user_mails in client.get_user_mails())
+
         end = time.time()
         print(f"Time taken: {end - start}")
         return data
+
+    async def get_mail(self, mail_id: str, mail_address: str) -> Any:
+        oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(self.username, mail_address)
+        google_api_client = get_google_api_client(oauth_token)
+        return google_api_client.get_user_mail(mail_id)
 
     async def send_mail(self, message: MailRequestBody) -> dict:
         oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(self.username, message.sender)

@@ -3,25 +3,28 @@ import { useEffect, useState } from 'react';
 import { DeleteOutlined, PlusOutlined, GoogleOutlined, YahooOutlined } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, List, type MenuProps } from 'antd';
 import { Link } from 'react-router-dom';
+import useSWR from 'swr';
 
+import * as api from '../../api/LinkMailAddress';
 import { EmailType } from '../../common/types';
-import { useMail, type IUserLinkedMail } from '../../hooks/useMail';
+import type { IUserLinkedMail } from '../../hooks/useLinkMailAddress';
 
-export default function EmailList() {
+export default function EmailAddressList() {
   const [mails, setMails] = useState<IUserLinkedMail[]>([]);
-  const { getLinkedMails, loading, getOauthUrl } = useMail();
+
+  const { data: linkedMailAddressResponse, isLoading } = useSWR('/link-mail-address', api.getLinkedMailAddress, {
+    revalidateOnFocus: false,
+  });
 
   useEffect(() => {
-    const fetchMails = async () => {
-      const data = await getLinkedMails();
-      setMails(data);
-    };
-    fetchMails();
-  }, []);
+    setMails(linkedMailAddressResponse?.data || []);
+  }, [linkedMailAddressResponse]);
 
   const linkEmail = async (emailType: EmailType) => {
-    const res = await getOauthUrl(emailType);
-    window.open(res.redirect_link, '_blank', 'noreferrer');
+    const res = await api.getOauthUrl({ query: `email_type=${emailType}` });
+    console.log(res);
+
+    window.open(res?.data?.redirect_link, '_blank', 'noreferrer');
   };
 
   const items: MenuProps['items'] = [
@@ -54,7 +57,7 @@ export default function EmailList() {
   return (
     <>
       <List
-        loading={loading}
+        loading={isLoading}
         header={
           <div
             style={{

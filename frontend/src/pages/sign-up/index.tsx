@@ -1,30 +1,31 @@
+import { useState } from 'react';
+
 import { Form, Input, Button, notification } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
+import * as AuthApi from '../../api/Authentication';
 import type { ISignUpData } from '../../common/types';
-import { useAuthentication } from '../../hooks/authentication';
 
 export default function SignUp() {
-  const { signUp, loading } = useAuthentication();
-
-  const [api, contextHolder] = notification.useNotification();
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const onFinish = async (data: ISignUpData) => {
-    const responseData = await signUp(data);
-    if (responseData) {
-      api['success']({
+    setLoading(true);
+    const { response } = await AuthApi.signUp({ ...data });
+    if (response) {
+      notification.success({
         message: 'User Created',
         description: 'User has been created successfully. Please sign in to continue.',
       });
       navigate('/sign-in');
     }
+    setLoading(false);
   };
 
   return (
     <>
-      {contextHolder}
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Form name="basic" initialValues={{ remember: true }} onFinish={onFinish} style={{ width: 300 }}>
           <div style={{ textAlign: 'center', marginBottom: '16px', fontWeight: 'bold', fontSize: '2rem' }}>Sign Up</div>
