@@ -52,11 +52,17 @@ class MailSyncService:
         # print(get_completion(f"You are a mail writer. Please help me write a reply to the mail: {message.message}"))
         # return {"message": "Mail sent successfully"}
 
-    def _generate_prompt(self, request: ProcessMailWithAIRequestBody) -> str:
+    def _generate_prompt(self, request: ProcessMailWithAIRequestBody) -> dict:
         return (
-            f"You are a mail summarizer. Please help me by summarizing the mail: {request.message}."
+            {
+                "system_prompt": "You are a mail summarizer.",
+                "prompt": f"Please help summarizing the mail: {request.message}. ",
+            }
             if request.request_type == ProcessMailWithAIRequestType.SUMMARY
-            else f"You are a mail writer. Please help me write a reply to the mail: {request.message}. The reply will be sent by {self.username}"
+            else {
+                "system_prompt": "You are a mail writer.",
+                "prompt": f"Please help me write a reply to the mail: {request.message}",
+            }
         )
 
     async def process_mail_with_ai(
@@ -64,5 +70,5 @@ class MailSyncService:
         request: ProcessMailWithAIRequestBody,
     ) -> dict:
         prompt = self._generate_prompt(request)
-        processed_mail = self.openai_client.get_completion(content=prompt)
+        processed_mail = self.openai_client.get_completion(**prompt)
         return {"processed_mail": processed_mail}
