@@ -12,9 +12,7 @@ import type { IUserLinkedMail } from '../../hooks/useLinkMailAddress';
 export default function EmailAddressList() {
   const [mails, setMails] = useState<IUserLinkedMail[]>([]);
 
-  const { data: linkedMailAddressResponse, isLoading } = useSWR('/link-mail-address', api.getLinkedMailAddress, {
-    revalidateOnFocus: false,
-  });
+  const { data: linkedMailAddressResponse, isLoading } = useSWR('/link-mail-address', api.getLinkedMailAddress);
 
   useEffect(() => {
     setMails(linkedMailAddressResponse?.data || []);
@@ -22,7 +20,6 @@ export default function EmailAddressList() {
 
   const linkEmail = async (emailType: EmailType) => {
     const res = await api.getOauthUrl({ query: `email_type=${emailType}` });
-    console.log(res);
 
     window.open(res?.data?.redirect_link, '_blank', 'noreferrer');
   };

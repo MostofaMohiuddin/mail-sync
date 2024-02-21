@@ -6,6 +6,6 @@ import EmailList from './EmailList';
 import * as api from '../../api/Mail';
 
 export default function Mail() {
-  const { data, isLoading } = useSWR('/mails', api.getMails, { revalidateOnFocus: false });
+  const { data, isLoading } = useSWR('/mails', api.getMails);
   return <EmailList data={data?.data} loading={isLoading} />;
 }
