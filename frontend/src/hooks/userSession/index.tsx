@@ -37,7 +37,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
   const hasAccessToken = !!localStorage.getItem('access_token');
 
-  const { data, isLoading } = useSWR(hasAccessToken ? '/user' : null, userApi.getUser, { revalidateOnFocus: false });
+  const { data, isLoading } = useSWR(hasAccessToken ? '/user' : null, userApi.getUser);
 
   useEffect(() => {
     setUser(data?.data);

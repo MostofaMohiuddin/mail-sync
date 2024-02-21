@@ -1,6 +1,6 @@
 import { authorizedApiRequestWrapper2 } from '.';
 
-const getLinkedMailAddress = authorizedApiRequestWrapper2('/link-mail-address', 'get');
+const getLinkedMailAddress = () => authorizedApiRequestWrapper2('/link-mail-address', 'get')();
 
 const getOauthUrl = authorizedApiRequestWrapper2('/link-mail-address/oauth-url', 'get');
 

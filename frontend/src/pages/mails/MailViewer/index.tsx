@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { Divider, Button, Drawer } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import { Card, Divider, Drawer, FloatButton } from 'antd';
+import { convert } from 'html-to-text';
 import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
 
@@ -9,30 +11,24 @@ import SummarizeMail from './SummarizeMail';
 import * as api from '../../../api/Mail';
 import type { IEmailFullData } from '../../../common/types';
 import Loader from '../../../components/Loader';
-
-// import { useMail } from '../../../hooks/useMail';
+import ReplyMail from '../ReplyMail';
 
 export default function Mail() {
   const params = useParams();
   const [mail, setMail] = useState<IEmailFullData | null>(null);
-  const [open, setOpen] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
 
-  const showDrawer = () => {
-    setOpen(true);
+  const onCloseDrawer = () => {
+    setOpenDrawer(false);
+  };
+  const onOpenDrawer = () => {
+    setOpenDrawer(true);
   };
 
-  const onClose = () => {
-    setOpen(false);
-  };
-
-  const { data, isLoading } = useSWR(
-    `/mails/${params.address}/${params.id}`,
-    () => {
-      if (!params?.id || !params?.address) return Promise.resolve({ data: null });
-      return api.getMail({ param: { mail_id: params?.id || '', mail_address: params?.address || '' } });
-    },
-    { revalidateOnFocus: false },
-  );
+  const { data, isLoading } = useSWR(`/mails/${params.address}/${params.id}`, () => {
+    if (!params?.id || !params?.address) return Promise.resolve({ data: null });
+    return api.getMail({ param: { mail_id: params?.id || '', mail_address: params?.address || '' } });
+  });
 
   useEffect(() => {
     setMail(data?.data);
@@ -42,17 +38,25 @@ export default function Mail() {
     <Loader loading={isLoading} />
   ) : (
     <>
-      <MailViewer mail={mail} />
-      <Divider>
-        <h4>Summary</h4>
-      </Divider>
-      <Button type="primary" onClick={showDrawer}>
-        Open
-      </Button>
+      <div style={{ width: openDrawer ? '50%' : '100%', transition: 'all 0.3s' }}>
+        <MailViewer mail={mail} />
+        <Divider />
+        <Card title="Summary" size="small">
+          <SummarizeMail text={mail?.body?.plain || ''} />
+        </Card>
+      </div>
 
-      <Drawer title="Summary" onClose={onClose} open={open} maskClosable>
-        <SummarizeMail text={mail?.body?.plain || ''} />
+      <Drawer title="Reply" placement="right" width={'45%'} onClose={onCloseDrawer} open={openDrawer} mask={false}>
+        <ReplyMail mailBody={mail?.body?.plain || convert(mail.body.html ?? '') || ''} />
       </Drawer>
+
+      <FloatButton
+        tooltip={<div>Reply</div>}
+        onClick={onOpenDrawer}
+        icon={<EditOutlined />}
+        type="primary"
+        style={{ right: '40px', bottom: '8vh', width: '50px', height: '50px' }}
+      />
     </>
   );
 }

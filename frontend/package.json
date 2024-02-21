@@ -3,12 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@draft-js-plugins/editor": "^4.1.4",
+    "@draft-js-plugins/static-toolbar": "^4.1.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/react-copy-to-clipboard": "^5.0.7",
     "antd": "^5.14.0",
     "axios": "^1.6.5",
+    "draft-js": "^0.11.7",
+    "draft-js-export-html": "^1.4.1",
     "html-react-parser": "^5.1.5",
+    "html-to-text": "^9.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
@@ -45,6 +51,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@types/draft-js": "^0.11.17",
+    "@types/html-to-text": "^9.0.4",
     "@types/jest": "^29.5.11",
     "@types/lodash": "^4.14.200",
     "@types/node": "^20.11.5",
@@ -63,6 +71,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "eslint-plugin-unused-imports": "^3.0.0",
     "prettier": "^3.2.4",
+    "react-copy-to-clipboard": "^5.1.0",
     "typescript": "^5.0.2"
   },
   "overrides": {
