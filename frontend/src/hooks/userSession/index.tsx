@@ -4,12 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 import * as authApi from '../../api/Authentication';
+import * as mailApi from '../../api/LinkMailAddress';
 import * as userApi from '../../api/User';
 import type { ISignInData, IUser } from '../../common/types';
 import Loader from '../../components/Loader';
+import type { IUserLinkedMail } from '../useLinkMailAddress';
 
 interface IUserCtx {
   user: IUser | null;
+  linkedMailAddresses: IUserLinkedMail[] | null;
   isAuthenticated: boolean;
   signIn: (data: ISignInData) => Promise<void>;
   signOut: () => void;
@@ -17,6 +20,7 @@ interface IUserCtx {
 
 const SessionContext = createContext<IUserCtx>({
   user: null,
+  linkedMailAddresses: null,
   isAuthenticated: !!localStorage.getItem('access_token'),
   signIn: async () => {},
   signOut: () => {},
@@ -24,6 +28,7 @@ const SessionContext = createContext<IUserCtx>({
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState(null);
+  const [linkedMailAddresses, setLinkedMailAddresses] = useState<IUserLinkedMail[] | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
   useEffect(() => {
@@ -37,11 +42,19 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
   const hasAccessToken = !!localStorage.getItem('access_token');
 
-  const { data, isLoading } = useSWR(hasAccessToken ? '/user' : null, userApi.getUser);
+  const { data: userData, isLoading: isUserLoading } = useSWR(hasAccessToken ? '/user' : null, userApi.getUser);
+  const { data: linkedMailAddressResponse, isLoading: isLinkMailAddressLoading } = useSWR(
+    '/link-mail-address',
+    mailApi.getLinkedMailAddress,
+  );
 
   useEffect(() => {
-    setUser(data?.data);
-  }, [data]);
+    setUser(userData?.data);
+  }, [userData]);
+
+  useEffect(() => {
+    setLinkedMailAddresses(linkedMailAddressResponse?.data);
+  }, [linkedMailAddressResponse]);
 
   const signIn = async (data: ISignInData) => {
     const { response } = await authApi.signIn({ ...data });
@@ -63,8 +76,8 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <SessionContext.Provider value={{ user, isAuthenticated, signIn, signOut }}>
-      {isLoading ? <Loader loading /> : children}
+    <SessionContext.Provider value={{ user, isAuthenticated, signIn, signOut, linkedMailAddresses }}>
+      {isUserLoading || isLinkMailAddressLoading ? <Loader loading /> : children}
     </SessionContext.Provider>
   );
 };

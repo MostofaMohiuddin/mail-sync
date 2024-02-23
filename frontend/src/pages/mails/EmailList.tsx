@@ -19,7 +19,6 @@ export default function EmailList({ data, loading }: { data: IEmailMetadata[]; l
         };
       })
     : [];
-
   return (
     <List
       loading={loading}
@@ -30,7 +29,6 @@ export default function EmailList({ data, loading }: { data: IEmailMetadata[]; l
           style={{ cursor: 'pointer' }}
           key={item.date}
           onClick={() => {
-            console.log('clicked', item.id);
             navigate(`/emails/${item.receiver}/${item.id}`);
           }}
           extra={

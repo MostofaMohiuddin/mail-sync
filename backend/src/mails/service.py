@@ -53,17 +53,23 @@ class MailSyncService:
         # return {"message": "Mail sent successfully"}
 
     def _generate_prompt(self, request: ProcessMailWithAIRequestBody) -> dict:
-        return (
-            {
+        prompts = {
+            ProcessMailWithAIRequestType.GENERATE: {
+                "system_prompt": "You are an email generator.",
+                "prompt": f"Please generate an email for the message: {request.message}",
+            },
+            ProcessMailWithAIRequestType.SUMMARY: {
                 "system_prompt": "You are a mail summarizer.",
-                "prompt": f"Please help summarizing the mail: {request.message}. ",
-            }
-            if request.request_type == ProcessMailWithAIRequestType.SUMMARY
-            else {
+                "prompt": f"Please help summarize the email: {request.message}.",
+            },
+            ProcessMailWithAIRequestType.REPLY: {
                 "system_prompt": "You are a mail writer.",
-                "prompt": f"Please help me write a reply to the mail: {request.message}",
-            }
-        )
+                "prompt": f"Please help me write a reply to the email: {request.message}",
+            },
+        }
+
+        # Get the prompt based on the request type
+        return prompts.get(request.request_type, prompts[ProcessMailWithAIRequestType.GENERATE])
 
     async def process_mail_with_ai(
         self,

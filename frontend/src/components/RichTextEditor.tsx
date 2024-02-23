@@ -19,11 +19,18 @@ const toolbarPlugin = createToolbarPlugin();
 const { Toolbar } = toolbarPlugin;
 const plugins = [toolbarPlugin];
 
-const RichTextEditor = ({ setHtmlValue }: { setHtmlValue: (htmlContent: string) => void }) => {
+const RichTextEditor = ({
+  setHtmlValue,
+  setPlainValue,
+}: {
+  setHtmlValue: (htmlContent: string) => void;
+  setPlainValue: (htmlContent: string) => void;
+}) => {
   const [editorState, setEditorState] = useState<EditorState>(createEditorStateWithText(''));
   const editorRef = useRef<Editor>(null);
 
   const onChange = (newEditorState: EditorState) => {
+    setPlainValue(newEditorState.getCurrentContent().getPlainText());
     setHtmlValue(stateToHTML(newEditorState.getCurrentContent()));
     setEditorState(newEditorState);
   };
@@ -43,7 +50,7 @@ const RichTextEditor = ({ setHtmlValue }: { setHtmlValue: (htmlContent: string) 
           background: ' #fefefe',
           height: '25rem',
           overflow: 'scroll',
-          padding: '8px',
+          padding: '8px 12px',
         }}
         onClick={focus}
       >

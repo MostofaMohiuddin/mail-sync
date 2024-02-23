@@ -1,6 +1,8 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
 from email.message import EmailMessage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import List
 
 import google_auth_httplib2
@@ -77,7 +79,12 @@ class GoogleApiClient:
 
     def get_user_mails(self) -> list[EmailMetadata]:
         service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
-        response = service.users().messages().list(userId="me", maxResults=5).execute()
+        response = (
+            service.users()
+            .messages()
+            .list(userId="me", maxResults=5, labelIds="UNREAD", includeSpamTrash=False)
+            .execute()
+        )
         message_list = response.get("messages", [])
         services = [
             service.users().messages().get(userId="me", id=message["id"], format="metadata") for message in message_list
@@ -87,7 +94,7 @@ class GoogleApiClient:
         email_metadata_list = []
         for message in message_list_with_metadata:
             headers = {header["name"]: header["value"] for header in message["payload"]["headers"]}
-            if "SENT" not in message.get("labelIds", []):
+            if all(label not in message.get("labelIds", []) for label in ["SENT", "DRAFT"]):
                 email_metadata_list.append(
                     EmailMetadata(
                         sender=self._extract_email_and_name(
@@ -140,17 +147,39 @@ class GoogleApiClient:
             ),
         )
 
-    def send_mail(self, message: MailRequestBody):
-        service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
-        email = EmailMessage()
-        email["to"] = message.receiver
-        email["from"] = message.sender
-        email["subject"] = message.subject
-        email.set_content(message.message)
-        # encoded message
-        encoded_message = base64.urlsafe_b64encode(email.as_bytes()).decode()
+    def _create_encoded_message(self, email_subject, email_to, email_from, message_body, html_content=None):
+        message = MIMEMultipart("alternative")
+        message["to"] = email_to
+        message["from"] = email_from
+        message["subject"] = email_subject
+        # message["Cc"] = email_cc
+        body_mime = MIMEText(message_body, "plain")
+        message.attach(body_mime)
+        if html_content:
+            html_mime = MIMEText(html_content, "html")
+            message.attach(html_mime)
+        return {"raw": base64.urlsafe_b64encode(bytes(message.as_string(), "utf-8")).decode("utf-8")}
 
-        create_message = {"raw": encoded_message}
+    def send_mail(self, mail_request_body: MailRequestBody):
+        service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
+        # email = EmailMessage()
+        # email["to"] = message.receiver
+        # email["from"] = message.sender
+        # email["subject"] = message.subject
+        # # email["content-type"] = "text/html"
+        # email.set_content(message.message)
+        # # encoded message
+        # encoded_message = base64.urlsafe_b64encode(email.as_bytes()).decode()
+
+        create_message = {
+            "raw": self._create_encoded_message(
+                mail_request_body.subject,
+                mail_request_body.receiver,
+                mail_request_body.sender,
+                mail_request_body.body.plain,
+                mail_request_body.body.html,
+            ).get("raw")
+        }
 
         return service.users().messages().send(userId="me", body=create_message).execute()
 
