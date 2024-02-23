@@ -9,11 +9,11 @@ import useSWR from 'swr';
 
 import * as api from '../../../api/Mail';
 
-export default function AiReplyMail({ text }: { text: string }) {
+export default function AiReplyMail({ receivedMailBody }: { receivedMailBody: string }) {
   const [aiReply, setAiReply] = useState('');
 
-  const { data, isLoading } = useSWR(['/mails/process-with-ai', text, 'REPLY'], () =>
-    api.processMailWithAI({ data: { message: text, request_type: 'REPLY' } }),
+  const { data, isLoading } = useSWR(['/mails/process-with-ai', receivedMailBody, 'REPLY'], () =>
+    api.processMailWithAI({ data: { message: receivedMailBody, request_type: 'REPLY' } }),
   );
 
   useEffect(() => {
