@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 
 import { EditOutlined } from '@ant-design/icons';
 import { Card, Divider, Drawer, FloatButton } from 'antd';
-import { convert } from 'html-to-text';
 import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
 
@@ -47,7 +46,7 @@ export default function Mail() {
       </div>
 
       <Drawer title="Reply" placement="right" width={'45%'} onClose={onCloseDrawer} open={openDrawer} mask={false}>
-        <ReplyMail mailBody={mail?.body?.plain || convert(mail.body.html ?? '') || ''} />
+        <ReplyMail receivedMail={mail} />
       </Drawer>
 
       <FloatButton

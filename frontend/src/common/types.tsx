@@ -61,3 +61,9 @@ export interface IEmailBody {
 export interface IEmailFullData extends IEmailMetadata {
   body: IEmailBody;
 }
+
+export enum IProcessEmailType {
+  REPLY = 'REPLY',
+  GENERATE = 'GENERATE',
+  SUMMARY = 'SUMMARY',
+}
