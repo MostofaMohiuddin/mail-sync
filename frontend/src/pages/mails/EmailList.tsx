@@ -9,10 +9,13 @@ import { generateAvatarText, generateRandomColor } from '../../common/utility';
 export default function EmailList({
   data,
   loadMoreData,
+  hasMore,
+  isComposeMail,
 }: {
   data: IEmailMetadata[];
   hasMore: boolean;
   loadMoreData: () => void;
+  isComposeMail: boolean;
 }) {
   const navigate = useNavigate();
   const dataSource = data
@@ -32,7 +35,7 @@ export default function EmailList({
       <InfiniteScroll
         dataLength={data.length}
         next={loadMoreData}
-        hasMore={true}
+        hasMore={hasMore}
         loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
         endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
         scrollableTarget="scrollableDiv"
@@ -69,10 +72,18 @@ export default function EmailList({
                     <Typography.Text strong style={{ fontSize: '1rem' }}>
                       {item.sender}
                     </Typography.Text>
-                    <Typography.Text strong ellipsis style={{ width: '50vw' }}>
+                    <Typography.Text
+                      strong
+                      ellipsis
+                      style={{ width: isComposeMail ? '25vw' : '50vw', transition: 'all 0.3s' }}
+                    >
                       {item.subject}
                     </Typography.Text>
-                    <Typography.Text type="secondary" ellipsis style={{ width: '50vw' }}>
+                    <Typography.Text
+                      type="secondary"
+                      ellipsis
+                      style={{ width: isComposeMail ? '25vw' : '50vw', transition: 'all 0.3s' }}
+                    >
                       {parse(item.snippet)}
                     </Typography.Text>
                   </Flex>

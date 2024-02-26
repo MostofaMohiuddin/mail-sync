@@ -54,7 +54,9 @@ export default function Mail() {
 
   return (
     <>
-      <EmailList data={emails} hasMore={!!hasMore} loadMoreData={loadMoreData} />
+      <div style={{ width: isDrawerOpen ? '50%' : '100%', transition: 'all 0.3s' }}>
+        <EmailList data={emails} hasMore={!!hasMore} loadMoreData={loadMoreData} isComposeMail={isDrawerOpen} />
+      </div>
 
       <Drawer
         title="Compose Mail"
