@@ -15,6 +15,13 @@ axiosClient.interceptors.request.use(
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         config.headers['Authorization'] = `Bearer ${refreshToken}`;
+      } else {
+        const controller = new AbortController();
+        controller.abort();
+        return {
+          ...config,
+          signal: controller.signal,
+        };
       }
     }
     return config;
@@ -28,8 +35,9 @@ axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error?.config;
+    console.log('error', error);
     if (error instanceof AxiosError) {
-      if (error.response?.status === 401 && !originalRequest?._retry) {
+      if (error.response?.status === 401 && !originalRequest?._retry && originalRequest.url !== '/auth/sign-in') {
         originalRequest._retry = true;
         try {
           const response = await axiosClient.get('/auth/refresh-token');
@@ -42,6 +50,10 @@ axiosClient.interceptors.response.use(
           return Promise.reject(error);
         }
       }
+      notification.error({
+        message: 'Error',
+        description: error.response?.data.detail || 'Unknown error occurred',
+      });
     } else
       notification.error({
         message: 'Error',

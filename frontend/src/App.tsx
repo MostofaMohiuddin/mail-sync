@@ -11,7 +11,14 @@ import routes from './routes';
 export default function App() {
   return (
     <>
-      <SWRConfig value={{ revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false }}>
+      <SWRConfig
+        value={{
+          revalidateIfStale: false,
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
+          shouldRetryOnError: false,
+        }}
+      >
         <SessionProvider>
           <Routes>
             {routes.map(({ path, component, title }) => (

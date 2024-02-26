@@ -1,6 +1,6 @@
 import { authorizedApiRequestWrapper2 } from '.';
 
-const getMails = () => authorizedApiRequestWrapper2('/mails', 'get')();
+const getMails = authorizedApiRequestWrapper2('/mails', 'get');
 
 const getMail = authorizedApiRequestWrapper2('/mails/:mail_address/:mail_id', 'get');
 

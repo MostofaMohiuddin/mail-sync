@@ -13,9 +13,10 @@ router = APIRouter(
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_mails(
+    next_page_tokens: str = None,
     mail_sync_service: MailSyncService = Depends(),
 ) -> Any:
-    return await mail_sync_service.get_mails()
+    return await mail_sync_service.get_mails(next_page_tokens)
 
 
 @router.get("/{mail_address}/{mail_id}", status_code=status.HTTP_200_OK)

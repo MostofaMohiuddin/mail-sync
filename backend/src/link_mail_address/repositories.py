@@ -8,7 +8,7 @@ from src.common.base_repository import BaseRepository
 from src.common.database.connection import get_db_session
 from src.common.exceptions.http import ConflictException
 
-from .models import LinkMailAddress
+from .models import LinkMailAddress, OauthTokenResponse
 
 
 class LinkMailAddressRepository(BaseRepository):
@@ -33,12 +33,12 @@ class LinkMailAddressRepository(BaseRepository):
             raise ConflictException(detail="Email already exists for the user") from exc
 
     async def get_oauth_token_by_email(self, username: str, email: str) -> dict:
-        data = await self.query(self.collection, {"username": username, "email": email})
-        return data.get("oauth_tokens")
+        data = await self.query(self.collection, {"username": username, "email": email.lower()})
+        return data.get("oauth_tokens", None)
 
-    async def get_all_oauth_tokens(self, username: str):
+    async def get_all_oauth_tokens(self, username: str) -> list[OauthTokenResponse]:
         documents = await self.query_all(self.collection, {"username": username})
-        return [doc["oauth_tokens"] for doc in documents]
+        return [OauthTokenResponse(oauth_tokens=doc["oauth_tokens"], email=doc["email"]) for doc in documents]
 
     async def get_all_linked_mail_address(self, username: str):
         documents = await self.query_all(self.collection, {"username": username})

@@ -11,7 +11,6 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const onFinish = async (data: ISignInData) => {
-    console.log(signInApi);
     setLoading(true);
     await signInApi(data);
     setLoading(false);
