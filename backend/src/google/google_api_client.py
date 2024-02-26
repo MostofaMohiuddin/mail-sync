@@ -18,17 +18,15 @@ from src.link_mail_address.repositories import LinkMailAddressRepository
 from src.logger.default_logger import LOGGER
 from src.mails.models import MailRequestBody
 
-from .models import EmailBody, EmailFullData, GoogleOAuthCredentials, UserInfo, EmailMetadata
+from .models import EmailBody, EmailFullData, GoogleOAuthCredentials, UserInfo, EmailMetadata, GmailMetadataList
 
 import re
 
 
 class GoogleApiClient:
-    def __init__(
-        self,
-        credentials: GoogleOAuthCredentials,
-    ):
+    def __init__(self, credentials: GoogleOAuthCredentials, gmail: str):
         self.google_oauth_credentials = google.oauth2.credentials.Credentials(**credentials.dict())
+        self.gmail = gmail
 
     def _fetch_data_using_thread(self, services: list):
         with ThreadPoolExecutor(max_workers=5) as executor:
@@ -77,14 +75,24 @@ class GoogleApiClient:
             name=name,
         )
 
-    def get_user_mails(self) -> list[EmailMetadata]:
+    def get_user_mails(self, next_page_token=None) -> GmailMetadataList:
         service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
+        # next_page_token is "null" when there are no more emails to fetch
+        if next_page_token == "null":
+            return GmailMetadataList(emails=[], next_page_token=None, receiver=self.gmail)
         response = (
             service.users()
             .messages()
-            .list(userId="me", maxResults=5, labelIds="UNREAD", includeSpamTrash=False)
+            .list(
+                userId="me",
+                maxResults=10,
+                labelIds="UNREAD",
+                includeSpamTrash=False,
+                pageToken=next_page_token,
+            )
             .execute()
         )
+        nextPageToken = response.get("nextPageToken", None)
         message_list = response.get("messages", [])
         services = [
             service.users().messages().get(userId="me", id=message["id"], format="metadata") for message in message_list
@@ -109,7 +117,7 @@ class GoogleApiClient:
                         id=message["id"],
                     )
                 )
-        return email_metadata_list
+        return GmailMetadataList(emails=email_metadata_list, next_page_token=nextPageToken, receiver=self.gmail)
 
     def get_user_mail(self, mail_id: str) -> EmailMetadata:
         service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
@@ -184,29 +192,29 @@ class GoogleApiClient:
         return service.users().messages().send(userId="me", body=create_message).execute()
 
 
-async def _get_google_oauth_credentials(
-    email: str,
-    jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
-    link_mail_address_repository: LinkMailAddressRepository = Depends(),
-) -> GoogleOAuthCredentials:
-    username = jwt_credentials.subject.get("username")
-    return GoogleOAuthCredentials(**await link_mail_address_repository.get_tokens(username, email))
+# async def _get_google_oauth_credentials(
+#     email: str,
+#     jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
+#     link_mail_address_repository: LinkMailAddressRepository = Depends(),
+# ) -> GoogleOAuthCredentials:
+#     username = jwt_credentials.subject.get("username")
+#     return GoogleOAuthCredentials(**await link_mail_address_repository.get_tokens(username, email))
 
 
-def get_google_api_client(credentials: GoogleOAuthCredentials) -> GoogleApiClient:
-    return GoogleApiClient(credentials)
+def get_google_api_client(credentials: GoogleOAuthCredentials, gmail: str) -> GoogleApiClient:
+    return GoogleApiClient(credentials, gmail)
 
 
-async def _get_all_google_oauth_credentials(
-    jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
-    link_mail_address_repository: LinkMailAddressRepository = Depends(),
-) -> List[GoogleOAuthCredentials]:
-    username = jwt_credentials.subject.get("username")
-    oauth_tokens = await link_mail_address_repository.get_all_oauth_tokens(username)
-    return [GoogleOAuthCredentials(**token) for token in oauth_tokens]
+# async def _get_all_google_oauth_credentials(
+#     jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
+#     link_mail_address_repository: LinkMailAddressRepository = Depends(),
+# ) -> List[GoogleOAuthCredentials]:
+#     username = jwt_credentials.subject.get("username")
+#     oauth_tokens = await link_mail_address_repository.get_all_oauth_tokens(username)
+#     return [GoogleOAuthCredentials(**token) for token in oauth_tokens]
 
 
-async def get_google_api_clients(
-    google_oauth_credentials: List[GoogleOAuthCredentials] = Depends(_get_all_google_oauth_credentials),
-) -> List[GoogleApiClient]:
-    return [GoogleApiClient(credentials) for credentials in google_oauth_credentials]
+# async def get_google_api_clients(
+#     google_oauth_credentials: List[GoogleOAuthCredentials] = Depends(_get_all_google_oauth_credentials),
+# ) -> List[GoogleApiClient]:
+#     return [GoogleApiClient(credentials) for credentials in google_oauth_credentials]

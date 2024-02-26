@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 
 import * as authApi from '../../api/Authentication';
 import * as mailApi from '../../api/LinkMailAddress';
@@ -30,7 +30,12 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState(null);
   const [linkedMailAddresses, setLinkedMailAddresses] = useState<IUserLinkedMail[] | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
   const navigate = useNavigate();
+  const { mutate } = useSWRConfig();
+
+  const clearCache = () => mutate(() => true, undefined, false);
+
   useEffect(() => {
     // Check if access token exists in local storage
     const accessToken = localStorage.getItem('access_token');
@@ -44,7 +49,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
   const { data: userData, isLoading: isUserLoading } = useSWR(hasAccessToken ? '/user' : null, userApi.getUser);
   const { data: linkedMailAddressResponse, isLoading: isLinkMailAddressLoading } = useSWR(
-    '/link-mail-address',
+    hasAccessToken ? '/link-mail-address' : null,
     mailApi.getLinkedMailAddress,
   );
 
@@ -69,6 +74,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     // Remove access token from local storage
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    clearCache();
     // Update isAuthenticated to false
     setIsAuthenticated(false);
     // Navigate to login page or any other route

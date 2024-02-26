@@ -27,6 +27,12 @@ class EmailMetadata(BaseModel):
     id: str
 
 
+class GmailMetadataList(BaseModel):
+    emails: List[EmailMetadata]
+    next_page_token: Optional[str] = None
+    receiver: str
+
+
 class EmailBody(BaseModel):
     html: Optional[str] = None
     plain: Optional[str] = None

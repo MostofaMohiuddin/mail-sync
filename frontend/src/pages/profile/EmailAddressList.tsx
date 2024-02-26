@@ -12,7 +12,9 @@ import type { IUserLinkedMail } from '../../hooks/useLinkMailAddress';
 export default function EmailAddressList() {
   const [mails, setMails] = useState<IUserLinkedMail[]>([]);
 
-  const { data: linkedMailAddressResponse, isLoading } = useSWR('/link-mail-address', api.getLinkedMailAddress);
+  const { data: linkedMailAddressResponse, isLoading } = useSWR('/link-mail-address', api.getLinkedMailAddress, {
+    revalidateOnMount: true,
+  });
 
   useEffect(() => {
     setMails(linkedMailAddressResponse?.data || []);
