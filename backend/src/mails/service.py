@@ -6,7 +6,7 @@ from fastapi_jwt import JwtAuthorizationCredentials
 
 from src.authentication.service import access_security
 from src.google.google_api_client import get_google_api_client
-from src.google.models import GoogleOAuthCredentials
+from src.google.models import EmailMetadata, GoogleOAuthCredentials
 from src.link_mail_address.service import LinkMailAddressService
 from src.openai.openai_client import OpenAIClient
 
@@ -15,6 +15,7 @@ from .models import (
     ProcessMailWithAIRequestBody,
     ProcessMailWithAIRequestType,
 )
+from dateutil.parser import parse
 
 
 class MailSyncService:
@@ -28,26 +29,43 @@ class MailSyncService:
         self.openai_client = openai_client
         self.username = jwt_credentials.subject.get("username")
 
-    async def get_mails(self) -> Any:
+    async def get_mails(self, next_page_tokens_query=None) -> Any:
         start = time.time()
+        # next_page_tokens_query = "email1,token1;email2,token2"
+        next_page_tokens = (
+            {x[0]: x[1] for x in [x.split(",") for x in next_page_tokens_query.split(";")]}
+            if next_page_tokens_query
+            else {}
+        )
+        print("next_page_tokens", next_page_tokens_query)
         oauth_tokens = await self.link_mail_address_service.get_all_oauth_tokens(self.username)
         google_api_clients = [
-            get_google_api_client(GoogleOAuthCredentials(**token)) for token in oauth_tokens.oauth_tokens
+            get_google_api_client(
+                GoogleOAuthCredentials(**token.oauth_tokens),
+                token.email,
+            )
+            for token in oauth_tokens
         ]
-        data = (user_mails for client in google_api_clients for user_mails in client.get_user_mails())
+        data = [client.get_user_mails(next_page_tokens.get(client.gmail, None)) for client in google_api_clients]
 
         end = time.time()
         print(f"Time taken: {end - start}")
-        return data
+        mails = [email for d in data for email in d.emails]
+        mails.sort(key=lambda x: parse(x.date), reverse=True)  # Sort the mails list
+        print("mails", mails)
+        new_next_page_tokens = [
+            {"next_page_token": d.next_page_token, "email": d.receiver} for d in data if d.next_page_token
+        ]
+        return {"mails": mails, "next_page_tokens": new_next_page_tokens}
 
     async def get_mail(self, mail_id: str, mail_address: str) -> Any:
         oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(self.username, mail_address)
-        google_api_client = get_google_api_client(oauth_token)
+        google_api_client = get_google_api_client(oauth_token, mail_address)
         return google_api_client.get_user_mail(mail_id)
 
     async def send_mail(self, message: MailRequestBody) -> dict:
         oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(self.username, message.sender)
-        google_api_client = get_google_api_client(oauth_token)
+        google_api_client = get_google_api_client(oauth_token, message.sender)
         return google_api_client.send_mail(message)
         # print(get_completion(f"You are a mail writer. Please help me write a reply to the mail: {message.message}"))
         # return {"message": "Mail sent successfully"}

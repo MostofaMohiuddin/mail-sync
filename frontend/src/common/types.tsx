@@ -54,6 +54,16 @@ export interface IEmailMetadata {
   id: string;
 }
 
+export interface INextPageToken {
+  next_page_token: string;
+  email: string;
+}
+
+export interface IGetEmailsResponse {
+  emails: IEmailMetadata[];
+  next_page_tokens: INextPageToken[];
+}
+
 export interface IEmailBody {
   html?: string;
   plain?: string;

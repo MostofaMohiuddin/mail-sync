@@ -52,7 +52,7 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
           <div
             style={{
               padding: 24,
-              minHeight: '85vh',
+              minHeight: 'calc(100vh - 146px)',
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
               marginTop: '16px',

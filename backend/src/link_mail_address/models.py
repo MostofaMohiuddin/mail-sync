@@ -37,8 +37,9 @@ class LinkMailAddress(BaseModel):
         }
 
 
-class OauthTokensResponse(BaseModel):
-    oauth_tokens: list[dict]
+class OauthTokenResponse(BaseModel):
+    oauth_tokens: dict
+    email: str
 
 
 class LinkMailAddressResponse(BaseModel):
