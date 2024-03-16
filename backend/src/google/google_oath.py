@@ -32,6 +32,7 @@ class GoogleOauthService:
             "https://www.googleapis.com/auth/userinfo.profile",
             "openid",
             "https://mail.google.com/",
+            "https://www.googleapis.com/auth/calendar",
         ]
 
         self.google_oath_flow = google_auth_oauthlib.flow.Flow.from_client_config(

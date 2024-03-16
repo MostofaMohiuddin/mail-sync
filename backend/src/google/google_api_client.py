@@ -1,5 +1,6 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
 from email.message import EmailMessage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -189,6 +190,35 @@ class GoogleApiClient:
         }
 
         return service.users().messages().send(userId="me", body=create_message).execute()
+
+    def _get_current_month_range(self) -> dict:
+        # Get current date
+        current_date = datetime.utcnow()
+
+        # Get first day of the current month
+        first_day_of_month = current_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        # Calculate the last day of the current month
+        next_month = first_day_of_month.replace(month=first_day_of_month.month + 1)
+        last_day_of_month = next_month - timedelta(days=1)
+
+        # Convert to RFC3339 timestamp with mandatory time zone offset
+        start_of_month_rfc3339 = first_day_of_month.isoformat() + "Z"
+        end_of_month_rfc3339 = last_day_of_month.isoformat() + "Z"
+
+        return {"time_min": start_of_month_rfc3339, "time_max": end_of_month_rfc3339}
+
+    def get_user_calendar_events(self, time_min=None, time_max=None):
+        service = googleapiclient_builder("calendar", "v3", credentials=self.google_oauth_credentials)
+        if not time_min and not time_max:
+            time_range = self._get_current_month_range()
+            time_min = time_range["time_min"]
+            time_max = time_range["time_max"]
+        events = (service.events().list(calendarId="primary", timeMax=time_max, timeMin=time_min).execute()).get(
+            "items", []
+        )
+
+        return {"events": events, "email": self.gmail}
 
 
 # async def _get_google_oauth_credentials(
