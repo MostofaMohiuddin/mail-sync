@@ -1,14 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import * as api from '../../api/LinkMailAddress';
-import type { EmailType } from '../../common/types';
-
-export interface IUserLinkedMail {
-  username: string;
-  email: string;
-  picture: string;
-  email_name: string;
-}
+import type { EmailType, IUserLinkedMail } from '../../common/types';
 
 export const useLinkMailAddress = () => {
   const [loading, setLoading] = useState(false);
