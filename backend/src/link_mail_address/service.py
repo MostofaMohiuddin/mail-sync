@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import Depends, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import Depends
 
-from src.authentication.service import PasswordBasedAuthentication, access_security
+from src.authentication.service import PasswordBasedAuthentication
 from src.google.google_api_client import GoogleApiClient
 from src.google.google_oath import GoogleOauthService
 from src.google.models import GoogleOAuthCredentials
