@@ -214,6 +214,7 @@ class GoogleApiClient:
             time_range = self._get_current_month_range()
             time_min = time_range["time_min"]
             time_max = time_range["time_max"]
+        print(time_min, time_max)
         events = (service.events().list(calendarId="primary", timeMax=time_max, timeMin=time_min).execute()).get(
             "items", []
         )

@@ -77,3 +77,29 @@ export enum IProcessEmailType {
   GENERATE = 'GENERATE',
   SUMMARY = 'SUMMARY',
 }
+
+export interface IUserLinkedMail {
+  username: string;
+  email: string;
+  picture: string;
+  email_name: string;
+}
+export interface IEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  location: string;
+  description: string;
+  creator_email: string;
+  created: string;
+  updated: string;
+  attendees: string[];
+  videoConferenceLink: string;
+  userEmail: string;
+}
+
+export interface IEventsResponse {
+  email: string;
+  events: IEvent[];
+}
