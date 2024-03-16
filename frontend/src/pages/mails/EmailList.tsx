@@ -1,4 +1,4 @@
-import { Avatar, Divider, Flex, List, Skeleton, Typography } from 'antd';
+import { Avatar, Divider, Empty, Flex, List, Skeleton, Typography } from 'antd';
 import parse from 'html-react-parser';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
@@ -11,11 +11,13 @@ export default function EmailList({
   loadMoreData,
   hasMore,
   isComposeMail,
+  isLoading,
 }: {
   data: IEmailMetadata[];
   hasMore: boolean;
   loadMoreData: () => void;
   isComposeMail: boolean;
+  isLoading: boolean;
 }) {
   const navigate = useNavigate();
   const dataSource = data
@@ -36,13 +38,17 @@ export default function EmailList({
         dataLength={data.length}
         next={loadMoreData}
         hasMore={hasMore}
-        loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
-        endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
+        loader={<>{dataSource.length !== 0 && <Skeleton avatar paragraph={{ rows: 1 }} active />}</>}
+        endMessage={<>{dataSource.length !== 0 && <Divider plain>It is all, nothing more 🤐</Divider>}</>}
         scrollableTarget="scrollableDiv"
       >
         <List
           itemLayout="horizontal"
           dataSource={dataSource}
+          locale={{
+            emptyText: <Empty description={<span>No emails found!</span>} />,
+          }}
+          loading={dataSource.length === 0 && isLoading}
           renderItem={(item) => (
             <List.Item
               style={{ cursor: 'pointer' }}
