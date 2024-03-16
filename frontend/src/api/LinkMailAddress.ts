@@ -6,4 +6,6 @@ const getOauthUrl = authorizedApiRequestWrapper2('/link-mail-address/oauth-url',
 
 const linkMailAddress = authorizedApiRequestWrapper2('/link-mail-address', 'post');
 
-export { getLinkedMailAddress, getOauthUrl, linkMailAddress };
+const unlinkMailAddress = authorizedApiRequestWrapper2('/link-mail-address', 'delete');
+
+export { getLinkedMailAddress, getOauthUrl, linkMailAddress, unlinkMailAddress };

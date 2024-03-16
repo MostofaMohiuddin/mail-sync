@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { DeleteOutlined, PlusOutlined, GoogleOutlined, YahooOutlined } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, List, type MenuProps } from 'antd';
 import { Link } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 
 import * as api from '../../api/LinkMailAddress';
 import { EmailType } from '../../common/types';
@@ -11,10 +11,17 @@ import type { IUserLinkedMail } from '../../hooks/useLinkMailAddress';
 
 export default function EmailAddressList() {
   const [mails, setMails] = useState<IUserLinkedMail[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { mutate } = useSWRConfig();
 
-  const { data: linkedMailAddressResponse, isLoading } = useSWR('/link-mail-address', api.getLinkedMailAddress, {
-    revalidateOnMount: true,
-  });
+  const { data: linkedMailAddressResponse, isLoading: isLoadingMailAddresses } = useSWR(
+    '/link-mail-address',
+    api.getLinkedMailAddress,
+    {
+      revalidateOnMount: true,
+      revalidateOnFocus: true,
+    },
+  );
 
   useEffect(() => {
     setMails(linkedMailAddressResponse?.data || []);
@@ -24,6 +31,16 @@ export default function EmailAddressList() {
     const res = await api.getOauthUrl({ query: `email_type=${emailType}` });
 
     window.open(res?.data?.redirect_link, '_blank', 'noreferrer');
+  };
+
+  const unlinkMail = async (email: string) => {
+    setIsLoading(true);
+    const data = await api.unlinkMailAddress({ query: `email=${email}` });
+    if (data?.status === 204) {
+      mutate('/link-mail-address');
+      mutate((key) => Array.isArray(key) && key[0] === '/mails', undefined, { revalidate: false });
+    }
+    setIsLoading(false);
   };
 
   const items: MenuProps['items'] = [
@@ -56,7 +73,7 @@ export default function EmailAddressList() {
   return (
     <>
       <List
-        loading={isLoading}
+        loading={isLoadingMailAddresses || isLoading}
         header={
           <div
             style={{
@@ -76,7 +93,17 @@ export default function EmailAddressList() {
         }
         dataSource={mails}
         renderItem={(item) => (
-          <List.Item key={item.email} actions={[<Button key={item.email} shape="circle" icon={<DeleteOutlined />} />]}>
+          <List.Item
+            key={item.email}
+            actions={[
+              <Button
+                key={item.email}
+                shape="circle"
+                icon={<DeleteOutlined />}
+                onClick={() => unlinkMail(item.email)}
+              />,
+            ]}
+          >
             <List.Item.Meta
               avatar={<Avatar src={item.picture} size={50} />}
               title={item.email_name}

@@ -27,9 +27,21 @@ export default function AiGenerateMail() {
         title="AI Generated Mail"
         size="small"
         actions={[
+          <Tooltip title="Generate" key="generate">
+            <Button
+              onClick={fetchAiReply}
+              disabled={isLoading || prompt === ''}
+              icon={<ThunderboltOutlined />}
+              type="text"
+            >
+              Generate
+            </Button>
+          </Tooltip>,
           <Tooltip title="Copy" key="copy">
             <CopyToClipboard text={convert(aiReply)} onCopy={() => {}}>
-              <Button type="text" shape="circle" icon={<CopyOutlined />} disabled={isLoading || prompt === ''} />
+              <Button type="text" icon={<CopyOutlined />} disabled={isLoading || prompt === ''}>
+                Copy
+              </Button>
             </CopyToClipboard>
           </Tooltip>,
           <Tooltip title="Clear" key="clear">
@@ -39,19 +51,11 @@ export default function AiGenerateMail() {
                 setAiReply('');
               }}
               disabled={isLoading || prompt === ''}
-              shape="circle"
               icon={<DeleteOutlined />}
               type="text"
-            />
-          </Tooltip>,
-          <Tooltip title="Generate" key="generate">
-            <Button
-              onClick={fetchAiReply}
-              disabled={isLoading || prompt === ''}
-              shape="circle"
-              icon={<ThunderboltOutlined />}
-              type="text"
-            />
+            >
+              Clear
+            </Button>
           </Tooltip>,
         ]}
       >

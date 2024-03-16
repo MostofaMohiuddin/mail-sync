@@ -46,6 +46,9 @@ class BaseRepository(ABC):
             cursor = cursor.sort(sort.key, sort.value)
         return [document async for document in cursor]
 
+    async def delete(self, collection: AsyncIOMotorCollection, query: dict):
+        await collection.delete_one(query)
+
     # def save(self) -> None:
     #     try:
     #         self.d
