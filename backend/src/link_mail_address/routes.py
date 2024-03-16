@@ -36,3 +36,13 @@ async def get_linked_mail_address(
     credentials: JwtAuthorizationCredentials = Security(access_security),
 ) -> list[LinkMailAddressResponse]:
     return await link_mail_address_service.get_all_linked_mail_address(credentials.subject.get("username"))
+
+
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+async def unlink_mail_address(
+    email: str,
+    link_mail_address_service: LinkMailAddressService = Depends(),
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+) -> None:
+    print(email)
+    await link_mail_address_service.unlink_mail_address(credentials.subject.get("username"), email)

@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Security
+from fastapi_jwt import JwtAuthorizationCredentials
 
-from src.authentication.service import PasswordBasedAuthentication
+from src.authentication.service import PasswordBasedAuthentication, access_security
 from src.google.google_api_client import GoogleApiClient
 from src.google.google_oath import GoogleOauthService
 from src.google.models import GoogleOAuthCredentials
@@ -38,7 +39,7 @@ class LinkMailAddressService:
 
     async def save_oauth_tokens(self, username: str, request_body: LinkMailRequest) -> dict:
         credentials = self.google_oauth.get_google_oauth_credentials(request_body.code)
-        user = GoogleApiClient(credentials).get_user_info()
+        user = GoogleApiClient(credentials, "_").get_user_info()
         data = LinkMailAddress(
             **{
                 "username": username,
@@ -66,3 +67,10 @@ class LinkMailAddressService:
         if not response:
             return []
         return [LinkMailAddressResponse(**doc) for doc in response]
+
+    async def unlink_mail_address(
+        self,
+        username: str,
+        email: str,
+    ) -> None:
+        await self.link_mail_address_repository.unlink_mail_address(username, email)

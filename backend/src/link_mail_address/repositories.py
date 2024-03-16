@@ -43,3 +43,6 @@ class LinkMailAddressRepository(BaseRepository):
     async def get_all_linked_mail_address(self, username: str):
         documents = await self.query_all(self.collection, {"username": username})
         return [doc for doc in documents]
+
+    async def unlink_mail_address(self, username: str, email: str):
+        await self.delete(self.collection, {"username": username, "email": email.lower()})
