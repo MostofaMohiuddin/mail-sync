@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from 'react';
+// import { useEffect, useState } from 'react';
 
 import { Calendar, type CalendarProps, Typography, Avatar, Flex } from 'antd';
 import type { Dayjs } from 'dayjs';
@@ -11,29 +11,30 @@ export default function CalendarView({
   setSelectedDay,
   events,
   userLinkedMail,
+  openDrawer,
 }: {
   setSelectedDay: (value: Dayjs) => void;
-  events: IEvent[];
+  events: Record<string, IEvent[]>;
   userLinkedMail: Record<string, string>;
+  openDrawer: () => void;
 }) {
-  const [sortedEvents, setSortedEvents] = useState({} as Record<string, IEvent[]>);
+  //   const [sortedEvents, setSortedEvents] = useState({} as Record<string, IEvent[]>);
 
-  useEffect(() => {
-    const sortedEvents: Record<string, IEvent[]> = {};
-    events.forEach((event) => {
-      console.log(event);
-      const start = dayjs(event.start);
-      const end = dayjs(event.end);
-      sortedEvents[start.format('MMDD')] = [...(sortedEvents[start.format('MMDD')] || []), event];
-      if (start.date() !== end.date()) {
-        sortedEvents[end.format('MMDD')] = [...(sortedEvents[end.format('MMDD')] || []), event];
-      }
-    });
-    setSortedEvents(sortedEvents);
-  }, [events]);
+  //   useEffect(() => {
+  //     const sortedEvents: Record<string, IEvent[]> = {};
+  //     events.forEach((event) => {
+  //       const start = dayjs(event.start);
+  //       const end = dayjs(event.end);
+  //       sortedEvents[start.format('MMDD')] = [...(sortedEvents[start.format('MMDD')] || []), event];
+  //       if (start.date() !== end.date()) {
+  //         sortedEvents[end.format('MMDD')] = [...(sortedEvents[end.format('MMDD')] || []), event];
+  //       }
+  //     });
+  //     setSortedEvents(sortedEvents);
+  //   }, [events]);
 
   const cellRender: CalendarProps<Dayjs>['cellRender'] = (current) => {
-    const listData = sortedEvents[current.format('MMDD')] || [];
+    const listData = events[current.format('MMDD')] || [];
 
     return (
       <>
@@ -62,5 +63,15 @@ export default function CalendarView({
   const onPanelChange: CalendarProps<Dayjs>['onPanelChange'] = (value) => {
     setSelectedDay(value);
   };
-  return <Calendar mode="month" onPanelChange={onPanelChange} cellRender={cellRender} />;
+  return (
+    <Calendar
+      mode="month"
+      onPanelChange={onPanelChange}
+      cellRender={cellRender}
+      onSelect={(day) => {
+        setSelectedDay(day);
+        openDrawer();
+      }}
+    />
+  );
 }

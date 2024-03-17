@@ -95,7 +95,7 @@ export interface IEvent {
   created: string;
   updated: string;
   attendees: string[];
-  videoConferenceLink: string;
+  video_conference_link: string;
   userEmail: string;
 }
 
