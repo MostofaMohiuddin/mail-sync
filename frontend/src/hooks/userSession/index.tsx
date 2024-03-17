@@ -6,9 +6,8 @@ import useSWR, { useSWRConfig } from 'swr';
 import * as authApi from '../../api/Authentication';
 import * as mailApi from '../../api/LinkMailAddress';
 import * as userApi from '../../api/User';
-import type { ISignInData, IUser } from '../../common/types';
+import type { ISignInData, IUser, IUserLinkedMail } from '../../common/types';
 import Loader from '../../components/Loader';
-import type { IUserLinkedMail } from '../useLinkMailAddress';
 
 interface IUserCtx {
   user: IUser | null;

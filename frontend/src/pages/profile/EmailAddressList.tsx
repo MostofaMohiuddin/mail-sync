@@ -6,8 +6,7 @@ import { Link } from 'react-router-dom';
 import useSWR, { useSWRConfig } from 'swr';
 
 import * as api from '../../api/LinkMailAddress';
-import { EmailType } from '../../common/types';
-import type { IUserLinkedMail } from '../../hooks/useLinkMailAddress';
+import { EmailType, type IUserLinkedMail } from '../../common/types';
 
 export default function EmailAddressList() {
   const [mails, setMails] = useState<IUserLinkedMail[]>([]);
