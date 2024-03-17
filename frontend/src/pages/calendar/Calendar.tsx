@@ -68,9 +68,11 @@ export default function CalendarView({
       mode="month"
       onPanelChange={onPanelChange}
       cellRender={cellRender}
-      onSelect={(day) => {
-        setSelectedDay(day);
-        openDrawer();
+      onSelect={(day, info) => {
+        if (info.source === 'date') {
+          setSelectedDay(day);
+          openDrawer();
+        }
       }}
     />
   );

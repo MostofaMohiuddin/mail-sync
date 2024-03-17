@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { SolutionOutlined, VideoCameraAddOutlined, TeamOutlined } from '@ant-design/icons';
-import { Collapse, type CollapseProps, Avatar, Typography, Flex } from 'antd';
+import { Collapse, type CollapseProps, Avatar, Typography, Flex, Empty } from 'antd';
 import dayjs from 'dayjs';
 import parse from 'html-react-parser';
 import { Link } from 'react-router-dom';
@@ -103,32 +103,9 @@ export default function DayView({
     };
   });
 
-  //   [
-  //     {
-  //       key: '1',
-  //       label: 'This is panel header 1',
-  //       children: <p>{text}</p>,
-  //     },
-  //     {
-  //       key: '2',
-  //       label: (
-  //         <>
-  //           <Avatar size="small" src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-  //           <span style={{ paddingLeft: '0.5rem' }}>This is panel header 2</span>
-  //         </>
-  //       ),
-  //       children: <p>{text}</p>,
-  //     },
-  //     {
-  //       key: '3',
-  //       label: <span>This is panel header 3</span>,
-  //       children: <p>{text}</p>,
-  //     },
-  //   ];
-
   return (
     <>
-      <Collapse items={items} defaultActiveKey={['1']} expandIconPosition="end" />
+      {events.length === 0 ? <Empty /> : <Collapse items={items} defaultActiveKey={['1']} expandIconPosition="end" />}
     </>
   );
 }
