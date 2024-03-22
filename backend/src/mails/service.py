@@ -1,10 +1,8 @@
 import time
 from typing import Any
 
-from fastapi import Depends, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import Depends
 
-from src.authentication.service import access_security
 from src.google.google_api_client import get_google_api_client
 from src.google.models import EmailMetadata, GoogleOAuthCredentials
 from src.link_mail_address.service import LinkMailAddressService
@@ -20,16 +18,12 @@ from dateutil.parser import parse
 
 class MailSyncService:
     def __init__(
-        self,
-        link_mail_address_service: LinkMailAddressService = Depends(),
-        openai_client: OpenAIClient = Depends(),
-        jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
+        self, link_mail_address_service: LinkMailAddressService = Depends(), openai_client: OpenAIClient = Depends()
     ):
         self.link_mail_address_service = link_mail_address_service
         self.openai_client = openai_client
-        self.username = jwt_credentials.subject.get("username")
 
-    async def get_mails(self, next_page_tokens_query=None) -> Any:
+    async def get_mails(self, username: str, next_page_tokens_query=None) -> Any:
         start = time.time()
         # next_page_tokens_query = "email1,token1;email2,token2"
         next_page_tokens = (
@@ -38,7 +32,7 @@ class MailSyncService:
             else {}
         )
         print("next_page_tokens", next_page_tokens_query)
-        oauth_tokens = await self.link_mail_address_service.get_all_oauth_tokens(self.username)
+        oauth_tokens = await self.link_mail_address_service.get_all_oauth_tokens(username)
         google_api_clients = [
             get_google_api_client(
                 GoogleOAuthCredentials(**token.oauth_tokens),
@@ -58,13 +52,13 @@ class MailSyncService:
         ]
         return {"mails": mails, "next_page_tokens": new_next_page_tokens}
 
-    async def get_mail(self, mail_id: str, mail_address: str) -> Any:
-        oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(self.username, mail_address)
+    async def get_mail(self, username: str, mail_id: str, mail_address: str) -> Any:
+        oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(username, mail_address)
         google_api_client = get_google_api_client(oauth_token, mail_address)
         return google_api_client.get_user_mail(mail_id)
 
-    async def send_mail(self, message: MailRequestBody) -> dict:
-        oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(self.username, message.sender)
+    async def send_mail(self, username: str, message: MailRequestBody) -> dict:
+        oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(username, message.sender)
         google_api_client = get_google_api_client(oauth_token, message.sender)
         return google_api_client.send_mail(message)
         # print(get_completion(f"You are a mail writer. Please help me write a reply to the mail: {message.message}"))

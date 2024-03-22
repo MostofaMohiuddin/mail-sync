@@ -1,7 +1,10 @@
 from datetime import timedelta
 
 from cryptography.fernet import Fernet
+from fastapi import Depends, HTTPException
 from fastapi_jwt import JwtAccessBearer, JwtAuthorizationCredentials, JwtRefreshBearer
+from fastapi.security import APIKeyHeader
+
 
 from src.env_config import PASSWORD_HASHING_KEY
 from src.user.models import User
@@ -110,3 +113,12 @@ class PasswordBasedAuthentication:
         encrypted_password = bytes.fromhex(encrypted_password_hex)
         decrypted_password = cipher_suite.decrypt(encrypted_password)
         return decrypted_password.decode()
+
+
+class ApiKeyBasedAuthentication:
+    API_KEY = "557573f1-471a-4de0-99f1-626cb4848e11"  # Replace this with your actual API key
+    api_key_header = APIKeyHeader(name="X-API-Key")
+
+    def __call__(self, api_key: str = Depends(api_key_header)):
+        if api_key != self.API_KEY:
+            raise HTTPException(status_code=401, detail="Invalid API Key")

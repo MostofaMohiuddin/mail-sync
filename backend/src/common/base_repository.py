@@ -49,6 +49,9 @@ class BaseRepository(ABC):
     async def delete(self, collection: AsyncIOMotorCollection, query: dict):
         await collection.delete_one(query)
 
+    async def aggregate(self, collection: AsyncIOMotorCollection, pipeline: list[dict]):
+        return [doc async for doc in collection.aggregate(pipeline)]
+
     # def save(self) -> None:
     #     try:
     #         self.d

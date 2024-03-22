@@ -36,6 +36,9 @@ class LinkMailAddressRepository(BaseRepository):
         data = await self.query(self.collection, {"username": username, "email": email.lower()})
         return data.get("oauth_tokens", None)
 
+    async def get_by_email(self, username: str, email: str) -> dict:
+        return await self.query(self.collection, {"username": username, "email": email.lower()})
+
     async def get_all_oauth_tokens(self, username: str) -> list[OauthTokenResponse]:
         documents = await self.query_all(self.collection, {"username": username})
         return [OauthTokenResponse(oauth_tokens=doc["oauth_tokens"], email=doc["email"]) for doc in documents]
