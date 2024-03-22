@@ -61,6 +61,9 @@ class LinkMailAddressService:
             **await self.link_mail_address_repository.get_oauth_token_by_email(username, email)
         )
 
+    async def get_by_email(self, username: str, email: str) -> dict:
+        return await self.link_mail_address_repository.get_by_email(username, email)
+
     async def get_all_linked_mail_address(self, username: str) -> list[LinkMailAddressResponse]:
         response = await self.link_mail_address_repository.get_all_linked_mail_address(username)
         if not response:

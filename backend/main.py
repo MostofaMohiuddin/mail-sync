@@ -13,6 +13,7 @@ from src.logger.asgi_access_log import AsgiAccessLogMiddleware
 from src.mails.routes import router as mails_router
 from src.user.routes import router as user_router
 from src.calendars.routes import router as calendars_router
+from src.schedule_mail.routes import router as schedule_mail_router
 
 
 def init_routers(fastapi_app: FastAPI):
@@ -22,6 +23,7 @@ def init_routers(fastapi_app: FastAPI):
     fastapi_app.include_router(link_mail_address_router)
     fastapi_app.include_router(mails_router)
     fastapi_app.include_router(calendars_router)
+    fastapi_app.include_router(schedule_mail_router)
 
 
 def init_openapi(fastapi_app: FastAPI):

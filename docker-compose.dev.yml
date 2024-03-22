@@ -60,6 +60,15 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./worker/cmd:/go/src/app/cmd
+      - ./worker/internal:/go/src/app/internal
+    networks:
+      - bridge_network
 
 networks:
   bridge_network:
