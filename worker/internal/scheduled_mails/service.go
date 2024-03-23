@@ -36,6 +36,10 @@ func (mail_service *MailService) SendScheduledMail() {
 	log.Println("Sending scheduled mail")
 	IDs := mail_service.getScheduledMailIDs()
 	log.Println("Mails to send", len(IDs))
+	if len(IDs) == 0 {
+		log.Println("No mails to send")
+		return
+	}
 	mailsync.SendMail(IDs)
 	log.Println("Scheduled mail sent")
 }
