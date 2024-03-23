@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from backend.src.common.database.connection import get_db_session
 from backend.src.common.base_repository import BaseRepository
 from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.schedule_auto_reply.models import ScheduleAutoReply
+from backend.src.schedule_auto_reply.models import ScheduleAutoReply, ScheduleAutoReplyUpdateRequestBody
 
 
 class ScheduleAutoReplyRepository(BaseRepository):
@@ -17,5 +17,7 @@ class ScheduleAutoReplyRepository(BaseRepository):
     async def add_schedule_auto_reply(self, data: ScheduleAutoReply):
         return await self.insert(self.collection, data)
 
-    async def update_schedule_auto_reply(self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation], data: dict):
-        return await self.update(self.collection, {"_id": _id}, data)
+    async def update_schedule_auto_reply(
+        self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation], data: ScheduleAutoReplyUpdateRequestBody
+    ):
+        return await self.update(self.collection, {"_id": _id}, data.model_dump(exclude_none=True))

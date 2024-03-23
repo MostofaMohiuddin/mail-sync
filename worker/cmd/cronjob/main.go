@@ -10,7 +10,7 @@ import (
 
 	"github.com/MostofaMohiuddin/mail-sync/internal/cron"
 	"github.com/MostofaMohiuddin/mail-sync/internal/db/mongodb"
-	"github.com/MostofaMohiuddin/mail-sync/internal/scheduled_mails"
+	"github.com/MostofaMohiuddin/mail-sync/internal/scheduled_auto_replies"
 )
 
 func main() {
@@ -19,14 +19,20 @@ func main() {
 	mongodb.NewClient()
 
 	// Initialize Schedule Mail Service
-	scheduleMailService := scheduled_mails.NewMailService()
+	// scheduleMailService := scheduled_mails.NewMailService()
+	ScheduledAutoReplyService := scheduled_auto_replies.NewScheduledAutoReplyService()
 
 	// Initialize Jobs
 	jobs := []cron.Job{
+		// {
+		// 	Title:          "SendScheduledMail",
+		// 	CronFunction:   scheduleMailService.SendScheduledMail,
+		// 	CronExpression: "*/20 * * * * *",
+		// },
 		{
-			Title:          "SendScheduledMail",
-			CronFunction:   scheduleMailService.SendScheduledMail,
-			CronExpression: "*/20 * * * * *",
+			Title:          "ScheduledAutoReplyService",
+			CronFunction:   ScheduledAutoReplyService.GetScheduledReplies,
+			CronExpression: "*/10 * * * * *",
 		},
 	}
 
