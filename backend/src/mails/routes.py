@@ -25,16 +25,6 @@ async def get_mails(
     return await mail_sync_service.get_mails(jwt_credentials.subject.get("username"), next_page_tokens)
 
 
-@router.get("/link-mail-address/{link_mail_address_id}", status_code=status.HTTP_200_OK)
-async def get_mails_by_link_address_id(
-    link_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
-    next_page_tokens: str = None,
-    number_of_mails: int = 10,
-    mail_sync_service: MailSyncService = Depends(),
-) -> Any:
-    return await mail_sync_service.get_mails_by_link_address_id(link_mail_address_id, next_page_tokens, number_of_mails)
-
-
 @router.get("/{mail_address}/{mail_id}", status_code=status.HTTP_200_OK)
 async def get_mail(
     mail_id: str,
@@ -54,6 +44,16 @@ async def send_mail(
     return await mail_sync_service.send_mail(jwt_credentials.subject.get("username"), message)
 
 
+@router.get("/history", status_code=status.HTTP_200_OK)
+async def get_mail_history(
+    mail_history_id: str,
+    link_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+    next_page_token: str = None,
+    mail_sync_service: MailSyncService = Depends(),
+) -> Any:
+    return await mail_sync_service.get_mail_history(link_mail_address_id, mail_history_id, next_page_token)
+
+
 @router.post("/process-with-ai", status_code=status.HTTP_200_OK)
 async def process_mail_with_ai(
     request_body: ProcessMailWithAIRequestBody,
@@ -61,3 +61,26 @@ async def process_mail_with_ai(
     _: JwtAuthorizationCredentials = Security(access_security),
 ) -> dict:
     return await mail_sync_service.process_mail_with_ai(request_body)
+
+
+#  Internal Service API
+
+
+@router.get("/link-mail-address/{link_mail_address_id}", status_code=status.HTTP_200_OK)
+async def get_mails_by_link_address_id(
+    link_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+    next_page_tokens: str = None,
+    number_of_mails: int = 10,
+    mail_sync_service: MailSyncService = Depends(),
+) -> Any:
+    return await mail_sync_service.get_mails_by_link_address_id(link_mail_address_id, next_page_tokens, number_of_mails)
+
+
+@router.get("/link-mail-address/{link_mail_address_id}/mails/{mail_id}", status_code=status.HTTP_200_OK)
+async def get_mail_by_link_address_id(
+    mail_id: str,
+    link_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+    mail_format: str = "full",
+    mail_sync_service: MailSyncService = Depends(),
+) -> Any:
+    return await mail_sync_service.get_mail_by_link_address_id(link_mail_address_id, mail_id, format=mail_format)
