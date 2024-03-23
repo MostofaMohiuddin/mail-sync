@@ -54,6 +54,8 @@ class GoogleApiClient:
         match = re.match(r"(.*)<([^<>]+)>", sample)
         if match:
             name = match.group(1).strip()
+            if name.startswith('"') and name.endswith('"'):
+                name = name[1:-1]
             email = match.group(2)
         else:
             # If no name is provided, extract email only
@@ -99,12 +101,12 @@ class GoogleApiClient:
             if all(label not in message.get("labelIds", []) for label in ["SENT", "DRAFT"]):
                 email_metadata_list.append(
                     EmailMetadata(
-                        sender=self._extract_email_and_name(
-                            headers.get("From", ""),
+                        sender=(
+                            self._extract_email_and_name(headers.get("From", ""))
+                            if headers.get("From")
+                            else self._extract_email_and_name(headers.get("from"))
                         ),
-                        receiver=self._extract_email_and_name(
-                            headers.get("To", ""),
-                        ),
+                        receiver=self._extract_email_and_name(headers.get("To", "")),
                         subject=headers.get("Subject", ""),
                         date=headers.get("Date", ""),
                         snippet=message["snippet"],
@@ -117,11 +119,14 @@ class GoogleApiClient:
     def get_user_mail(self, mail_id: str, mail_format: str = "full") -> EmailMetadata:
         service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
         message = service.users().messages().get(userId="me", id=mail_id, format=mail_format).execute()
+        print(message)
         headers = {header["name"]: header["value"] for header in message["payload"]["headers"]}
         if mail_format == "metadata":
             return EmailMetadata(
-                sender=self._extract_email_and_name(
-                    headers.get("From", ""),
+                sender=(
+                    self._extract_email_and_name(headers.get("From", ""))
+                    if headers.get("From")
+                    else self._extract_email_and_name(headers.get("from"))
                 ),
                 receiver=self._extract_email_and_name(
                     headers.get("To", ""),
@@ -147,12 +152,12 @@ class GoogleApiClient:
             html = plain
 
         return EmailFullData(
-            sender=self._extract_email_and_name(
-                headers.get("From", ""),
+            sender=(
+                self._extract_email_and_name(headers.get("From", ""))
+                if headers.get("From")
+                else self._extract_email_and_name(headers.get("from"))
             ),
-            receiver=self._extract_email_and_name(
-                headers.get("To", ""),
-            ),
+            receiver=self._extract_email_and_name(headers.get("To", "")),
             subject=headers.get("Subject", ""),
             date=headers.get("Date", ""),
             snippet=message["snippet"],

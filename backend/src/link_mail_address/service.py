@@ -71,7 +71,7 @@ class LinkMailAddressService:
         response = await self.link_mail_address_repository.get_all_linked_mail_address(username)
         if not response:
             return []
-        return [LinkMailAddressResponse(**doc) for doc in response]
+        return [LinkMailAddressResponse(**{**doc, "id": doc.get("_id")}) for doc in response]
 
     async def unlink_mail_address(
         self,
