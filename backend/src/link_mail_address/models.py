@@ -1,7 +1,10 @@
 from enum import Enum
-from typing import Optional
+from typing import Annotated, Optional
 
+from bson import ObjectId
 from pydantic import BaseModel, model_serializer
+
+from backend.src.common.models import ObjectIdPydanticAnnotation
 
 
 class EmailType(Enum):
@@ -43,6 +46,7 @@ class OauthTokenResponse(BaseModel):
 
 
 class LinkMailAddressResponse(BaseModel):
+    id: Annotated[ObjectId, ObjectIdPydanticAnnotation]
     username: str
     email: str
     email_name: str
