@@ -5,7 +5,11 @@ from fastapi import Depends
 
 from backend.src.mails.service import MailSyncService
 from backend.src.common.fastapi_http_exceptions import BadRequestException
-from backend.src.schedule_auto_reply.models import ScheduleAutoReplyRequestBody, ScheduleAutoReply
+from backend.src.schedule_auto_reply.models import (
+    ScheduleAutoReplyRequestBody,
+    ScheduleAutoReply,
+    ScheduleAutoReplyUpdateRequestBody,
+)
 from backend.src.schedule_auto_reply.repositories import ScheduleAutoReplyRepository
 from backend.src.link_mail_address.service import LinkMailAddressService
 
@@ -43,3 +47,6 @@ class ScheduleAutoReplyService:
             }
         )
         await self.schedule_auto_reply_repository.add_schedule_auto_reply(schedule_auto_reply_data)
+
+    async def update_schedule_auto_reply(self, _id: str, request_body: ScheduleAutoReplyUpdateRequestBody) -> None:
+        await self.schedule_auto_reply_repository.update_schedule_auto_reply(_id, request_body)

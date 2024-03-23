@@ -25,9 +25,7 @@ class LinkMailAddressService:
         self,
         link_mail_address_repository: Annotated[LinkMailAddressRepository, Depends()],
         google_oauth: Annotated[GoogleOauthService, Depends()],
-        auth: Annotated[PasswordBasedAuthentication, Depends()],
     ):
-        self.auth = auth
         self.google_oauth = google_oauth
         self.link_mail_address_repository = link_mail_address_repository
 

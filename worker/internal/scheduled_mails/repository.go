@@ -9,12 +9,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// MailService represents a mail service
 type MailRepository struct {
 	collection *mongo.Collection
 }
 
-// NewMailService creates a new MailService instance
 func NewMailRepository() *MailRepository {
 	collection := mongodb.NewClient().GetDatabase().Collection("scheduled_mail")
 	return &MailRepository{

@@ -3,6 +3,8 @@ package mailsync
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -11,18 +13,19 @@ import (
 )
 
 // CallAPI makes an HTTP POST request to the specified URL with the given body and headers
-func callAPI(endPoint string, body interface{}) (*http.Response, error) {
+func callAPI(endPoint string, method string, body interface{}) (*http.Response, error) {
 	config := config.New()
 	apiKey := config.ApiKey
 	url := config.MailSyncApiUrl + endPoint
 	// Convert body to JSON
 	jsonData, err := json.Marshal(body)
+	log.Println(string(jsonData))
 	if err != nil {
 		return nil, err
 	}
 
 	// Create the request
-	req, err := http.NewRequest("POST", url, bytes.NewReader(jsonData))
+	req, err := http.NewRequest(method, url, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -45,11 +48,41 @@ func SendMail(IDs []primitive.ObjectID) {
 	body := SendScheduledMailIdsBody{
 		ScheduledMailIds: IDs,
 	}
-	resp, err := callAPI("/schedule-mail/send", body)
+	resp, err := callAPI("/schedule-mail/send", http.MethodPost, body)
 	if resp.StatusCode == 200 {
 		log.Println("Mail sent successfully")
 	} else {
 		log.Println(resp.StatusCode)
 		log.Panicln(err)
+	}
+}
+
+func ReadMailByLinkedMailAddressId(linkedMailAddressId string) ReadMailApiResponse {
+
+	resp, _ := callAPI(fmt.Sprintf("/mails/link-mail-address/%s/mails?number_of_mails=1", linkedMailAddressId), http.MethodGet, nil)
+	if resp.StatusCode == 200 {
+		var result ReadMailApiResponse
+
+		body, _ := io.ReadAll(resp.Body)
+		if err := json.Unmarshal(body, &result); err != nil {
+			fmt.Println("Can not unmarshal JSON")
+		}
+		return result
+	} else {
+		log.Println(resp.StatusCode)
+	}
+	return ReadMailApiResponse{Mails: []MailMetaData{}}
+}
+
+func UpdateScheduleAutoReply(ScheduleAutoReplyId primitive.ObjectID, LastMailId string, LastMailHistoryId string) {
+	body := UpdateScheduleAutoReplyBody{
+		LastMailId:        LastMailId,
+		LastMailHistoryId: LastMailHistoryId,
+	}
+	resp, _ := callAPI(fmt.Sprintf("/schedule-auto-reply/%s", ScheduleAutoReplyId.Hex()), http.MethodPut, body)
+	if resp.StatusCode == 200 {
+		log.Println("Auto reply updated successfully")
+	} else {
+		log.Println(resp.StatusCode)
 	}
 }
