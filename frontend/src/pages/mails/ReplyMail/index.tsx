@@ -14,7 +14,10 @@ export default function ReplyMail({ receivedMail }: { receivedMail?: IEmailFullD
         <AiGenerateMail />
       )}
       <div style={{ marginTop: 32 }}>
-        <UserReplyMail receiverEmail={receivedMail?.sender.email} />
+        <UserReplyMail
+          receiverEmail={receivedMail?.sender.email}
+          replySubject={receivedMail?.subject ? `RE: ${receivedMail.subject}` : ''}
+        />
       </div>
     </>
   );

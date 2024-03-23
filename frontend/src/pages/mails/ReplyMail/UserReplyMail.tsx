@@ -8,15 +8,29 @@ import * as api from '../../../api/Mail';
 import RichTextEditor from '../../../components/RichTextEditor';
 import { useSession } from '../../../hooks/userSession';
 
-export default function UserReplyMail({ receiverEmail }: { receiverEmail?: string }) {
+export default function UserReplyMail({
+  receiverEmail,
+  replySubject,
+}: {
+  receiverEmail?: string;
+  replySubject?: string;
+}) {
   const [plainBody, setPlainBody] = useState('');
   const [htmlBody, setHtmlBody] = useState('');
   const [receiver, setReceiver] = useState(receiverEmail || '');
-  const [subject, setSubject] = useState('');
+  const [subject, setSubject] = useState(replySubject || '');
   const [sender, setSender] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const { linkedMailAddresses } = useSession();
+
+  const resetData = () => {
+    setHtmlBody('');
+    setPlainBody('');
+    setSubject('');
+    setReceiver('');
+    setSender(null);
+  };
 
   const sendMail = async () => {
     setIsLoading(true);
@@ -26,6 +40,7 @@ export default function UserReplyMail({ receiverEmail }: { receiverEmail?: strin
         message: 'Mail Sent',
         description: 'Your mail has been sent successfully.',
       });
+      resetData();
     }
     setIsLoading(false);
   };
@@ -82,7 +97,7 @@ export default function UserReplyMail({ receiverEmail }: { receiverEmail?: strin
         />
       </Flex>
 
-      <RichTextEditor setHtmlValue={setHtmlBody} setPlainValue={setPlainBody} />
+      <RichTextEditor setHtmlValue={setHtmlBody} setPlainValue={setPlainBody} plainValue={plainBody} />
 
       <Flex justify="flex-end" style={{ marginTop: '8px' }}>
         <span></span>
