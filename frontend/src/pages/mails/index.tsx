@@ -14,17 +14,19 @@ import type { IEmailMetadata, INextPageToken } from '../../common/types';
 import { useSession } from '../../hooks/userSession';
 
 export default function Mail() {
+  const [emailsPage1, setEmailsPage1] = useState<IEmailMetadata[]>([]);
   const [emails, setEmails] = useState<IEmailMetadata[]>([]);
   const [nextPageTokens, setNextPageTokens] = useState<string>('');
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [pageNo, setPageNo] = useState<number>(1);
-  const { data, isLoading } = useSWR(
-    ['/mails', pageNo],
-    () => api.getMails({ query: `next_page_tokens=${nextPageTokens}` }),
-    {
-      refreshInterval: 5000000,
-    },
+  const { data, isLoading } = useSWR(pageNo > 1 ? ['/mails', pageNo] : null, () =>
+    api.getMails({ query: `next_page_tokens=${nextPageTokens}` }),
   );
+
+  const { data: data1, isLoading: isLoading1 } = useSWR(['/mails', 1], () => api.getMails(), {
+    refreshInterval: 5000,
+  });
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const { linkedMailAddresses } = useSession();
@@ -52,15 +54,25 @@ export default function Mail() {
     }
   }, [data, isLoading]);
 
+  useEffect(() => {
+    if (!isLoading1 && data1) {
+      setEmailsPage1(data1.data.mails);
+      setNextPageTokens(
+        data1.data.next_page_tokens.map((item: INextPageToken) => `${item.email},${item.next_page_token}`).join(';'),
+      );
+      setHasMore(!!data1.data.next_page_tokens.length);
+    }
+  }, [data1, isLoading1]);
+
   return (
     <>
       <div style={{ width: isDrawerOpen ? '50%' : '100%', transition: 'all 0.3s' }}>
         <EmailList
-          data={emails}
+          data={emailsPage1.concat(emails)}
           hasMore={!!hasMore}
           loadMoreData={loadMoreData}
           isComposeMail={isDrawerOpen}
-          isLoading={isLoading}
+          isLoading={isLoading || isLoading1}
         />
       </div>
 
