@@ -1,19 +1,22 @@
 import time
-from typing import Any
+from typing import Annotated, Any
 
+from bson import ObjectId
 from fastapi import Depends
 
-from src.google.google_api_client import get_google_api_client
-from src.google.models import EmailMetadata, GoogleOAuthCredentials
-from src.link_mail_address.service import LinkMailAddressService
-from src.openai.openai_client import OpenAIClient
+from dateutil.parser import parse
 
-from .models import (
+from backend.src.common.models import ObjectIdPydanticAnnotation
+from backend.src.google.google_api_client import get_google_api_client
+from backend.src.google.models import GoogleOAuthCredentials
+from backend.src.link_mail_address.service import LinkMailAddressService
+from backend.src.openai.openai_client import OpenAIClient
+
+from backend.src.mails.models import (
     MailRequestBody,
     ProcessMailWithAIRequestBody,
     ProcessMailWithAIRequestType,
 )
-from dateutil.parser import parse
 
 
 class MailSyncService:
@@ -51,6 +54,32 @@ class MailSyncService:
             {"next_page_token": d.next_page_token, "email": d.receiver} for d in data if d.next_page_token
         ]
         return {"mails": mails, "next_page_tokens": new_next_page_tokens}
+
+    async def get_mails_by_link_address_id(
+        self,
+        link_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+        next_page_tokens_query=None,
+        number_of_mails: int = 10,
+    ) -> Any:
+        start = time.time()
+        # next_page_tokens_query = "email1,token1;email2,token2"
+        next_page_tokens = (
+            {x[0]: x[1] for x in [x.split(",") for x in next_page_tokens_query.split(";")]}
+            if next_page_tokens_query
+            else {}
+        )
+        print("next_page_tokens", next_page_tokens_query)
+        link_address_data = await self.link_mail_address_service.get_by_id(link_address_id)
+        if not link_address_data:
+            return {"mails": [], "next_page_token": None}
+        print("link_address_data", link_address_data.oauth_tokens)
+        oauth_tokens = GoogleOAuthCredentials(**link_address_data.oauth_tokens)
+        google_api_client = get_google_api_client(oauth_tokens, link_address_data.email)
+        data = google_api_client.get_user_mails(next_page_tokens.get(link_address_data.email, None), number_of_mails)
+
+        end = time.time()
+        print(f"Time taken: {end - start}")
+        return {"mails": data.emails, "next_page_token": data.next_page_token}
 
     async def get_mail(self, username: str, mail_id: str, mail_address: str) -> Any:
         oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(username, mail_address)

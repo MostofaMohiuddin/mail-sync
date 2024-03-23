@@ -1,14 +1,16 @@
 from typing import Annotated
 
+from bson import ObjectId
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
-from src.common.base_repository import BaseRepository
-from src.common.database.connection import get_db_session
-from src.common.exceptions.http import ConflictException
+from backend.src.common.base_repository import BaseRepository
+from backend.src.common.database.connection import get_db_session
+from backend.src.common.exceptions.http import ConflictException
 
-from .models import LinkMailAddress, OauthTokenResponse
+from backend.src.common.models import ObjectIdPydanticAnnotation
+from backend.src.link_mail_address.models import LinkMailAddress, OauthTokenResponse
 
 
 class LinkMailAddressRepository(BaseRepository):
@@ -35,6 +37,9 @@ class LinkMailAddressRepository(BaseRepository):
     async def get_oauth_token_by_email(self, username: str, email: str) -> dict:
         data = await self.query(self.collection, {"username": username, "email": email.lower()})
         return data.get("oauth_tokens", None)
+
+    async def get_by_id(self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation]) -> dict:
+        return await self.query(self.collection, {"_id": _id})
 
     async def get_by_email(self, username: str, email: str) -> dict:
         return await self.query(self.collection, {"username": username, "email": email.lower()})

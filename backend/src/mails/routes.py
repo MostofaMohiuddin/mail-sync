@@ -1,12 +1,14 @@
-from typing import Any
+from typing import Annotated, Any
 
+from bson import ObjectId
 from fastapi import APIRouter, Depends, status, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from src.authentication.service import access_security
+from backend.src.authentication.service import access_security
 
-from .models import MailRequestBody, ProcessMailWithAIRequestBody
-from .service import MailSyncService
+from backend.src.common.models import ObjectIdPydanticAnnotation
+from backend.src.mails.models import MailRequestBody, ProcessMailWithAIRequestBody
+from backend.src.mails.service import MailSyncService
 
 router = APIRouter(
     prefix="/api/mails",
@@ -21,6 +23,16 @@ async def get_mails(
     jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
 ) -> Any:
     return await mail_sync_service.get_mails(jwt_credentials.subject.get("username"), next_page_tokens)
+
+
+@router.get("/link-mail-address/{link_mail_address_id}", status_code=status.HTTP_200_OK)
+async def get_mails_by_link_address_id(
+    link_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+    next_page_tokens: str = None,
+    number_of_mails: int = 10,
+    mail_sync_service: MailSyncService = Depends(),
+) -> Any:
+    return await mail_sync_service.get_mails_by_link_address_id(link_mail_address_id, next_page_tokens, number_of_mails)
 
 
 @router.get("/{mail_address}/{mail_id}", status_code=status.HTTP_200_OK)

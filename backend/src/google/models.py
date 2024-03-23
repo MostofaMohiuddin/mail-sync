@@ -25,6 +25,7 @@ class EmailMetadata(BaseModel):
     date: str
     snippet: str
     id: str
+    history_id: str
 
 
 class GmailMetadataList(BaseModel):
