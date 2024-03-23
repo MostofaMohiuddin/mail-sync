@@ -75,7 +75,7 @@ class GoogleApiClient:
             name=name,
         )
 
-    def get_user_mails(self, next_page_token=None) -> GmailMetadataList:
+    def get_user_mails(self, next_page_token=None, number_of_mails: int = 10) -> GmailMetadataList:
         service = googleapiclient_builder("gmail", "v1", credentials=self.google_oauth_credentials)
         # next_page_token is "null" when there are no more emails to fetch
         if next_page_token == "null":
@@ -85,7 +85,7 @@ class GoogleApiClient:
             .messages()
             .list(
                 userId="me",
-                maxResults=10,
+                maxResults=number_of_mails,
                 labelIds="UNREAD",
                 includeSpamTrash=False,
                 pageToken=next_page_token,
@@ -115,6 +115,7 @@ class GoogleApiClient:
                         date=headers.get("Date", ""),
                         snippet=message["snippet"],
                         id=message["id"],
+                        history_id=message["historyId"],
                     )
                 )
         return GmailMetadataList(emails=email_metadata_list, next_page_token=nextPageToken, receiver=self.gmail)

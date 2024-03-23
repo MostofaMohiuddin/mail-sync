@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Depends, Security, status
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from src.authentication.service import access_security
+from backend.src.authentication.service import access_security
 
-from .models import EmailType, LinkMailAddressResponse, LinkMailRequest, RedirectLinkResponse
-from .service import LinkMailAddressService
+from backend.src.link_mail_address.models import (
+    EmailType,
+    LinkMailAddressResponse,
+    LinkMailRequest,
+    RedirectLinkResponse,
+)
+from backend.src.link_mail_address.service import LinkMailAddressService
 
 router = APIRouter(
     prefix="/api/link-mail-address",

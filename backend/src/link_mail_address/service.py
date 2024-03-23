@@ -1,12 +1,14 @@
 from typing import Annotated
 
+from bson import ObjectId
 from fastapi import Depends
 
-from src.authentication.service import PasswordBasedAuthentication
-from src.google.google_api_client import GoogleApiClient
-from src.google.google_oath import GoogleOauthService
-from src.google.models import GoogleOAuthCredentials
-from src.link_mail_address.models import (
+from backend.src.authentication.service import PasswordBasedAuthentication
+from backend.src.common.models import ObjectIdPydanticAnnotation
+from backend.src.google.google_api_client import GoogleApiClient
+from backend.src.google.google_oath import GoogleOauthService
+from backend.src.google.models import GoogleOAuthCredentials
+from backend.src.link_mail_address.models import (
     EmailType,
     LinkMailAddress,
     LinkMailRequest,
@@ -15,7 +17,7 @@ from src.link_mail_address.models import (
     RedirectLinkResponse,
 )
 
-from .repositories import LinkMailAddressRepository
+from backend.src.link_mail_address.repositories import LinkMailAddressRepository
 
 
 class LinkMailAddressService:
@@ -60,6 +62,9 @@ class LinkMailAddressService:
         return GoogleOAuthCredentials(
             **await self.link_mail_address_repository.get_oauth_token_by_email(username, email)
         )
+
+    async def get_by_id(self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation]) -> LinkMailAddress:
+        return LinkMailAddress(**await self.link_mail_address_repository.get_by_id(_id))
 
     async def get_by_email(self, username: str, email: str) -> dict:
         return await self.link_mail_address_repository.get_by_email(username, email)
