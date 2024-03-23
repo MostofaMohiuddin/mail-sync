@@ -106,6 +106,16 @@ class MailSyncService:
         # print(get_completion(f"You are a mail writer. Please help me write a reply to the mail: {message.message}"))
         # return {"message": "Mail sent successfully"}
 
+    async def send_mail_by_link_address_id(
+        self, link_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation], message: MailRequestBody
+    ) -> dict:
+        link_address_data = await self.link_mail_address_service.get_by_id(link_address_id)
+        if not link_address_data:
+            return {"message": "Link address not found"}
+        oauth_tokens = GoogleOAuthCredentials(**link_address_data.oauth_tokens)
+        google_api_client = GoogleApiClient(oauth_tokens, link_address_data.email)
+        return google_api_client.send_mail(message)
+
     def _generate_prompt(self, request: ProcessMailWithAIRequestBody) -> dict:
         prompts = {
             ProcessMailWithAIRequestType.GENERATE: {
@@ -144,4 +154,12 @@ class MailSyncService:
             return {"mails": []}
         oauth_tokens = GoogleOAuthCredentials(**link_address_data.oauth_tokens)
         google_api_client = GoogleApiClient(oauth_tokens, link_address_data.email)
-        return google_api_client.get_user_mail_history(mail_history_id, next_page_token)
+        google_response = google_api_client.get_user_mail_history(mail_history_id, next_page_token)
+        history = google_response.get("history", [])
+        mailsAdded = []
+        for item in history:
+            messagesAdded = item.get("messagesAdded", [])
+            for message in messagesAdded:
+                mail = google_api_client.get_user_mail(message.get("message", {}).get("id"), mail_format="metadata")
+                mailsAdded.append(mail)
+        return {"mailsAdded": mailsAdded, "next_page_token": google_response.get("nextPageToken")}

@@ -19,7 +19,6 @@ func callAPI(endPoint string, method string, body interface{}) (*http.Response, 
 	url := config.MailSyncApiUrl + endPoint
 	// Convert body to JSON
 	jsonData, err := json.Marshal(body)
-	log.Println(string(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -44,22 +43,22 @@ func callAPI(endPoint string, method string, body interface{}) (*http.Response, 
 	return resp, nil
 }
 
-func SendMail(IDs []primitive.ObjectID) {
+func SendScheduledMails(IDs []primitive.ObjectID) {
 	body := SendScheduledMailIdsBody{
 		ScheduledMailIds: IDs,
 	}
 	resp, err := callAPI("/schedule-mail/send", http.MethodPost, body)
 	if resp.StatusCode == 200 {
-		log.Println("Mail sent successfully")
+		log.Println("Scheduled Mail sent successfully")
 	} else {
 		log.Println(resp.StatusCode)
 		log.Panicln(err)
 	}
 }
 
-func ReadMailByLinkedMailAddressId(linkedMailAddressId string) ReadMailApiResponse {
+func ReadMailByLinkedMailAddressId(linkedMailAddressId primitive.ObjectID) ReadMailApiResponse {
 
-	resp, _ := callAPI(fmt.Sprintf("/mails/link-mail-address/%s/mails?number_of_mails=1", linkedMailAddressId), http.MethodGet, nil)
+	resp, _ := callAPI(fmt.Sprintf("/mails/link-mail-address/%s/mails?number_of_mails=1", linkedMailAddressId.Hex()), http.MethodGet, nil)
 	if resp.StatusCode == 200 {
 		var result ReadMailApiResponse
 
@@ -81,7 +80,31 @@ func UpdateScheduleAutoReply(ScheduleAutoReplyId primitive.ObjectID, LastMailId 
 	}
 	resp, _ := callAPI(fmt.Sprintf("/schedule-auto-reply/%s", ScheduleAutoReplyId.Hex()), http.MethodPut, body)
 	if resp.StatusCode == 200 {
-		log.Println("Auto reply updated successfully")
+		log.Printf("Updated LastMailId %s and LastMailHistory %s successfully for ScheduleAutoReplyId: %s", LastMailId, LastMailHistoryId, ScheduleAutoReplyId)
+	} else {
+		log.Println(resp.StatusCode)
+	}
+}
+
+func GetHistory(MailHistoryId string, LinkMailAddressId primitive.ObjectID) GetHistoryApiResponse {
+	resp, _ := callAPI(fmt.Sprintf("/mails/link-mail-address/%s/history/%s", LinkMailAddressId.Hex(), MailHistoryId), http.MethodGet, nil)
+	if resp.StatusCode == 200 {
+		var result GetHistoryApiResponse
+		body, _ := io.ReadAll(resp.Body)
+		if err := json.Unmarshal(body, &result); err != nil {
+			fmt.Println("Can not unmarshal JSON")
+		}
+		return result
+	} else {
+		log.Println(resp.StatusCode)
+	}
+	return GetHistoryApiResponse{Mails: []MailMetaData{}}
+}
+
+func SendMail(LinkedMailAddressId primitive.ObjectID, MailData SendMailBody) {
+	resp, _ := callAPI(fmt.Sprintf("/mails/link-mail-address/%s/send", LinkedMailAddressId.Hex()), http.MethodPost, MailData)
+	if resp.StatusCode == 200 {
+		log.Printf("Mail sent successfully LinkedMailAddressId: %s, to: %s", LinkedMailAddressId.Hex(), MailData.Receiver)
 	} else {
 		log.Println(resp.StatusCode)
 	}

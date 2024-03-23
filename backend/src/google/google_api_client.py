@@ -174,7 +174,7 @@ class GoogleApiClient:
                 startHistoryId=mail_history_id,
                 historyTypes="messageAdded",
                 labelId="UNREAD",
-                maxResults=1,
+                maxResults=10,
                 pageToken=next_page_token,
             )
             .execute()

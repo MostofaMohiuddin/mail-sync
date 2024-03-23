@@ -63,7 +63,7 @@ async def get_mail_by_link_address_id(
     return await mail_sync_service.get_mail_by_link_address_id(link_mail_address_id, mail_id, mail_format)
 
 
-@router.get("/history/{mail_history_id}", status_code=status.HTTP_200_OK)
+@router.get("/link-mail-address/{link_mail_address_id}/history/{mail_history_id}", status_code=status.HTTP_200_OK)
 async def get_mail_history(
     mail_history_id: str,
     link_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
@@ -81,3 +81,12 @@ async def get_mails_by_link_address_id(
     mail_sync_service: MailSyncService = Depends(),
 ) -> Any:
     return await mail_sync_service.get_mails_by_link_address_id(link_mail_address_id, next_page_token, number_of_mails)
+
+
+@router.post("/link-mail-address/{link_mail_address_id}/send", status_code=status.HTTP_200_OK)
+async def send_mail_by_link_mail_address_id(
+    link_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+    message: MailRequestBody,
+    mail_sync_service: MailSyncService = Depends(),
+) -> dict:
+    return await mail_sync_service.send_mail_by_link_address_id(link_mail_address_id, message)
