@@ -17,9 +17,9 @@ services:
       - 7900:${SERVER_PORT:-7900}
       - 7901:7901
     volumes:
-      - ./backend/src:/app/src
-      - ./backend/.env:/app/.env
-    command: python -m debugpy --listen 0.0.0.0:7901 main.py
+      - ./backend/src:/app/backend/src
+      - ./backend/.env:/app/backend/.env
+    command: python -m debugpy --listen 0.0.0.0:7901 ./backend/main.py
     # depends_on:
     #   mongodb:
     #     condition: service_healthy

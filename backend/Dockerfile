@@ -16,4 +16,4 @@ COPY ./poetry.lock ./pyproject.toml ./
 
 RUN poetry config virtualenvs.create false && poetry install --only main --no-interaction
 
-COPY . .
+COPY . ./backend
