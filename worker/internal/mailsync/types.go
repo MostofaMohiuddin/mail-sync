@@ -1,6 +1,9 @@
 package mailsync
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"github.com/MostofaMohiuddin/mail-sync/internal/common"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type SendScheduledMailIdsBody struct {
 	ScheduledMailIds []primitive.ObjectID `json:"schedule_mail_ids"`
@@ -17,6 +20,8 @@ type MailMetaData struct {
 	Receiver  MailUser `json:"receiver"`
 	ID        string   `json:"id"`
 	HistoryId string   `json:"history_id"`
+	Subject   string   `json:"subject"`
+	Date      string   `json:"date"`
 }
 
 type ReadMailApiResponse struct {
@@ -26,4 +31,15 @@ type ReadMailApiResponse struct {
 type UpdateScheduleAutoReplyBody struct {
 	LastMailId        string `json:"last_mail_id"`
 	LastMailHistoryId string `json:"last_mail_history_id"`
+}
+
+type GetHistoryApiResponse struct {
+	Mails []MailMetaData `json:"mailsAdded"`
+}
+
+type SendMailBody struct {
+	Sender   string      `json:"sender"`
+	Receiver string      `json:"receiver"`
+	Subject  string      `json:"subject"`
+	MailBody common.Body `json:"body"`
 }
