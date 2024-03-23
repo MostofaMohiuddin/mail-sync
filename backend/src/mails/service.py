@@ -97,7 +97,7 @@ class MailSyncService:
             return {"mail": {}}
         oauth_tokens = GoogleOAuthCredentials(**link_address_data.oauth_tokens)
         google_api_client = GoogleApiClient(oauth_tokens, link_address_data.email)
-        return google_api_client.get_user_mail(mail_id, format=mail_format)
+        return google_api_client.get_user_mail(mail_id, mail_format)
 
     async def send_mail(self, username: str, message: MailRequestBody) -> dict:
         oauth_token = await self.link_mail_address_service.get_oauth_token_by_email(username, message.sender)

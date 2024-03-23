@@ -83,4 +83,4 @@ async def get_mail_by_link_address_id(
     mail_format: str = "full",
     mail_sync_service: MailSyncService = Depends(),
 ) -> Any:
-    return await mail_sync_service.get_mail_by_link_address_id(link_mail_address_id, mail_id, format=mail_format)
+    return await mail_sync_service.get_mail_by_link_address_id(link_mail_address_id, mail_id, mail_format)
