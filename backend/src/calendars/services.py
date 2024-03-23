@@ -4,10 +4,10 @@ from typing import Any
 from fastapi import Depends, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from src.authentication.service import access_security
-from src.google.google_api_client import get_google_api_client
-from src.google.models import GoogleOAuthCredentials
-from src.link_mail_address.service import LinkMailAddressService
+from backend.src.google.google_api_client import GoogleApiClient
+from backend.src.authentication.service import access_security
+from backend.src.google.models import GoogleOAuthCredentials
+from backend.src.link_mail_address.service import LinkMailAddressService
 
 
 from dateutil.parser import parse
@@ -27,7 +27,7 @@ class CalendarSyncService:
     async def get_events(self, time_min=None, time_max=None) -> list[CalendarEventResponse]:
         oauth_tokens = await self.link_mail_address_service.get_all_oauth_tokens(self.username)
         google_api_clients = [
-            get_google_api_client(
+            GoogleApiClient(
                 GoogleOAuthCredentials(**token.oauth_tokens),
                 token.email,
             )
