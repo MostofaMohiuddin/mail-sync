@@ -24,7 +24,7 @@ export default function Mail() {
   );
 
   const { data: data1, isLoading: isLoading1 } = useSWR(['/mails', 1], () => api.getMails(), {
-    refreshInterval: 5000,
+    refreshInterval: 500000,
   });
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   BoldButton,
@@ -22,9 +22,11 @@ const plugins = [toolbarPlugin];
 const RichTextEditor = ({
   setHtmlValue,
   setPlainValue,
+  plainValue,
 }: {
   setHtmlValue: (htmlContent: string) => void;
   setPlainValue: (htmlContent: string) => void;
+  plainValue: string;
 }) => {
   const [editorState, setEditorState] = useState<EditorState>(createEditorStateWithText(''));
   const editorRef = useRef<Editor>(null);
@@ -38,6 +40,12 @@ const RichTextEditor = ({
   const focus = () => {
     editorRef.current?.focus();
   };
+
+  useEffect(() => {
+    if (plainValue === '') {
+      setEditorState(createEditorStateWithText(''));
+    }
+  }, [plainValue]);
 
   return (
     <div>
