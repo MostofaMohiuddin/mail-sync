@@ -3,6 +3,7 @@ import Mail from './pages/mails';
 import MailViewer from './pages/mails/MailViewer';
 import OauthCallback from './pages/oauth';
 import Profile from './pages/profile';
+import Schedule from './pages/schedule';
 
 const routes = [
   {
@@ -39,6 +40,11 @@ const routes = [
     title: 'Mail',
     path: '/emails/link-mail-addresses/:address',
     component: <Mail />,
+  },
+  {
+    title: 'Schedule',
+    path: '/schedule',
+    component: <Schedule />,
   },
 ];
 

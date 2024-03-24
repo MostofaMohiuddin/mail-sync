@@ -5,11 +5,16 @@ from bson import ObjectId
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from src.common.models import ObjectIdPydanticAnnotation
-from src.common.base_repository import BaseRepository
-from src.common.database.connection import get_db_session
+from backend.src.common.models import ObjectIdPydanticAnnotation
+from backend.src.common.base_repository import BaseRepository
+from backend.src.common.database.connection import get_db_session
 
-from .models import ScheduleMail, ScheduleMailStatus, ScheduleMailWithSenderDetails, SenderDetails
+from backend.src.schedule_mail.models import (
+    ScheduleMail,
+    ScheduleMailStatus,
+    ScheduleMailWithSenderDetails,
+    SenderDetails,
+)
 
 
 class ScheduleMailRepository(BaseRepository):
@@ -29,6 +34,51 @@ class ScheduleMailRepository(BaseRepository):
             {"_id": id},
             {"status": status.value},
         )
+
+    async def get_scheduled_mails_by_user(
+        self, linked_mail_address_ids: list[Annotated[ObjectId, ObjectIdPydanticAnnotation]]
+    ) -> list[ScheduleMailWithSenderDetails]:
+        condition = {"sender_link_mail_address_id": {"$in": linked_mail_address_ids}}
+        res = await self.aggregate(
+            collection=self.collection,
+            pipeline=[
+                {
+                    "$lookup": {
+                        "from": "link_mail_address",
+                        "localField": "sender_link_mail_address_id",
+                        "foreignField": "_id",
+                        "as": "sender_details",
+                    }
+                },
+                {
+                    "$project": {
+                        "id": "$_id",
+                        "subject": 1,
+                        "body": 1,
+                        "status": 1,
+                        "scheduled_at": 1,
+                        "receiver": 1,
+                        "sender_link_mail_address_id": 1,
+                        "sender_details.username": 1,
+                        "sender_details.email": 1,
+                    }
+                },
+                {"$unwind": {"path": "$sender_details"}},
+                {"$match": condition},
+                {"$sort": {"scheduled_at": -1}},
+            ],
+        )
+        return [
+            ScheduleMailWithSenderDetails(
+                **{
+                    **doc,
+                    "sender_details": SenderDetails(
+                        username=doc.get("sender_details").get("username"), email=doc.get("sender_details").get("email")
+                    ),
+                }
+            )
+            for doc in res
+        ]
 
     async def get_scheduled_mails(
         self, scheduled_mail_ids: list[Annotated[ObjectId, ObjectIdPydanticAnnotation]]
@@ -73,3 +123,12 @@ class ScheduleMailRepository(BaseRepository):
             )
             for doc in res
         ]
+
+    async def update_schedule_mail(
+        self, schedule_mail_id: Annotated[ObjectId, ObjectIdPydanticAnnotation], data: ScheduleMail
+    ):
+        return await self.update(
+            self.collection,
+            {"_id": schedule_mail_id},
+            data.dict(exclude_unset=True, exclude_none=True),
+        )

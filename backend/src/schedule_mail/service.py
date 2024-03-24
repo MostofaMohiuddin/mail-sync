@@ -4,20 +4,19 @@ from typing import Annotated
 from bson import ObjectId
 from fastapi import Depends
 
-from src.mails.models import MailBody, MailRequestBody
-from src.mails.service import MailSyncService
-from src.common.models import ObjectIdPydanticAnnotation
-from src.common.fastapi_http_exceptions import BadRequestException
-from src.schedule_mail.models import (
+from backend.src.mails.models import MailBody, MailRequestBody
+from backend.src.mails.service import MailSyncService
+from backend.src.common.models import ObjectIdPydanticAnnotation
+from backend.src.common.fastapi_http_exceptions import BadRequestException
+from backend.src.schedule_mail.models import (
     ScheduleMail,
     ScheduleMailRequestBody,
     ScheduleMailStatus,
     ScheduleMailWithSenderDetails,
 )
-from src.authentication.service import access_security
-from src.link_mail_address.service import LinkMailAddressService
+from backend.src.link_mail_address.service import LinkMailAddressService
 
-from .repositories import ScheduleMailRepository
+from backend.src.schedule_mail.repositories import ScheduleMailRepository
 
 
 class ScheduleMailService:
@@ -30,6 +29,15 @@ class ScheduleMailService:
         self.schedule_mail_repository = schedule_mail_repository
         self.link_mail_address_service = link_mail_address_service
         self.mail_sync_service = mail_sync_service
+
+    async def get_scheduled_mails(
+        self,
+        username: str,
+    ) -> list[ScheduleMailWithSenderDetails]:
+        link_mail_addresses = await self.link_mail_address_service.get_all_linked_mail_address(username)
+        return await self.schedule_mail_repository.get_scheduled_mails_by_user(
+            [link_address.id for link_address in link_mail_addresses]
+        )
 
     async def schedule_mail(self, username, request_body: ScheduleMailRequestBody) -> any:
         link_mail_address = await self.link_mail_address_service.get_by_email(username, request_body.sender)
@@ -74,3 +82,8 @@ class ScheduleMailService:
             await self.schedule_mail_repository.update_status(mail.id, ScheduleMailStatus.FAILED)
             print(f"Mail failed: {mail.id}")
             print(e)
+
+    async def update_schedule_mail(
+        self, schedule_mail_id: Annotated[ObjectId, ObjectIdPydanticAnnotation], request_body: ScheduleMailRequestBody
+    ) -> None:
+        await self.schedule_mail_repository.update_schedule_mail(schedule_mail_id, request_body)
