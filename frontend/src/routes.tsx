@@ -3,7 +3,8 @@ import Mail from './pages/mails';
 import MailViewer from './pages/mails/MailViewer';
 import OauthCallback from './pages/oauth';
 import Profile from './pages/profile';
-import Schedule from './pages/schedule';
+import ScheduleAutoReply from './pages/schedule/AutoReply';
+import ScheduledMails from './pages/schedule/ScheduledMails';
 
 const routes = [
   {
@@ -42,9 +43,14 @@ const routes = [
     component: <Mail />,
   },
   {
-    title: 'Schedule',
-    path: '/schedule',
-    component: <Schedule />,
+    title: 'Scheduled Mails',
+    path: '/schedule/mails',
+    component: <ScheduledMails />,
+  },
+  {
+    title: 'Schedule Auto Reply',
+    path: '/schedule/auto-reply',
+    component: <ScheduleAutoReply />,
   },
 ];
 
