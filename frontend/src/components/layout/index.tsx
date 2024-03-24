@@ -1,9 +1,9 @@
-import React, { useState, type ReactNode } from 'react';
+import React, { useState, type ReactNode, useEffect } from 'react';
 
 import { CalendarOutlined, MailOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import CustomHeader from './Header';
 import { useSession } from '../../hooks/userSession';
@@ -15,7 +15,11 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 export default function CustomLayout({ children, title }: { children: ReactNode; title: string }) {
   const [collapsed, setCollapsed] = useState(true);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const location = useLocation();
+  const param = useParams();
   const navigate = useNavigate();
+  console.log(location.pathname);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -47,6 +51,29 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
     );
     return items;
   };
+
+  useEffect(() => {
+    const getSelectedKeys = () => {
+      const keys = [];
+      if (location.pathname === '/') {
+        keys.push('/emailsSection');
+        keys.push('/emails');
+      } else if (location.pathname.includes('/emails')) {
+        keys.push('/emailsSection');
+        if (location.pathname.includes('/emails/link-mail-addresses') && param.address) {
+          keys.push(`/emails/link-mail-addresses/${param.address}`);
+        } else {
+          keys.push('/emails');
+        }
+      } else if (location.pathname.includes('/calendar')) {
+        keys.push('/calendar');
+      }
+      return keys;
+    };
+
+    setSelectedKeys(getSelectedKeys());
+  }, [location.pathname, param.address]);
+
   const items: MenuItem[] = [
     getItem('Emails', '/emailsSection', <MailOutlined />, getLinkedMailAddressSubMenu()),
     getItem('Calendar', '/calendar', <CalendarOutlined />),
@@ -54,12 +81,20 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
     // getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
     // getItem('Files', '9', <FileOutlined />),
   ];
+  console.log('items', items);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div className="demo-logo-vertical">LOGO</div>
-        <Menu theme="dark" onClick={onClickMenuItem} defaultSelectedKeys={['/emails']} mode="inline" items={items} />
+        <Menu
+          theme="dark"
+          onClick={onClickMenuItem}
+          defaultSelectedKeys={['/emails']}
+          mode="inline"
+          items={items}
+          selectedKeys={selectedKeys}
+        />
       </Sider>
       <Layout>
         <CustomHeader title={title} />

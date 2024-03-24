@@ -25,7 +25,11 @@ export default function SingleMailBox({ isDrawerOpen }: { isDrawerOpen: boolean 
       }),
   );
 
-  const { data: data1, isLoading: isLoading1 } = useSWR(
+  const {
+    data: data1,
+    isLoading: isLoading1,
+    isValidating: isValidating1,
+  } = useSWR(
     [`/mails/link-mail-addresses/${params.address}/mails`, 1],
     () =>
       api.getMailsByLinkedAddress({
@@ -59,6 +63,11 @@ export default function SingleMailBox({ isDrawerOpen }: { isDrawerOpen: boolean 
     }
   }, [data1, isLoading1]);
 
+  useEffect(() => {
+    setPageNo(1);
+    setNextPageToken('');
+  }, [params.address]);
+
   return (
     <>
       <div style={{ width: isDrawerOpen ? '50%' : '100%', transition: 'all 0.3s' }}>
@@ -67,7 +76,7 @@ export default function SingleMailBox({ isDrawerOpen }: { isDrawerOpen: boolean 
           hasMore={!!hasMore}
           loadMoreData={loadMoreData}
           isComposeMail={isDrawerOpen}
-          isLoading={isLoading || isLoading1}
+          isLoading={isLoading || isLoading1 || isValidating1}
         />
       </div>
     </>
