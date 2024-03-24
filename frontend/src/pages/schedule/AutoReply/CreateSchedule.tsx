@@ -1,48 +1,85 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { PlusOutlined } from '@ant-design/icons';
 import { createEditorStateWithText } from '@draft-js-plugins/editor';
-import type { DateSelectArg, EventClickArg } from '@fullcalendar/core/index.js';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import FullCalendar from '@fullcalendar/react';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import { DatePicker, Modal, Select, notification, type SelectProps, Drawer, Flex, Button } from 'antd';
+import { DatePicker, Select, notification, type SelectProps, Flex, Button } from 'antd';
 import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
 import type { EditorState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import parse from 'html-react-parser';
-import useSWR, { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr';
 
 import * as api from '../../../api/Schedule';
-import type { IScheduleAutoReply } from '../../../common/types';
 import RichTextEditor from '../../../components/RichTextEditor';
 import { useSession } from '../../../hooks/userSession';
 
 export default function CreateSchedule({
-  setMailAddresses,
-  onRangeChange,
   startDate,
   endDate,
-  editorState,
-  setEditorState,
-  isCreatingSchedule,
-  createSchedule,
+  setStartDate,
+  setEndDate,
 }: {
-  setMailAddresses: (value: string[]) => void;
-  onRangeChange: (dates: [Dayjs | null, Dayjs | null]) => void;
   startDate: Dayjs | null;
   endDate: Dayjs | null;
-  editorState: EditorState;
-  setEditorState: (value: EditorState) => void;
-  isCreatingSchedule: boolean;
-  createSchedule: () => void;
+  setStartDate: (date: Dayjs | null) => void;
+  setEndDate: (date: Dayjs | null) => void;
 }) {
+  const [editorState, setEditorState] = useState<EditorState>(createEditorStateWithText(''));
+  const [mailAddresses, setMailAddresses] = useState<string[]>([]);
+  const [isCreatingSchedule, setIsCreatingSchedule] = useState(false);
+  const { linkedMailAddresses } = useSession();
+  const { mutate } = useSWRConfig();
+  const onRangeChange = (dates: null | (Dayjs | null)[]) => {
+    if (dates && dates[0] && dates[1]) {
+      setStartDate(dates[0]);
+      setEndDate(dates[1]);
+    } else {
+      console.log('Clear');
+    }
+  };
   const linkedMailAddressesDropdownOptions: SelectProps['options'] = linkedMailAddresses?.map((mail) => {
     return { label: mail.email, value: mail.email };
   });
+
+  const isSendButtonDisabled = () => {
+    const plainBody = editorState.getCurrentContent().getPlainText();
+    const htmlBody = stateToHTML(editorState.getCurrentContent());
+    return !startDate || !endDate || mailAddresses.length === 0 || !plainBody || !htmlBody;
+  };
+
+  const createSchedule = async () => {
+    const plainBody = editorState.getCurrentContent().getPlainText();
+    const htmlBody = stateToHTML(editorState.getCurrentContent());
+    if (!startDate || !endDate || mailAddresses.length === 0 || !plainBody || !htmlBody) {
+      return;
+    }
+    try {
+      setIsCreatingSchedule(true);
+      const res = await api.createScheduleAutoReply({
+        data: {
+          mail_addresses: mailAddresses,
+          start_time: startDate.toISOString(),
+          end_time: endDate.toISOString(),
+          body: {
+            html: htmlBody,
+            plain: plainBody,
+          },
+        },
+      });
+      if (res?.status === 200) {
+        notification.success({
+          message: 'Schedule Auto Reply Created',
+          description: 'Your schedule auto reply has been created successfully.',
+        });
+
+        mutate('/get-schedule-auto-reply');
+        setIsCreatingSchedule(false);
+      }
+    } catch (_) {
+      /* empty */
+    }
+  };
+
   return (
     <>
       <Select
