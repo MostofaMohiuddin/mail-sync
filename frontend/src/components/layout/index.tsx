@@ -6,28 +6,12 @@ import { Layout, Menu, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import CustomHeader from './Header';
+import { useSession } from '../../hooks/userSession';
 // import Title from 'antd/lib/typography/Title';
 
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
-
-function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  } as MenuItem;
-}
-
-const items: MenuItem[] = [
-  getItem('Emails', '/emails', <MailOutlined />),
-  getItem('Calendar', '/calendar', <CalendarOutlined />),
-  // getItem('User', 'sub1', <UserOutlined />, [getItem('Tom', '3'), getItem('Bill', '4'), getItem('Alex', '5')]),
-  // getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-  // getItem('Files', '9', <FileOutlined />),
-];
 
 export default function CustomLayout({ children, title }: { children: ReactNode; title: string }) {
   const [collapsed, setCollapsed] = useState(true);
@@ -36,9 +20,40 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const { linkedMailAddresses } = useSession();
+
   const onClickMenuItem: MenuProps['onClick'] = (e) => {
     navigate(e.key);
   };
+
+  function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem {
+    return {
+      key,
+      icon,
+      children,
+      label,
+    } as MenuItem;
+  }
+
+  const getLinkedMailAddressSubMenu = () => {
+    const items = [getItem('All Inbox', '/emails')];
+    linkedMailAddresses?.forEach((linkedMailAddress) =>
+      items.push(
+        getItem(
+          linkedMailAddress.email.length > 15 ? linkedMailAddress.email.slice(0, 15) + '...' : linkedMailAddress.email,
+          `/emails/link-mail-addresses/${linkedMailAddress.email}`,
+        ),
+      ),
+    );
+    return items;
+  };
+  const items: MenuItem[] = [
+    getItem('Emails', '/emailsSection', <MailOutlined />, getLinkedMailAddressSubMenu()),
+    getItem('Calendar', '/calendar', <CalendarOutlined />),
+    // getItem('User', 'sub1', <UserOutlined />, [getItem('Tom', '3'), getItem('Bill', '4'), getItem('Alex', '5')]),
+    // getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+    // getItem('Files', '9', <FileOutlined />),
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

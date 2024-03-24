@@ -35,6 +35,11 @@ const routes = [
     path: '/emails/:address/:id',
     component: <MailViewer />,
   },
+  {
+    title: 'Mail',
+    path: '/emails/link-mail-addresses/:address',
+    component: <Mail />,
+  },
 ];
 
 export default routes;

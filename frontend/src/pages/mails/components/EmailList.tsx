@@ -3,8 +3,8 @@ import parse from 'html-react-parser';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 
-import type { IEmailMetadata } from '../../common/types';
-import { generateAvatarText, generateRandomColor } from '../../common/utility';
+import type { IEmailMetadata } from '../../../common/types';
+import { generateAvatarText, generateRandomColor } from '../../../common/utility';
 
 export default function EmailList({
   data,

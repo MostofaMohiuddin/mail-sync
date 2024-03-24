@@ -79,6 +79,7 @@ export enum IProcessEmailType {
 }
 
 export interface IUserLinkedMail {
+  id: string;
   username: string;
   email: string;
   picture: string;
