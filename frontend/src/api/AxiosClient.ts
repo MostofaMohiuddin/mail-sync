@@ -35,7 +35,6 @@ axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error?.config;
-    console.log('error', error);
     if (error instanceof AxiosError) {
       if (error.response?.status === 401 && !originalRequest?._retry && originalRequest.url !== '/auth/sign-in') {
         originalRequest._retry = true;

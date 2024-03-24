@@ -1,13 +1,12 @@
 import React, { useState, type ReactNode, useEffect } from 'react';
 
-import { CalendarOutlined, MailOutlined } from '@ant-design/icons';
+import { CalendarOutlined, MailOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import CustomHeader from './Header';
 import { useSession } from '../../hooks/userSession';
-// import Title from 'antd/lib/typography/Title';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -19,7 +18,6 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
   const location = useLocation();
   const param = useParams();
   const navigate = useNavigate();
-  console.log(location.pathname);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -67,6 +65,8 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
         }
       } else if (location.pathname.includes('/calendar')) {
         keys.push('/calendar');
+      } else if (location.pathname.includes('/schedule')) {
+        keys.push('/schedule');
       }
       return keys;
     };
@@ -77,11 +77,11 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
   const items: MenuItem[] = [
     getItem('Emails', '/emailsSection', <MailOutlined />, getLinkedMailAddressSubMenu()),
     getItem('Calendar', '/calendar', <CalendarOutlined />),
+    getItem('Schedule', '/schedule', <ClockCircleOutlined />),
     // getItem('User', 'sub1', <UserOutlined />, [getItem('Tom', '3'), getItem('Bill', '4'), getItem('Alex', '5')]),
     // getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
     // getItem('Files', '9', <FileOutlined />),
   ];
-  console.log('items', items);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

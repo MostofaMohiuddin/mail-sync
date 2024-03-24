@@ -1,7 +1,7 @@
 from datetime import datetime
 from dateutil.parser import parse
 from enum import Enum
-from typing import Annotated, Any
+from typing import Annotated, Any, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel, model_validator
@@ -15,6 +15,7 @@ class ScheduleMailStatus(str, Enum):
     PENDING = "pending"
     SENT = "sent"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class ScheduleMail(BaseModel):
@@ -27,16 +28,17 @@ class ScheduleMail(BaseModel):
 
 
 class ScheduleMailRequestBody(BaseModel):
-    sender: str
-    receiver: str
-    subject: str
-    body: MailBody
-    scheduled_at: datetime
+    sender: Optional[str] = None
+    receiver: Optional[str] = None
+    subject: Optional[str] = None
+    body: Optional[MailBody] = None
+    scheduled_at: Optional[datetime] = None
+    status: Optional[ScheduleMailStatus] = None
 
     @model_validator(mode="before")
     @classmethod
     def validate_scheduled_at(cls, values) -> Any:
-        if parse(values.get("scheduled_at"), ignoretz=True) < datetime.now():
+        if values.get("scheduled_at") and parse(values.get("scheduled_at"), ignoretz=True) < datetime.now():
             raise BadRequestException(detail="Scheduled time should be in future")
         return values
 

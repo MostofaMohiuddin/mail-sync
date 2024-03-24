@@ -104,3 +104,20 @@ export interface IEventsResponse {
   email: string;
   events: IEvent[];
 }
+
+export interface IScheduleMail {
+  sender_link_mail_address_id: string;
+  receiver: string;
+  subject: string;
+  body: {
+    html: string;
+    plain: string;
+  };
+  status: string;
+  scheduled_at: string;
+  id: string;
+  sender_details: {
+    username: string;
+    email: string;
+  };
+}
