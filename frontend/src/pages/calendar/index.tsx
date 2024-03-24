@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useRef, useState } from 'react';
 
 import { Drawer } from 'antd';
 import type { Dayjs } from 'dayjs';
@@ -6,7 +7,7 @@ import dayjs from 'dayjs';
 import useSWR from 'swr';
 
 import CalendarView from './Calendar';
-import DayView from './DayView';
+import DayCalendar from './DayCalendar';
 import * as calendarApi from '../../api/Calendar';
 import * as linkedMailApi from '../../api/LinkMailAddress';
 import type { IEvent, IEventsResponse, IUserLinkedMail } from '../../common/types';
@@ -31,6 +32,7 @@ export default function Calendar() {
       revalidateOnFocus: true,
     },
   );
+  const calendarRef = useRef<any>(null);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const closeDrawer = () => {
@@ -54,14 +56,9 @@ export default function Calendar() {
 
   useEffect(() => {
     const sortedEvents: Record<string, IEvent[]> = {};
-    const eventIdsExist = new Set();
     events.forEach((event) => {
       const start = dayjs(event.start);
-      if (eventIdsExist.has(event.id)) {
-        return;
-      }
       sortedEvents[start.format('MMDD')] = [...(sortedEvents[start.format('MMDD')] || []), event];
-      eventIdsExist.add(event.id);
     });
     for (const [key, value] of Object.entries(sortedEvents)) {
       sortedEvents[key] = value.sort((a, b) => {
@@ -79,26 +76,33 @@ export default function Calendar() {
     setUserLinkedMail(userLinkedMail);
   }, [linkedMailAddressResponse]);
 
+  const handleDateChange = (date: Dayjs) => {
+    setSelectedDay(date);
+    if (!calendarRef.current) return;
+    const calendarApi = calendarRef.current.getApi();
+    const dateToSet = date.toDate(); // Set your desired date here
+    calendarApi.gotoDate(dateToSet);
+  };
   return (
     <>
       <Loader loading={isLoading || isLoadingMailAddresses} />
       <div style={{ width: isDrawerOpen ? '50%' : '100%', transition: 'all 0.3s' }}>
         <CalendarView
-          setSelectedDay={setSelectedDay}
+          setSelectedDay={handleDateChange}
           events={sortedEvents}
           userLinkedMail={userLinkedMail}
           openDrawer={openDrawer}
         />
       </div>
       <Drawer
-        title={`${selectedDay.format('dddd - DD MMMM, YYYY')}`}
+        title={`${selectedDay.format('DD MMMM, YYYY')}`}
         placement="right"
         width={'45%'}
         onClose={closeDrawer}
         open={isDrawerOpen}
         mask={false}
       >
-        <DayView events={sortedEvents[selectedDay.format('MMDD')] || []} userLinkedMail={userLinkedMail} />
+        <DayCalendar events={events} calendarRef={calendarRef} initialDate={selectedDay} />
       </Drawer>
     </>
   );
