@@ -8,4 +8,6 @@ const sendMail = authorizedApiRequestWrapper2('/mails', 'post');
 
 const processMailWithAI = authorizedApiRequestWrapper2('/mails/process-with-ai', 'post');
 
-export { getMails, getMail, sendMail, processMailWithAI };
+const scheduleMail = authorizedApiRequestWrapper2('/schedule-mail', 'post');
+
+export { getMails, getMail, sendMail, processMailWithAI, scheduleMail };

@@ -1,12 +1,14 @@
 from datetime import datetime
+from dateutil.parser import parse
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Any
 
 from bson import ObjectId
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
-from src.common.models import ObjectIdPydanticAnnotation
-from src.mails.models import MailBody
+from backend.src.common.fastapi_http_exceptions import BadRequestException
+from backend.src.common.models import ObjectIdPydanticAnnotation
+from backend.src.mails.models import MailBody
 
 
 class ScheduleMailStatus(str, Enum):
@@ -29,7 +31,14 @@ class ScheduleMailRequestBody(BaseModel):
     receiver: str
     subject: str
     body: MailBody
-    scheduled_at: str
+    scheduled_at: datetime
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_scheduled_at(cls, values) -> Any:
+        if parse(values.get("scheduled_at"), ignoretz=True) < datetime.now():
+            raise BadRequestException(detail="Scheduled time should be in future")
+        return values
 
 
 class SendScheduledMailRequestBody(BaseModel):

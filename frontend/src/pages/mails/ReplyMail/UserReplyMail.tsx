@@ -1,7 +1,11 @@
 import { useState } from 'react';
 
-import { SendOutlined } from '@ant-design/icons';
-import { Button, Flex, Select, notification } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
+import { createEditorStateWithText } from '@draft-js-plugins/editor';
+import { Dropdown, Flex, Select, notification, type MenuProps, DatePicker, type DatePickerProps } from 'antd';
+import type { Dayjs } from 'dayjs';
+import type { EditorState } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
 
 import ReplyDataInput from './ReplyDataInput';
 import * as api from '../../../api/Mail';
@@ -15,25 +19,28 @@ export default function UserReplyMail({
   receiverEmail?: string;
   replySubject?: string;
 }) {
-  const [plainBody, setPlainBody] = useState('');
-  const [htmlBody, setHtmlBody] = useState('');
+  const [editorState, setEditorState] = useState<EditorState>(createEditorStateWithText(''));
   const [receiver, setReceiver] = useState(receiverEmail || '');
   const [subject, setSubject] = useState(replySubject || '');
   const [sender, setSender] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [sendOption, setSendOption] = useState('SEND');
+  const [scheduleDate, setScheduleDate] = useState<Dayjs | null>(null);
 
   const { linkedMailAddresses } = useSession();
 
   const resetData = () => {
-    setHtmlBody('');
-    setPlainBody('');
+    setEditorState(createEditorStateWithText(''));
     setSubject('');
     setReceiver('');
     setSender(null);
+    setScheduleDate(null);
   };
 
   const sendMail = async () => {
     setIsLoading(true);
+    const plainBody = editorState.getCurrentContent().getPlainText();
+    const htmlBody = stateToHTML(editorState.getCurrentContent());
     const res = await api.sendMail({ data: { receiver, subject, body: { html: htmlBody, plain: plainBody }, sender } });
     if (res?.data?.labelIds?.length > 0 && res?.data?.labelIds[0] === 'SENT') {
       notification.success({
@@ -44,6 +51,60 @@ export default function UserReplyMail({
     }
     setIsLoading(false);
   };
+
+  const scheduleMail = async () => {
+    setIsLoading(true);
+    const plainBody = editorState.getCurrentContent().getPlainText();
+    const htmlBody = stateToHTML(editorState.getCurrentContent());
+    try {
+      const res = await api.scheduleMail({
+        data: {
+          receiver,
+          subject,
+          body: { html: htmlBody, plain: plainBody },
+          sender,
+          scheduled_at: scheduleDate?.toISOString(),
+        },
+      });
+      if (res?.status === 201) {
+        notification.success({
+          message: 'Mail Scheduled',
+          description: 'Your mail has been scheduled successfully.',
+        });
+        resetData();
+      }
+    } catch (_) {
+      /* empty */
+    }
+    setIsLoading(false);
+  };
+
+  const isSendButtonDisabled = () => {
+    const plainBody = editorState.getCurrentContent().getPlainText();
+    const htmlBody = stateToHTML(editorState.getCurrentContent());
+
+    const hasAllCommonFields = htmlBody && plainBody && sender && receiver && subject;
+    if (sendOption === 'SEND') {
+      return !hasAllCommonFields;
+    } else {
+      return !(hasAllCommonFields && scheduleDate);
+    }
+  };
+
+  const onDateChange: DatePickerProps['onChange'] = (date) => {
+    setScheduleDate(date);
+  };
+
+  const sendOptions: MenuProps['items'] = [
+    {
+      label: 'Send',
+      key: 'SEND',
+    },
+    {
+      label: 'Schedule',
+      key: 'SCHEDULE',
+    },
+  ];
 
   return (
     <>
@@ -97,19 +158,28 @@ export default function UserReplyMail({
         />
       </Flex>
 
-      <RichTextEditor setHtmlValue={setHtmlBody} setPlainValue={setPlainBody} plainValue={plainBody} />
+      <RichTextEditor setEditorState={setEditorState} editorState={editorState} />
 
       <Flex justify="flex-end" style={{ marginTop: '8px' }}>
-        <span></span>
-        <Button
-          type="primary"
-          icon={<SendOutlined />}
-          onClick={sendMail}
-          loading={isLoading}
-          disabled={htmlBody && plainBody && sender && receiver && subject ? false : true}
-        >
-          Send
-        </Button>
+        <span>{sendOption === 'SCHEDULE' && <DatePicker onChange={onDateChange} showTime value={scheduleDate} />}</span>
+        <div style={{ marginLeft: '1rem' }}>
+          <Dropdown.Button
+            menu={{ items: sendOptions, onClick: (e) => setSendOption(e.key) }}
+            type="primary"
+            icon={<DownOutlined />}
+            onClick={() => {
+              if (sendOption === 'SEND') {
+                sendMail();
+              } else {
+                scheduleMail();
+              }
+            }}
+            loading={isLoading}
+            disabled={isSendButtonDisabled()}
+          >
+            {sendOption === 'SEND' ? 'Send' : 'Schedule'}
+          </Dropdown.Button>
+        </div>
       </Flex>
     </>
   );
