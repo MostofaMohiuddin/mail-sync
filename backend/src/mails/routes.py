@@ -25,6 +25,19 @@ async def get_mails(
     return await mail_sync_service.get_mails(jwt_credentials.subject.get("username"), next_page_tokens)
 
 
+@router.get("/mail-address/{mail_address}/mails", status_code=status.HTTP_200_OK)
+async def get_mails_by_link_mail_address(
+    mail_address: str,
+    next_page_token: str = None,
+    number_of_mails: int = 10,
+    mail_sync_service: MailSyncService = Depends(),
+    jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
+) -> Any:
+    return await mail_sync_service.get_mails_by_link_mail_address(
+        jwt_credentials.subject.get("username"), mail_address, next_page_token, number_of_mails
+    )
+
+
 @router.get("/{mail_address}/{mail_id}", status_code=status.HTTP_200_OK)
 async def get_mail(
     mail_id: str,

@@ -55,6 +55,16 @@ class MailSyncService:
         ]
         return {"mails": mails, "next_page_tokens": new_next_page_tokens}
 
+    async def get_mails_by_link_mail_address(
+        self, username: str, link_mail_address: str, next_page_token: str = None, number_of_mails: int = 10
+    ) -> Any:
+        oauth_tokens = await self.link_mail_address_service.get_oauth_token_by_email(username, link_mail_address)
+        if not oauth_tokens:
+            return {"mails": []}
+        google_api_client = GoogleApiClient(oauth_tokens, link_mail_address)
+        data = google_api_client.get_user_mails(next_page_token, number_of_mails)
+        return {"mails": data.emails, "next_page_token": data.next_page_token}
+
     async def get_mails_by_link_address_id(
         self,
         link_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
