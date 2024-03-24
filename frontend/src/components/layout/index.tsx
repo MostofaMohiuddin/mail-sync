@@ -67,6 +67,11 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
         keys.push('/calendar');
       } else if (location.pathname.includes('/schedule')) {
         keys.push('/schedule');
+        if (location.pathname.includes('/schedule/mails')) {
+          keys.push('/schedule/mails');
+        } else if (location.pathname.includes('/schedule/auto-reply')) {
+          keys.push('/schedule/auto-reply');
+        }
       }
       return keys;
     };
@@ -77,7 +82,10 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
   const items: MenuItem[] = [
     getItem('Emails', '/emailsSection', <MailOutlined />, getLinkedMailAddressSubMenu()),
     getItem('Calendar', '/calendar', <CalendarOutlined />),
-    getItem('Schedule', '/schedule', <ClockCircleOutlined />),
+    getItem('Schedule', '/schedule', <ClockCircleOutlined />, [
+      getItem('Scheduled Mails', '/schedule/mails'),
+      getItem('Auto Reply', '/schedule/auto-reply'),
+    ]),
     // getItem('User', 'sub1', <UserOutlined />, [getItem('Tom', '3'), getItem('Bill', '4'), getItem('Alex', '5')]),
     // getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
     // getItem('Files', '9', <FileOutlined />),

@@ -8,6 +8,7 @@ from backend.src.common.fastapi_http_exceptions import BadRequestException
 from backend.src.schedule_auto_reply.models import (
     ScheduleAutoReplyRequestBody,
     ScheduleAutoReply,
+    ScheduleAutoReplyResponse,
     ScheduleAutoReplyUpdateRequestBody,
 )
 from backend.src.schedule_auto_reply.repositories import ScheduleAutoReplyRepository
@@ -24,6 +25,12 @@ class ScheduleAutoReplyService:
         self.schedule_auto_reply_repository = schedule_auto_reply_repository
         self.link_mail_address_service = link_mail_address_service
         self.mail_sync_service = mail_sync_service
+
+    async def get_scheduled_auto_replies(self, username: str) -> list[ScheduleAutoReplyResponse]:
+        link_mail_addresses = await self.link_mail_address_service.get_all_linked_mail_address(username)
+        return await self.schedule_auto_reply_repository.get_scheduled_auto_replies(
+            [link_address.id for link_address in link_mail_addresses]
+        )
 
     async def schedule_auto_reply(self, username: str, request_body: ScheduleAutoReplyRequestBody) -> None:
         tasks = [

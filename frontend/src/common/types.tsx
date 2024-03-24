@@ -121,3 +121,23 @@ export interface IScheduleMail {
     email: string;
   };
 }
+
+export interface IScheduleAutoReply {
+  linked_mail_address_id: string;
+  start_time: string;
+  end_time: string;
+  subject: string;
+  body: {
+    html: string;
+    plain: string;
+  };
+  last_mail_history_id: string;
+  last_mail_id: string;
+  enabled: boolean;
+  note: string;
+  id: string;
+  sender_details: {
+    username: string;
+    email: string;
+  };
+}

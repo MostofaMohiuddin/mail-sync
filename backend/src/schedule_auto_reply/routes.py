@@ -6,7 +6,11 @@ from fastapi_jwt import JwtAuthorizationCredentials
 
 from backend.src.authentication.service import access_security
 from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.schedule_auto_reply.models import ScheduleAutoReplyRequestBody, ScheduleAutoReplyUpdateRequestBody
+from backend.src.schedule_auto_reply.models import (
+    ScheduleAutoReplyRequestBody,
+    ScheduleAutoReplyResponse,
+    ScheduleAutoReplyUpdateRequestBody,
+)
 from backend.src.schedule_auto_reply.service import ScheduleAutoReplyService
 
 
@@ -14,6 +18,14 @@ router = APIRouter(
     prefix="/api/schedule-auto-reply",
     tags=["Schedule Auto Reply"],
 )
+
+
+@router.get("/", status_code=status.HTTP_200_OK)
+async def get_scheduled_auto_replies(
+    schedule_auto_reply_service: ScheduleAutoReplyService = Depends(),
+    jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
+) -> list[ScheduleAutoReplyResponse]:
+    return await schedule_auto_reply_service.get_scheduled_auto_replies(jwt_credentials.subject.get("username"))
 
 
 @router.post("/", status_code=status.HTTP_200_OK)
