@@ -1,8 +1,10 @@
 import asyncio
 from typing import Annotated
 
+from bson import ObjectId
 from fastapi import Depends
 
+from backend.src.common.models import ObjectIdPydanticAnnotation
 from backend.src.mails.service import MailSyncService
 from backend.src.common.fastapi_http_exceptions import BadRequestException
 from backend.src.schedule_auto_reply.models import (
@@ -55,5 +57,10 @@ class ScheduleAutoReplyService:
         )
         await self.schedule_auto_reply_repository.add_schedule_auto_reply(schedule_auto_reply_data)
 
-    async def update_schedule_auto_reply(self, _id: str, request_body: ScheduleAutoReplyUpdateRequestBody) -> None:
+    async def update_schedule_auto_reply(
+        self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation], request_body: ScheduleAutoReplyUpdateRequestBody
+    ) -> None:
         await self.schedule_auto_reply_repository.update_schedule_auto_reply(_id, request_body)
+
+    async def delete_schedule_auto_reply(self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation]) -> None:
+        await self.schedule_auto_reply_repository.delete_schedule_auto_reply(_id)
