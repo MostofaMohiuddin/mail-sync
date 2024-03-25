@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { PlusOutlined } from '@ant-design/icons';
 import { createEditorStateWithText } from '@draft-js-plugins/editor';
@@ -18,11 +18,15 @@ export default function CreateSchedule({
   endDate,
   setStartDate,
   setEndDate,
+  isDrawerOpen,
+  closeDrawer,
 }: {
   startDate: Dayjs | null;
   endDate: Dayjs | null;
   setStartDate: (date: Dayjs | null) => void;
   setEndDate: (date: Dayjs | null) => void;
+  closeDrawer: () => void;
+  isDrawerOpen: boolean;
 }) {
   const [editorState, setEditorState] = useState<EditorState>(createEditorStateWithText(''));
   const [mailAddresses, setMailAddresses] = useState<string[]>([]);
@@ -46,6 +50,18 @@ export default function CreateSchedule({
     const htmlBody = stateToHTML(editorState.getCurrentContent());
     return !startDate || !endDate || mailAddresses.length === 0 || !plainBody || !htmlBody;
   };
+
+  const resetData = () => {
+    setEditorState(createEditorStateWithText(''));
+    setMailAddresses([]);
+    setStartDate(null);
+    setEndDate(null);
+  };
+
+  useEffect(() => {
+    if (!isDrawerOpen) resetData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDrawerOpen]);
 
   const createSchedule = async () => {
     const plainBody = editorState.getCurrentContent().getPlainText();
@@ -73,10 +89,12 @@ export default function CreateSchedule({
         });
 
         mutate('/get-schedule-auto-reply');
-        setIsCreatingSchedule(false);
+        closeDrawer();
       }
     } catch (_) {
       /* empty */
+    } finally {
+      setIsCreatingSchedule(false);
     }
   };
 
@@ -88,6 +106,7 @@ export default function CreateSchedule({
         style={{ width: '100%', marginBottom: '0.5rem' }}
         placeholder="Please select"
         onChange={setMailAddresses}
+        value={mailAddresses}
         options={linkedMailAddressesDropdownOptions}
       />
       <DatePicker.RangePicker

@@ -6,5 +6,13 @@ const updateScheduleMail = authorizedApiRequestWrapper2('/schedule-mail/:schedul
 
 const getScheduleAutoReply = authorizedApiRequestWrapper2('/schedule-auto-reply', 'get');
 const createScheduleAutoReply = authorizedApiRequestWrapper2('/schedule-auto-reply', 'post');
+const deleteScheduleAutoReply = authorizedApiRequestWrapper2('/schedule-auto-reply/:schedule_auto_reply_id', 'delete');
 
-export { scheduleMail, getScheduleMails, updateScheduleMail, getScheduleAutoReply, createScheduleAutoReply };
+export {
+  scheduleMail,
+  getScheduleMails,
+  updateScheduleMail,
+  getScheduleAutoReply,
+  createScheduleAutoReply,
+  deleteScheduleAutoReply,
+};

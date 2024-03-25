@@ -38,9 +38,18 @@ async def schedule_auto_reply(
 
 
 @router.put("/{schedule_auto_reply_id}", status_code=status.HTTP_200_OK)
-async def update_schedule_mail(
+async def update_schedule_auto_reply(
     schedule_auto_reply_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
     request_body: ScheduleAutoReplyUpdateRequestBody,
     schedule_auto_reply_service: ScheduleAutoReplyService = Depends(),
 ) -> None:
     await schedule_auto_reply_service.update_schedule_auto_reply(schedule_auto_reply_id, request_body)
+
+
+@router.delete("/{schedule_auto_reply_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_schedule_auto_reply(
+    schedule_auto_reply_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+    schedule_auto_reply_service: ScheduleAutoReplyService = Depends(),
+    _: JwtAuthorizationCredentials = Security(access_security),
+) -> None:
+    await schedule_auto_reply_service.delete_schedule_auto_reply(schedule_auto_reply_id)

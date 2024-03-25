@@ -75,3 +75,6 @@ class ScheduleAutoReplyRepository(BaseRepository):
         self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation], data: ScheduleAutoReplyUpdateRequestBody
     ):
         return await self.update(self.collection, {"_id": _id}, data.model_dump(exclude_none=True))
+
+    async def delete_schedule_auto_reply(self, _id: Annotated[ObjectId, ObjectIdPydanticAnnotation]) -> None:
+        await self.delete(self.collection, {"_id": _id})
