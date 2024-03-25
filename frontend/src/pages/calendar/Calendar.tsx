@@ -11,28 +11,11 @@ export default function CalendarView({
   setSelectedDay,
   events,
   userLinkedMail,
-  openDrawer,
 }: {
   setSelectedDay: (value: Dayjs) => void;
   events: Record<string, IEvent[]>;
   userLinkedMail: Record<string, string>;
-  openDrawer: () => void;
 }) {
-  //   const [sortedEvents, setSortedEvents] = useState({} as Record<string, IEvent[]>);
-
-  //   useEffect(() => {
-  //     const sortedEvents: Record<string, IEvent[]> = {};
-  //     events.forEach((event) => {
-  //       const start = dayjs(event.start);
-  //       const end = dayjs(event.end);
-  //       sortedEvents[start.format('MMDD')] = [...(sortedEvents[start.format('MMDD')] || []), event];
-  //       if (start.date() !== end.date()) {
-  //         sortedEvents[end.format('MMDD')] = [...(sortedEvents[end.format('MMDD')] || []), event];
-  //       }
-  //     });
-  //     setSortedEvents(sortedEvents);
-  //   }, [events]);
-
   const cellRender: CalendarProps<Dayjs>['cellRender'] = (current) => {
     const listData = events[current.format('MMDD')] || [];
 
@@ -71,7 +54,6 @@ export default function CalendarView({
       onSelect={(day, info) => {
         if (info.source === 'date') {
           setSelectedDay(day);
-          openDrawer();
         }
       }}
     />

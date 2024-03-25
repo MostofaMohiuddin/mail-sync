@@ -20,6 +20,8 @@ export default function CreateSchedule({
   setEndDate,
   isDrawerOpen,
   closeDrawer,
+  formRef,
+  createButtonRef,
 }: {
   startDate: Dayjs | null;
   endDate: Dayjs | null;
@@ -27,6 +29,8 @@ export default function CreateSchedule({
   setEndDate: (date: Dayjs | null) => void;
   closeDrawer: () => void;
   isDrawerOpen: boolean;
+  formRef: React.RefObject<HTMLDivElement>;
+  createButtonRef: React.RefObject<HTMLButtonElement>;
 }) {
   const [editorState, setEditorState] = useState<EditorState>(createEditorStateWithText(''));
   const [mailAddresses, setMailAddresses] = useState<string[]>([]);
@@ -100,24 +104,27 @@ export default function CreateSchedule({
 
   return (
     <>
-      <Select
-        mode="multiple"
-        allowClear
-        style={{ width: '100%', marginBottom: '0.5rem' }}
-        placeholder="Please select"
-        onChange={setMailAddresses}
-        value={mailAddresses}
-        options={linkedMailAddressesDropdownOptions}
-      />
-      <DatePicker.RangePicker
-        showTime
-        onChange={onRangeChange}
-        value={[startDate, endDate]}
-        style={{ width: '100%', marginBottom: '1rem' }}
-      />
-      <RichTextEditor editorState={editorState} setEditorState={setEditorState} />
+      <div ref={formRef}>
+        <Select
+          mode="multiple"
+          allowClear
+          style={{ width: '100%', marginBottom: '0.5rem' }}
+          placeholder="Please select"
+          onChange={setMailAddresses}
+          value={mailAddresses}
+          options={linkedMailAddressesDropdownOptions}
+        />
+        <DatePicker.RangePicker
+          showTime
+          onChange={onRangeChange}
+          value={[startDate, endDate]}
+          style={{ width: '100%', marginBottom: '1rem' }}
+        />
+        <RichTextEditor editorState={editorState} setEditorState={setEditorState} />
+      </div>
       <Flex justify="flex-end" style={{ marginTop: '8px' }}>
         <Button
+          ref={createButtonRef}
           type="primary"
           icon={<PlusOutlined />}
           onClick={createSchedule}

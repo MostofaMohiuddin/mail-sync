@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { type EventClickArg, type ViewMountArg } from '@fullcalendar/core/index.js';
+import { type EventClickArg } from '@fullcalendar/core/index.js';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -43,21 +43,7 @@ export default function DayCalendar({
     setSelectedEvent(eventsMapById[clickInfo.event.id] || null);
     showModal();
   };
-  const handleViewRender = (info: ViewMountArg) => {
-    const view = info.view;
-    const start = view.activeStart;
-    const end = view.activeEnd;
-    const dates = [];
-    let current = start;
 
-    while (current <= end) {
-      dates.push(current);
-      current = new Date(current.getTime() + 24 * 60 * 60 * 1000); // Increment current date by one day
-    }
-
-    console.log('Currently displayed dates:', dates);
-    // You can perform your logic with the displayed dates here
-  };
   const EventCard = ({ event }: { event: IEvent }) => {
     const { start, end, location, description, creator_email, attendees, video_conference_link, userEmail } = event;
 
@@ -113,7 +99,6 @@ export default function DayCalendar({
         weekends={true}
         eventClick={handleEventClick}
         height={'80vh'}
-        viewDidMount={handleViewRender}
       />
       <Modal
         title={selectedEvent?.title}
