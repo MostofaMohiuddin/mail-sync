@@ -12,6 +12,8 @@ import type { IScheduleAutoReply } from '../../../common/types';
 
 export default function ScheduleAutoReply() {
   const calendarRef = useRef(null);
+  const formRef = useRef(null);
+  const createButtonRef = useRef(null);
   const [schedules, setSchedules] = useState<IScheduleAutoReply[]>([]);
   const [selectedSchedule, setSelectedSchedule] = useState<IScheduleAutoReply | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
@@ -47,7 +49,7 @@ export default function ScheduleAutoReply() {
     setIsDrawerOpen(true);
   };
 
-  const [openTour, setOpenTour] = useState<boolean>(false);
+  const [openTour, setOpenTour] = useState<boolean>(localStorage.getItem('scheduleAutoReplyTour') !== 'completed');
 
   const deleteScheduleAutoReply = async () => {
     if (!selectedSchedule) return;
@@ -68,9 +70,30 @@ export default function ScheduleAutoReply() {
 
   const steps: TourProps['steps'] = [
     {
-      title: 'Save',
-      description: 'Save your changes.',
+      title: 'Select date',
+      description: 'Select your date range. You can drag to select multiple days.',
       target: () => calendarRef.current,
+      nextButtonProps: {
+        onClick() {
+          openDrawer();
+        },
+      },
+      placement: 'bottom',
+    },
+    {
+      title: 'Input details',
+      description: 'Select your mail addresses and input your auto reply message. You can also update your date range.',
+      target: () => formRef.current,
+    },
+    {
+      title: 'Create Your Schedule',
+      description: 'Create your schedule auto reply by clicking the button.',
+      target: () => createButtonRef.current,
+      nextButtonProps: {
+        onClick() {
+          localStorage.setItem('scheduleAutoReplyTour', 'completed');
+        },
+      },
     },
   ];
 
@@ -118,13 +141,20 @@ export default function ScheduleAutoReply() {
           endDate={endDate}
           closeDrawer={closeDrawer}
           isDrawerOpen={isDrawerOpen}
+          formRef={formRef}
+          createButtonRef={createButtonRef}
         />
       </Drawer>
-      <Button type="primary" onClick={() => setOpenTour(true)}>
-        Begin Tour
-      </Button>
 
-      <Tour open={openTour} onClose={() => setOpenTour(false)} steps={steps} />
+      <Tour
+        disabledInteraction
+        open={openTour}
+        onClose={() => {
+          localStorage.setItem('scheduleAutoReplyTour', 'completed');
+          setOpenTour(false);
+        }}
+        steps={steps}
+      />
     </>
   );
 }

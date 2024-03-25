@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react';
 
-import { Drawer } from 'antd';
+import { Flex } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
@@ -33,14 +33,6 @@ export default function Calendar() {
     },
   );
   const calendarRef = useRef<any>(null);
-
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const closeDrawer = () => {
-    setIsDrawerOpen(false);
-  };
-  const openDrawer = () => {
-    setIsDrawerOpen(true);
-  };
 
   useEffect(() => {
     const events: IEvent[] = [];
@@ -86,24 +78,15 @@ export default function Calendar() {
   return (
     <>
       <Loader loading={isLoading || isLoadingMailAddresses} />
-      <div style={{ width: isDrawerOpen ? '50%' : '100%', transition: 'all 0.3s' }}>
-        <CalendarView
-          setSelectedDay={handleDateChange}
-          events={sortedEvents}
-          userLinkedMail={userLinkedMail}
-          openDrawer={openDrawer}
-        />
-      </div>
-      <Drawer
-        title={`${selectedDay.format('DD MMMM, YYYY')}`}
-        placement="right"
-        width={'45%'}
-        onClose={closeDrawer}
-        open={isDrawerOpen}
-        mask={false}
-      >
-        <DayCalendar events={events} calendarRef={calendarRef} initialDate={selectedDay} />
-      </Drawer>
+
+      <Flex justify="space-between" style={{ height: '80vh' }}>
+        <div style={{ width: '50%' }}>
+          <CalendarView setSelectedDay={handleDateChange} events={sortedEvents} userLinkedMail={userLinkedMail} />
+        </div>
+        <div style={{ width: '45%' }}>
+          <DayCalendar events={events} calendarRef={calendarRef} initialDate={selectedDay} />
+        </div>
+      </Flex>
     </>
   );
 }
