@@ -6,6 +6,22 @@ class OpenAIClient:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
 
+    def detect_important_email(self, subject: str, sender: str) -> str | None:
+        return (
+            self.client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "you are a important mail detector. you detect mail important or not from subject and sender email address. Promotional, spam mails are not important so return false. other wise return true. Reply in boolean.",
+                    },
+                    {"role": "user", "content": f"email subject: {subject}, sender email address: {sender}"},
+                ],
+            )
+            .choices.pop()
+            .message.content
+        )
+
     def get_completion(self, system_prompt: str, prompt: str) -> str | None:
         return (
             self.client.chat.completions.create(

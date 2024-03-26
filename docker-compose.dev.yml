@@ -49,7 +49,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - .mongo-data:/data/db
+      - mongo-data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
@@ -60,6 +60,15 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+  redis:
+    image: redis:latest
+    container_name: mail-sync-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data/redis
+    networks:
+      - bridge_network
   worker:
     build:
       context: ./worker
@@ -73,3 +82,7 @@ services:
 networks:
   bridge_network:
     driver: bridge
+
+volumes:
+  mongo-data:
+  redis-data:

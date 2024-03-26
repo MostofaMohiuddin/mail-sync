@@ -22,9 +22,17 @@ class BaseRepository(ABC):
         inserted_entity = await collection.insert_one(entity_model.dict())
         return await self.query(collection, {"_id": inserted_entity.inserted_id})
 
+    async def insert_many(self, collection: AsyncIOMotorCollection, entity_models: list[BaseModel]):
+        await collection.insert_many([entity_model.dict() for entity_model in entity_models])
+        return entity_models
+
     async def update(self, collection: AsyncIOMotorCollection, query: dict, update: dict):
         await collection.update_one(query, {"$set": update})
         return await self.query(collection, query)
+
+    async def update_many(self, collection: AsyncIOMotorCollection, query: dict, update: dict):
+        await collection.update_many(query, {"$set": update})
+        return await self.query_all(collection, query)
 
     async def query(self, collection: AsyncIOMotorCollection, query: dict):
         return await collection.find_one(query)
