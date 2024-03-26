@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 from bson import ObjectId
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -20,7 +20,7 @@ class ScheduleAutoReplyRepository(BaseRepository):
         self.collection = self.db["schedule_auto_reply"]
 
     async def get_scheduled_auto_replies(
-        self, linked_mail_address_ids: list[Annotated[ObjectId, ObjectIdPydanticAnnotation]]
+        self, linked_mail_address_ids: List[Annotated[ObjectId, ObjectIdPydanticAnnotation]]
     ) -> list[ScheduleAutoReplyResponse]:
         # res = await self.query(self.collection, {"linked_mail_address_id": {"$in": linked_mail_address_ids}})
         # print(res)

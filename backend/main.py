@@ -15,6 +15,8 @@ from src.user.routes import router as user_router
 from src.calendars.routes import router as calendars_router
 from src.schedule_mail.routes import router as schedule_mail_router
 from src.schedule_auto_reply.routes import router as schedule_auto_reply_router
+from src.web_socket.routes import router as web_socket_router
+from src.important_mail.routes import router as important_mail_router
 
 
 def init_routers(fastapi_app: FastAPI):
@@ -26,6 +28,8 @@ def init_routers(fastapi_app: FastAPI):
     fastapi_app.include_router(calendars_router)
     fastapi_app.include_router(schedule_mail_router)
     fastapi_app.include_router(schedule_auto_reply_router)
+    fastapi_app.include_router(web_socket_router)
+    fastapi_app.include_router(important_mail_router)
 
 
 def init_openapi(fastapi_app: FastAPI):
