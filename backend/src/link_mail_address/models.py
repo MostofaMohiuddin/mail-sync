@@ -20,6 +20,11 @@ class LinkMailRequest(BaseModel):
     code: str
 
 
+class LinkMailAddressUpdateRequest(BaseModel):
+    last_read_mail_id: Optional[str] = None
+    last_read_mail_history_id: Optional[str] = None
+
+
 class LinkMailAddress(BaseModel):
     username: str
     email: str
@@ -27,6 +32,8 @@ class LinkMailAddress(BaseModel):
     picture: Optional[str] = None
     email_type: EmailType
     oauth_tokens: dict
+    last_read_mail_id: Optional[str] = None
+    last_read_mail_history_id: Optional[str] = None
 
     @model_serializer
     def to_dict(self):
@@ -37,6 +44,8 @@ class LinkMailAddress(BaseModel):
             "email_type": self.email_type.value,
             "oauth_tokens": self.oauth_tokens,
             "email_name": self.email_name,
+            "last_read_mail_id": self.last_read_mail_id,
+            "last_read_mail_history_id": self.last_read_mail_history_id,
         }
 
 

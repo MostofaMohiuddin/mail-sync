@@ -79,3 +79,8 @@ class LinkMailAddressService:
         email: str,
     ) -> None:
         await self.link_mail_address_repository.unlink_mail_address(username, email)
+
+    async def update_linked_mail_address(
+        self, linked_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation], request_body: LinkMailAddress
+    ) -> None:
+        await self.link_mail_address_repository.update_linked_mail_address(linked_mail_address_id, request_body)
