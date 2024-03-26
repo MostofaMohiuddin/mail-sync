@@ -72,6 +72,18 @@ func ReadMailByLinkedMailAddressId(linkedMailAddressId primitive.ObjectID) ReadM
 	}
 	return ReadMailApiResponse{Mails: []MailMetaData{}}
 }
+func UpdateLinkedMailAddress(LastMailId string, LastMailHistoryId string, LinkedMailAddressId primitive.ObjectID) {
+	body := UpdateLinkedMailAddressBody{
+		LastMailId:        LastMailId,
+		LastMailHistoryId: LastMailHistoryId,
+	}
+	resp, _ := callAPI(fmt.Sprintf("/link-mail-address/%s", LinkedMailAddressId.Hex()), http.MethodPut, body)
+	if resp.StatusCode == 200 {
+		log.Printf("Updated LastMailId %s and LastMailHistory %s successfully for LinkedMailAddressId: %s", LastMailId, LastMailHistoryId, LinkedMailAddressId)
+	} else {
+		log.Println(resp.StatusCode)
+	}
+}
 
 func UpdateScheduleAutoReply(ScheduleAutoReplyId primitive.ObjectID, LastMailId string, LastMailHistoryId string) {
 	body := UpdateScheduleAutoReplyBody{
@@ -105,6 +117,32 @@ func SendMail(LinkedMailAddressId primitive.ObjectID, MailData SendMailBody) {
 	resp, _ := callAPI(fmt.Sprintf("/mails/link-mail-address/%s/send", LinkedMailAddressId.Hex()), http.MethodPost, MailData)
 	if resp.StatusCode == 200 {
 		log.Printf("Mail sent successfully LinkedMailAddressId: %s, to: %s", LinkedMailAddressId.Hex(), MailData.Receiver)
+	} else {
+		log.Println(resp.StatusCode)
+	}
+}
+
+func DetectImportantMail(MailData MailMetaData) DetectImportantMailApiResponse {
+	body := DetectImportantMailApiRequest{Subject: MailData.Subject, Snippet: MailData.Snippet, Sender: MailData.Sender.Email}
+	resp, _ := callAPI("/important-mail/detect", http.MethodPost, body)
+	if resp.StatusCode == 200 {
+		var result DetectImportantMailApiResponse
+		body, _ := io.ReadAll(resp.Body)
+		if err := json.Unmarshal(body, &result); err != nil {
+			fmt.Println("Can not unmarshal JSON")
+		}
+		return result
+	} else {
+		log.Println(resp.StatusCode)
+	}
+	return DetectImportantMailApiResponse{IsImportant: false}
+}
+
+func AddImportantMailNotification(Notifications []ImportantMailNotification) {
+	body := ImportantMailNotificationApiRequest{Notifications: Notifications}
+	resp, _ := callAPI("/important-mail/notifications", http.MethodPost, body)
+	if resp.StatusCode == 200 {
+		log.Println("Important Mail Notification added successfully")
 	} else {
 		log.Println(resp.StatusCode)
 	}

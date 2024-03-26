@@ -19,8 +19,9 @@ router = APIRouter(
 async def detect_important_mail(
     request_body: ImportantMailDetectRequest,
     import_mail_service: ImportantMailService = Depends(),
-):
-    return import_mail_service.detect_important(request_body.subject, request_body.sender)
+) -> dict[str, bool]:
+    is_important = import_mail_service.detect_important(request_body.subject, request_body.sender, request_body.snippet)
+    return {"is_important": is_important}
 
 
 @router.post("/notifications", status_code=200)

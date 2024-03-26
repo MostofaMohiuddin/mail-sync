@@ -22,6 +22,7 @@ type MailMetaData struct {
 	HistoryId string   `json:"history_id"`
 	Subject   string   `json:"subject"`
 	Date      string   `json:"date"`
+	Snippet   string   `json:"snippet"`
 }
 
 type ReadMailApiResponse struct {
@@ -37,9 +38,32 @@ type GetHistoryApiResponse struct {
 	Mails []MailMetaData `json:"mailsAdded"`
 }
 
+type DetectImportantMailApiResponse struct {
+	IsImportant bool `json:"is_important"`
+}
+
+type DetectImportantMailApiRequest struct {
+	Subject string `json:"subject"`
+	Snippet string `json:"snippet"`
+	Sender  string `json:"sender"`
+}
+
 type SendMailBody struct {
 	Sender   string      `json:"sender"`
 	Receiver string      `json:"receiver"`
 	Subject  string      `json:"subject"`
 	MailBody common.Body `json:"body"`
+}
+
+type UpdateLinkedMailAddressBody struct {
+	LastMailId        string `json:"last_read_mail_id"`
+	LastMailHistoryId string `json:"last_read_mail_history_id"`
+}
+
+type ImportantMailNotification struct {
+	LinkedMailAddressId primitive.ObjectID `json:"linked_mail_address_id"`
+	MailMetaData        MailMetaData       `json:"mail_metadata"`
+}
+type ImportantMailNotificationApiRequest struct {
+	Notifications []ImportantMailNotification `json:"notifications"`
 }
