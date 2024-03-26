@@ -54,3 +54,10 @@ class LinkMailAddressRepository(BaseRepository):
 
     async def unlink_mail_address(self, username: str, email: str):
         await self.delete(self.collection, {"username": username, "email": email.lower()})
+
+    async def update_linked_mail_address(
+        self, linked_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation], request_body: LinkMailAddress
+    ):
+        query = {"_id": linked_mail_address_id}
+        data = request_body.dict(exclude_unset=True, exclude_none=True)
+        await self.update(self.collection, query, data)
