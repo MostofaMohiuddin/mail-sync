@@ -17,8 +17,17 @@ class ImportantMailService:
         self.openai_client = openai_client
         self.link_mail_address_service = link_mail_address_service
 
-    def detect_important(self, subject: str, sender: str):
-        return self.openai_client.detect_important_email(subject, sender)
+    def _contains_affirmative(self, text):
+        affirmatives = ["true", "1", "t", "y", "yes", "yeah", "yup", "certainly", "uh-huh"]
+        text_lower = text.lower()
+        for affirmative in affirmatives:
+            if affirmative in text_lower:
+                return True
+        return False
+
+    def detect_important(self, subject: str, sender: str, snippet: str) -> bool:
+        data = self.openai_client.detect_important_email(subject, sender, snippet)
+        return self._contains_affirmative(data) if data else False
 
     async def create_important_mail_notification(self, notifications: list[ImportantMailNotification]):
         print("notifications")
