@@ -17,7 +17,7 @@ export default function AllMailBox({ isDrawerOpen }: { isDrawerOpen: boolean }) 
   );
 
   const { data: data1, isLoading: isLoading1 } = useSWR(['/mails', 1], () => api.getMails(), {
-    refreshInterval: 500000,
+    refreshInterval: 20000,
   });
 
   const loadMoreData = () => {

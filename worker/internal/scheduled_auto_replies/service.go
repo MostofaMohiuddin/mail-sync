@@ -20,6 +20,7 @@ func NewScheduledAutoReplyService() *ScheduledAutoReplyService {
 }
 
 func (scheduled_auto_reply_service *ScheduledAutoReplyService) SendScheduledReplies() {
+	log.Println("Sending Scheduled Auto Replies")
 	data := scheduled_auto_reply_service.repository.GetScheduledReplies()
 	for _, schedule := range data {
 		if schedule.LastMailHistoryId == nil {

@@ -20,6 +20,7 @@ func NewImportantMailNotificationService() *ImportantMailNotificationService {
 }
 
 func (important_mail_notification_service *ImportantMailNotificationService) AddNotification() {
+	log.Println("Adding Important Mail Notifications")
 	linked_mail_addresses := important_mail_notification_service.linked_mail_address_service.GetAllLinkedMailAddress()
 	important_mail_notifications := []mailsync.ImportantMailNotification{}
 	for _, linked_mail_address := range linked_mail_addresses {
@@ -52,7 +53,7 @@ func (important_mail_notification_service *ImportantMailNotificationService) Add
 			}
 			if len(history.Mails) > 0 {
 				log.Println("Updating LastMailHistoryId")
-				// mailsync.UpdateLinkedMailAddress(recent_mail.ID, recent_mail.HistoryId, linked_mail_address.ID)
+				mailsync.UpdateLinkedMailAddress(recent_mail.ID, recent_mail.HistoryId, linked_mail_address.ID)
 			}
 			if len(important_mail_notifications) > 0 {
 				log.Println("Adding Important Mail Notifications")

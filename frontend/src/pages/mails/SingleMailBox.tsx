@@ -39,7 +39,7 @@ export default function SingleMailBox({ isDrawerOpen }: { isDrawerOpen: boolean 
         query: `next_page_token=${nextPageToken}`,
       }),
     {
-      refreshInterval: 500000,
+      refreshInterval: 20000,
     },
   );
 

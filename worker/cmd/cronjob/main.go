@@ -11,6 +11,8 @@ import (
 	"github.com/MostofaMohiuddin/mail-sync/internal/cron"
 	"github.com/MostofaMohiuddin/mail-sync/internal/db/mongodb"
 	"github.com/MostofaMohiuddin/mail-sync/internal/important_mail_notification"
+	"github.com/MostofaMohiuddin/mail-sync/internal/scheduled_auto_replies"
+	"github.com/MostofaMohiuddin/mail-sync/internal/scheduled_mails"
 )
 
 func main() {
@@ -19,26 +21,26 @@ func main() {
 	mongodb.NewClient()
 
 	// Initialize Schedule Mail Service
-	// scheduleMailService := scheduled_mails.NewMailService()
-	// ScheduledAutoReplyService := scheduled_auto_replies.NewScheduledAutoReplyService()
+	scheduleMailService := scheduled_mails.NewMailService()
+	ScheduledAutoReplyService := scheduled_auto_replies.NewScheduledAutoReplyService()
 	NewImportantMailNotificationService := important_mail_notification.NewImportantMailNotificationService()
 
 	// Initialize Jobs
 	jobs := []cron.Job{
-		// {
-		// 	Title:          "SendScheduledMail",
-		// 	CronFunction:   scheduleMailService.SendScheduledMail,
-		// 	CronExpression: "*/20 * * * * *",
-		// },
-		// {
-		// 	Title:          "ScheduledAutoReplyService",
-		// 	CronFunction:   ScheduledAutoReplyService.SendScheduledReplies,
-		// 	CronExpression: "*/20 * * * * *",
-		// },
 		{
-			Title:          "GetAllLinkedMailAddress",
+			Title:          "SendScheduledMail",
+			CronFunction:   scheduleMailService.SendScheduledMail,
+			CronExpression: "@every 1m",
+		},
+		{
+			Title:          "ScheduledAutoReplyService",
+			CronFunction:   ScheduledAutoReplyService.SendScheduledReplies,
+			CronExpression: "@every 1m",
+		},
+		{
+			Title:          "AddImportantMailNotification",
 			CronFunction:   NewImportantMailNotificationService.AddNotification,
-			CronExpression: "*/20 * * * * *",
+			CronExpression: "@every 2m",
 		},
 	}
 
