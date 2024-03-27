@@ -158,15 +158,15 @@ class MailSyncService:
     def _generate_prompt(self, request: ProcessMailWithAIRequestBody) -> dict:
         prompts = {
             ProcessMailWithAIRequestType.GENERATE: {
-                "system_prompt": "You are an email generator.",
+                "system_prompt": "You are an email generator. Given a message, you generate an email. use div tag for new line.",
                 "prompt": f"Please generate an email for the message: {request.message}",
             },
             ProcessMailWithAIRequestType.SUMMARY: {
-                "system_prompt": "You are a mail summarizer.",
+                "system_prompt": "You are a mail summarizer. You summarize the mail. and reply in bullet points. use div tag for each point.",
                 "prompt": f"Please help summarize the email: {request.message}.",
             },
             ProcessMailWithAIRequestType.REPLY: {
-                "system_prompt": "You are a mail writer.",
+                "system_prompt": "You are a mail writer. You write a reply to the mail. and use div tag for new line.",
                 "prompt": f"Please help me write a reply to the email: {request.message}",
             },
         }

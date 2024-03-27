@@ -56,7 +56,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const { data: notificationData, isLoading: isNotificationLoading } = useSWR(
     hasAccessToken ? '/important-mail/notifications' : null,
     importantMailNotificationApi.getImportantMailNotifications,
-    { refreshInterval: 1000000 },
+    { refreshInterval: 10000 },
   );
   const { data: linkedMailAddressResponse, isLoading: isLinkMailAddressLoading } = useSWR(
     hasAccessToken ? '/link-mail-address' : null,

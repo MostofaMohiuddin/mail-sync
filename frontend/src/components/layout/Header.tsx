@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { UserOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
-import { Avatar, Badge, Dropdown, Flex, List, Popover, Typography, theme } from 'antd';
+import { Avatar, Badge, Dropdown, Empty, Flex, List, Popover, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import dayjs from 'dayjs';
@@ -60,16 +60,23 @@ export default function CustomHeader({ title }: { title: string }) {
     return (
       <div
         style={{
-          height: 400,
+          maxHeight: 400,
+          minHeight: 150,
           overflow: 'auto',
         }}
       >
-        <List style={{ width: '500px' }}>
-          {notifications?.map(({ id, mail_metadata, status }) => (
+        <List
+          style={{ width: '500px' }}
+          dataSource={notifications}
+          bordered
+          locale={{
+            emptyText: <Empty description={<span>No New Notification</span>} />,
+          }}
+          renderItem={({ id, mail_metadata, status }) => (
             <List.Item
               style={{
                 cursor: 'pointer',
-                backgroundColor: status === 'unread' ? '#f0f0ee' : 'transparent',
+                backgroundColor: status === 'unread' ? 'rgba(33, 87, 190, 0.1)' : 'transparent',
                 padding: '0.5rem',
                 transition: 'background-color 0.3s',
               }}
@@ -105,8 +112,8 @@ export default function CustomHeader({ title }: { title: string }) {
                 </Flex>
               </Flex>
             </List.Item>
-          ))}
-        </List>
+          )}
+        ></List>
       </div>
     );
   };

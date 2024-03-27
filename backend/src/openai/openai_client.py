@@ -32,7 +32,7 @@ class OpenAIClient:
                 messages=[
                     {
                         "role": "system",
-                        "content": f"{system_prompt}. You just give html format reply of the summary and dont reply extra information. reply only the main content. and use div for newline.",
+                        "content": f"{system_prompt}",
                     },
                     {
                         "role": "user",
