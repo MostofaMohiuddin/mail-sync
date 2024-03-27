@@ -3,7 +3,6 @@ from typing import Annotated
 from bson import ObjectId
 from fastapi import Depends
 
-from backend.src.authentication.service import PasswordBasedAuthentication
 from backend.src.common.models import ObjectIdPydanticAnnotation
 from backend.src.google.google_api_client import GoogleApiClient
 from backend.src.google.google_oath import GoogleOauthService
@@ -15,6 +14,7 @@ from backend.src.link_mail_address.models import (
     LinkMailAddressResponse,
     OauthTokenResponse,
     RedirectLinkResponse,
+    LinkMailAddressUpdateRequest,
 )
 
 from backend.src.link_mail_address.repositories import LinkMailAddressRepository
@@ -80,7 +80,15 @@ class LinkMailAddressService:
     ) -> None:
         await self.link_mail_address_repository.unlink_mail_address(username, email)
 
+    async def update_linked_mail_address_by_email(
+        self, username: str, email: str, request_body: LinkMailAddressUpdateRequest
+    ) -> None:
+        link_mail_address = await self.link_mail_address_repository.get_by_email(username, email)
+        await self.link_mail_address_repository.update_linked_mail_address(link_mail_address["_id"], request_body)
+
     async def update_linked_mail_address(
-        self, linked_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation], request_body: LinkMailAddress
+        self,
+        linked_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+        request_body: LinkMailAddressUpdateRequest,
     ) -> None:
         await self.link_mail_address_repository.update_linked_mail_address(linked_mail_address_id, request_body)
