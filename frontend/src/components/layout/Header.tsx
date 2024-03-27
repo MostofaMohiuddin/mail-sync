@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { UserOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
 import { Avatar, Badge, Dropdown, Flex, List, Popover, Typography, theme } from 'antd';
@@ -7,10 +7,13 @@ import { Header } from 'antd/es/layout/layout';
 import dayjs from 'dayjs';
 import parse from 'html-react-parser';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSWRConfig } from 'swr';
 
+import * as api from '../../api/ImportantMailNotification';
 import { useSession } from '../../hooks/userSession';
 
 export default function CustomHeader({ title }: { title: string }) {
+  const { mutate } = useSWRConfig();
   const navigate = useNavigate();
   const {
     token: { colorBgContainer, colorPrimary },
@@ -24,6 +27,11 @@ export default function CustomHeader({ title }: { title: string }) {
   };
 
   const handleNotificationPanelOpenChange = (newOpen: boolean) => {
+    if (!newOpen && notifications && getUnreadNotificationCount > 0) {
+      const body = notifications.filter(({ status }) => status === 'unread').map(({ id }) => id);
+      api.markImportantMailNotificationAsRead({ data: body });
+      mutate('/important-mail/notifications');
+    }
     setOpenNotificationPanel(newOpen);
   };
 
@@ -50,11 +58,21 @@ export default function CustomHeader({ title }: { title: string }) {
 
   const getNotificationList = () => {
     return (
-      <>
+      <div
+        style={{
+          height: 400,
+          overflow: 'auto',
+        }}
+      >
         <List style={{ width: '500px' }}>
-          {notifications?.map(({ id, mail_metadata }) => (
+          {notifications?.map(({ id, mail_metadata, status }) => (
             <List.Item
-              style={{ cursor: 'pointer' }}
+              style={{
+                cursor: 'pointer',
+                backgroundColor: status === 'unread' ? '#f0f0ee' : 'transparent',
+                padding: '0.5rem',
+                transition: 'background-color 0.3s',
+              }}
               key={id}
               onClick={() => {
                 navigate(`/emails/${mail_metadata.receiver.email}/${mail_metadata.id}`);
@@ -89,10 +107,13 @@ export default function CustomHeader({ title }: { title: string }) {
             </List.Item>
           ))}
         </List>
-      </>
+      </div>
     );
   };
 
+  const getUnreadNotificationCount = useMemo(() => {
+    return notifications?.filter(({ status }) => status === 'unread').length;
+  }, [notifications]);
   return (
     <Header
       style={{
@@ -114,10 +135,10 @@ export default function CustomHeader({ title }: { title: string }) {
           onOpenChange={handleNotificationPanelOpenChange}
         >
           <div style={{ cursor: 'pointer' }}>
-            <Badge count={notifications?.length}>
+            <Badge count={getUnreadNotificationCount}>
               <Avatar
                 style={{
-                  border: notifications?.length > 0 ? `1px solid ${colorPrimary}` : 'none',
+                  border: getUnreadNotificationCount > 0 ? `1px solid ${colorPrimary}` : 'none',
                   backgroundColor: 'transparent',
                   verticalAlign: 'middle',
                   fontWeight: 'bold',

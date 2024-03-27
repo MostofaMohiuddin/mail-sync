@@ -24,12 +24,8 @@ class ImportantMailNotificationRepository(BaseRepository):
 
     async def get_notifications(self, linked_mail_address_ids: list[Annotated[ObjectId, ObjectIdPydanticAnnotation]]):
         print("linked_mail_address_ids", linked_mail_address_ids)
-        condition = {
-            "$and": [
-                {"linked_mail_address_id": {"$in": linked_mail_address_ids}},
-                {"status": NotificationStatus.UNREAD},
-            ]
-        }
+        condition = {"linked_mail_address_id": {"$in": linked_mail_address_ids}}
+
         data = await self.aggregate(
             self.collection,
             [
