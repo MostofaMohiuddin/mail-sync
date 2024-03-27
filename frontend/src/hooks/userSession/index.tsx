@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import useSWR, { useSWRConfig } from 'swr';
 
 import * as authApi from '../../api/Authentication';
+import * as importantMailNotificationApi from '../../api/ImportantMailNotification';
 import * as mailApi from '../../api/LinkMailAddress';
 import * as userApi from '../../api/User';
-import type { ISignInData, IUser, IUserLinkedMail } from '../../common/types';
+import type { IImportantMailNotification, ISignInData, IUser, IUserLinkedMail } from '../../common/types';
 import Loader from '../../components/Loader';
 
 interface IUserCtx {
@@ -15,6 +16,8 @@ interface IUserCtx {
   isAuthenticated: boolean;
   signIn: (data: ISignInData) => Promise<void>;
   signOut: () => void;
+  notifications: IImportantMailNotification[];
+  isNotificationLoading: boolean;
 }
 
 const SessionContext = createContext<IUserCtx>({
@@ -23,12 +26,15 @@ const SessionContext = createContext<IUserCtx>({
   isAuthenticated: !!localStorage.getItem('access_token'),
   signIn: async () => {},
   signOut: () => {},
+  notifications: [],
+  isNotificationLoading: false,
 });
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState(null);
   const [linkedMailAddresses, setLinkedMailAddresses] = useState<IUserLinkedMail[] | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [notifications, setNotifications] = useState<IImportantMailNotification[]>([]);
 
   const navigate = useNavigate();
   const { mutate } = useSWRConfig();
@@ -47,6 +53,11 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const hasAccessToken = !!localStorage.getItem('access_token');
 
   const { data: userData, isLoading: isUserLoading } = useSWR(hasAccessToken ? '/user' : null, userApi.getUser);
+  const { data: notificationData, isLoading: isNotificationLoading } = useSWR(
+    hasAccessToken ? '/important-mail/notifications' : null,
+    importantMailNotificationApi.getImportantMailNotifications,
+    { refreshInterval: 10000 },
+  );
   const { data: linkedMailAddressResponse, isLoading: isLinkMailAddressLoading } = useSWR(
     hasAccessToken ? '/link-mail-address' : null,
     mailApi.getLinkedMailAddress,
@@ -55,6 +66,10 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setUser(userData?.data);
   }, [userData]);
+
+  useEffect(() => {
+    setNotifications(notificationData?.data);
+  }, [notificationData]);
 
   useEffect(() => {
     setLinkedMailAddresses(linkedMailAddressResponse?.data);
@@ -81,7 +96,17 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <SessionContext.Provider value={{ user, isAuthenticated, signIn, signOut, linkedMailAddresses }}>
+    <SessionContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        signIn,
+        signOut,
+        linkedMailAddresses,
+        notifications,
+        isNotificationLoading,
+      }}
+    >
       {isUserLoading || isLinkMailAddressLoading ? <Loader loading /> : children}
     </SessionContext.Provider>
   );

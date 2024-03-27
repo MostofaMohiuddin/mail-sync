@@ -5,6 +5,8 @@ from backend.src.important_mail.repositories import ImportantMailNotificationRep
 from backend.src.link_mail_address.service import LinkMailAddressService
 from backend.src.openai.openai_client import OpenAIClient
 
+from dateutil.parser import parse
+
 
 class ImportantMailService:
     def __init__(
@@ -38,7 +40,9 @@ class ImportantMailService:
         data = await self.important_mail_notification_repository.get_notifications(
             [link_address.id for link_address in link_mail_addresses]
         )
-        return [ImportantMailNotification(**d) for d in data]
+        notifications = [ImportantMailNotification(**d) for d in data]
+        notifications.sort(key=lambda x: parse(x.mail_metadata.date), reverse=True)
+        return notifications
 
     async def mark_important_mail_notification_as_read(self, notification_ids: list[str]) -> None:
         await self.important_mail_notification_repository.mark_notification_as_read(notification_ids)
