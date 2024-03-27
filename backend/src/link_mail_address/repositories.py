@@ -10,7 +10,7 @@ from backend.src.common.database.connection import get_db_session
 from backend.src.common.exceptions.http import ConflictException
 
 from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.link_mail_address.models import LinkMailAddress, OauthTokenResponse
+from backend.src.link_mail_address.models import LinkMailAddress, OauthTokenResponse, LinkMailAddressUpdateRequest
 
 
 class LinkMailAddressRepository(BaseRepository):
@@ -56,7 +56,9 @@ class LinkMailAddressRepository(BaseRepository):
         await self.delete(self.collection, {"username": username, "email": email.lower()})
 
     async def update_linked_mail_address(
-        self, linked_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation], request_body: LinkMailAddress
+        self,
+        linked_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation],
+        request_body: LinkMailAddressUpdateRequest,
     ):
         query = {"_id": linked_mail_address_id}
         data = request_body.dict(exclude_unset=True, exclude_none=True)

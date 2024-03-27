@@ -25,8 +25,7 @@ func (important_mail_notification_service *ImportantMailNotificationService) Add
 	for _, linked_mail_address := range linked_mail_addresses {
 		if linked_mail_address.LastMailHistoryId == nil {
 			log.Println("No LastMailHistoryId, Updating LastMailHistoryId")
-			read_mail_data := mailsync.ReadMailByLinkedMailAddressId(linked_mail_address.ID)
-			mailsync.UpdateLinkedMailAddress(read_mail_data.Mails[0].ID, read_mail_data.Mails[0].HistoryId, linked_mail_address.ID)
+			mailsync.ReadMailByLinkedMailAddressId(linked_mail_address.ID)
 		} else {
 			log.Println("Getting New Mails")
 			history := mailsync.GetHistory(*linked_mail_address.LastMailHistoryId, linked_mail_address.ID)

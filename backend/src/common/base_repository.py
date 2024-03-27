@@ -23,7 +23,7 @@ class BaseRepository(ABC):
         return await self.query(collection, {"_id": inserted_entity.inserted_id})
 
     async def insert_many(self, collection: AsyncIOMotorCollection, entity_models: list[BaseModel]):
-        await collection.insert_many([entity_model.dict() for entity_model in entity_models])
+        await collection.insert_many([entity_model.dict(exclude_none=True) for entity_model in entity_models])
         return entity_models
 
     async def update(self, collection: AsyncIOMotorCollection, query: dict, update: dict):

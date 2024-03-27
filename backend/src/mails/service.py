@@ -1,3 +1,4 @@
+import asyncio
 import time
 from typing import Annotated, Any
 
@@ -9,6 +10,7 @@ from dateutil.parser import parse
 from backend.src.common.models import ObjectIdPydanticAnnotation
 from backend.src.google.google_api_client import GoogleApiClient
 from backend.src.google.models import GoogleOAuthCredentials
+from backend.src.link_mail_address.models import LinkMailAddressUpdateRequest
 from backend.src.link_mail_address.service import LinkMailAddressService
 from backend.src.openai.openai_client import OpenAIClient
 
@@ -44,15 +46,29 @@ class MailSyncService:
             for token in oauth_tokens
         ]
         data = [client.get_user_mails(next_page_tokens.get(client.gmail, None)) for client in google_api_clients]
+        mails = []
+        tasks_update_linked_mail_address_by_email = []
+        for d in data:
+            tasks_update_linked_mail_address_by_email.append(
+                self.link_mail_address_service.update_linked_mail_address_by_email(
+                    username,
+                    d.receiver.lower(),
+                    LinkMailAddressUpdateRequest(
+                        last_read_mail_id=d.emails[0].id, last_read_mail_history_id=d.emails[0].history_id
+                    ),
+                )
+            )
+            mails.extend(d.emails)
 
         end = time.time()
         print(f"Time taken: {end - start}")
-        mails = [email for d in data for email in d.emails]
+        # mails = [email for d in data for email in d.emails]
         mails.sort(key=lambda x: parse(x.date), reverse=True)  # Sort the mails list
-        print("mails", mails)
+
         new_next_page_tokens = [
             {"next_page_token": d.next_page_token, "email": d.receiver} for d in data if d.next_page_token
         ]
+        await asyncio.gather(*tasks_update_linked_mail_address_by_email)
         return {"mails": mails, "next_page_tokens": new_next_page_tokens}
 
     async def get_mails_by_link_mail_address(
@@ -63,6 +79,13 @@ class MailSyncService:
             return {"mails": []}
         google_api_client = GoogleApiClient(oauth_tokens, link_mail_address)
         data = google_api_client.get_user_mails(next_page_token, number_of_mails)
+        await self.link_mail_address_service.update_linked_mail_address_by_email(
+            username,
+            link_mail_address,
+            LinkMailAddressUpdateRequest(
+                last_read_mail_id=data.emails[0].id, last_read_mail_history_id=data.emails[0].history_id
+            ),
+        )
         return {"mails": data.emails, "next_page_token": data.next_page_token}
 
     async def get_mails_by_link_address_id(
@@ -89,6 +112,12 @@ class MailSyncService:
 
         end = time.time()
         print(f"Time taken: {end - start}")
+        await self.link_mail_address_service.update_linked_mail_address(
+            linked_mail_address_id=link_address_id,
+            request_body=LinkMailAddressUpdateRequest(
+                last_read_mail_id=data.emails[0].id, last_read_mail_history_id=data.emails[0].history_id
+            ),
+        )
         return {"mails": data.emails, "next_page_token": data.next_page_token}
 
     async def get_mail(self, username: str, mail_id: str, mail_address: str) -> Any:
