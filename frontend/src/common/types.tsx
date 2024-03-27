@@ -54,6 +54,13 @@ export interface IEmailMetadata {
   id: string;
 }
 
+export interface IImportantMailNotification {
+  id: string;
+  linked_mail_address_id: string;
+  mail_metadata: IEmailMetadata;
+  status: string;
+}
+
 export interface INextPageToken {
   next_page_token: string;
   email: string;
