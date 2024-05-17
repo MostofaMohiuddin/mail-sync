@@ -4,11 +4,11 @@ from bson import ObjectId
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from backend.src.common.base_repository import BaseRepository
-from backend.src.common.database.connection import get_db_session
+from src.common.base_repository import BaseRepository
+from src.common.database.connection import get_db_session
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.important_mail.models import ImportantMailNotification, NotificationStatus
+from src.common.models import ObjectIdPydanticAnnotation
+from src.important_mail.models import ImportantMailNotification, NotificationStatus
 
 
 class ImportantMailNotificationRepository(BaseRepository):

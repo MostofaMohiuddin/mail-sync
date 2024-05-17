@@ -4,11 +4,11 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, status, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from backend.src.authentication.service import access_security
+from src.authentication.service import access_security
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.mails.models import MailRequestBody, ProcessMailWithAIRequestBody
-from backend.src.mails.service import MailSyncService
+from src.common.models import ObjectIdPydanticAnnotation
+from src.mails.models import MailRequestBody, ProcessMailWithAIRequestBody
+from src.mails.service import MailSyncService
 
 router = APIRouter(
     prefix="/api/mails",

@@ -3,7 +3,7 @@ from typing import Annotated
 from aioredis import Redis
 from fastapi import Depends
 
-from backend.src.common.database.connection import get_redis_session
+from src.common.database.connection import get_redis_session
 
 
 class WebSocketRepository:

@@ -4,10 +4,10 @@ from typing import Any
 from fastapi import Depends, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from backend.src.google.google_api_client import GoogleApiClient
-from backend.src.authentication.service import access_security
-from backend.src.google.models import GoogleOAuthCredentials
-from backend.src.link_mail_address.service import LinkMailAddressService
+from src.google.google_api_client import GoogleApiClient
+from src.authentication.service import access_security
+from src.google.models import GoogleOAuthCredentials
+from src.link_mail_address.service import LinkMailAddressService
 
 
 from dateutil.parser import parse

@@ -4,19 +4,19 @@ from typing import Annotated
 from bson import ObjectId
 from fastapi import Depends
 
-from backend.src.mails.models import MailBody, MailRequestBody
-from backend.src.mails.service import MailSyncService
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.common.fastapi_http_exceptions import BadRequestException
-from backend.src.schedule_mail.models import (
+from src.mails.models import MailBody, MailRequestBody
+from src.mails.service import MailSyncService
+from src.common.models import ObjectIdPydanticAnnotation
+from src.common.fastapi_http_exceptions import BadRequestException
+from src.schedule_mail.models import (
     ScheduleMail,
     ScheduleMailRequestBody,
     ScheduleMailStatus,
     ScheduleMailWithSenderDetails,
 )
-from backend.src.link_mail_address.service import LinkMailAddressService
+from src.link_mail_address.service import LinkMailAddressService
 
-from backend.src.schedule_mail.repositories import ScheduleMailRepository
+from src.schedule_mail.repositories import ScheduleMailRepository
 
 
 class ScheduleMailService:

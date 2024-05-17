@@ -7,14 +7,14 @@ from fastapi import Depends
 
 from dateutil.parser import parse
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.google.google_api_client import GoogleApiClient
-from backend.src.google.models import GoogleOAuthCredentials
-from backend.src.link_mail_address.models import LinkMailAddressUpdateRequest
-from backend.src.link_mail_address.service import LinkMailAddressService
-from backend.src.openai.openai_client import OpenAIClient
+from src.common.models import ObjectIdPydanticAnnotation
+from src.google.google_api_client import GoogleApiClient
+from src.google.models import GoogleOAuthCredentials
+from src.link_mail_address.models import LinkMailAddressUpdateRequest
+from src.link_mail_address.service import LinkMailAddressService
+from src.openai.openai_client import OpenAIClient
 
-from backend.src.mails.models import (
+from src.mails.models import (
     MailRequestBody,
     ProcessMailWithAIRequestBody,
     ProcessMailWithAIRequestType,

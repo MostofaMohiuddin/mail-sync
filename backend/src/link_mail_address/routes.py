@@ -3,10 +3,10 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, Security, status
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from backend.src.authentication.service import access_security
+from src.authentication.service import access_security
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.link_mail_address.models import (
+from src.common.models import ObjectIdPydanticAnnotation
+from src.link_mail_address.models import (
     EmailType,
     LinkMailAddress,
     LinkMailAddressResponse,
@@ -14,7 +14,7 @@ from backend.src.link_mail_address.models import (
     LinkMailRequest,
     RedirectLinkResponse,
 )
-from backend.src.link_mail_address.service import LinkMailAddressService
+from src.link_mail_address.service import LinkMailAddressService
 
 router = APIRouter(
     prefix="/api/link-mail-address",

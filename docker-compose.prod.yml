@@ -1,0 +1,29 @@
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      <<: *common-variables
+      # SERVER_HOST has to be 0.0.0.0 to listen to requests from outside container
+      SERVER_HOST: 0.0.0.0
+    ports:
+      - 8080:7900
+    volumes:
+      - ./backend/src:/app/backend/src
+      - ./backend/.env:/app/backend/.env
+    networks:
+      - bridge_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./worker/cmd:/go/src/app/cmd
+      - ./worker/internal:/go/src/app/internal
+    networks:
+      - bridge_network

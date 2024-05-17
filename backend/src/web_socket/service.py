@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from backend.src.web_socket.repositories import WebSocketRepository
+from src.web_socket.repositories import WebSocketRepository
 
 
 class WebSocketService:

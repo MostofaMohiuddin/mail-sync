@@ -4,17 +4,17 @@ from typing import Annotated
 from bson import ObjectId
 from fastapi import Depends
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.mails.service import MailSyncService
-from backend.src.common.fastapi_http_exceptions import BadRequestException
-from backend.src.schedule_auto_reply.models import (
+from src.common.models import ObjectIdPydanticAnnotation
+from src.mails.service import MailSyncService
+from src.common.fastapi_http_exceptions import BadRequestException
+from src.schedule_auto_reply.models import (
     ScheduleAutoReplyRequestBody,
     ScheduleAutoReply,
     ScheduleAutoReplyResponse,
     ScheduleAutoReplyUpdateRequestBody,
 )
-from backend.src.schedule_auto_reply.repositories import ScheduleAutoReplyRepository
-from backend.src.link_mail_address.service import LinkMailAddressService
+from src.schedule_auto_reply.repositories import ScheduleAutoReplyRepository
+from src.link_mail_address.service import LinkMailAddressService
 
 
 class ScheduleAutoReplyService:

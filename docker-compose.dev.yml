@@ -6,6 +6,7 @@ x-common-variables: &common-variables
 
 services:
   api:
+    image: mail_sync_api_latest
     build:
       context: ./backend
       dockerfile: Dockerfile

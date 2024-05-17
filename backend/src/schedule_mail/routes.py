@@ -4,14 +4,14 @@ from fastapi import APIRouter, Depends, Security, status
 from fastapi_jwt import JwtAuthorizationCredentials
 from bson import ObjectId
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.schedule_mail.models import (
+from src.common.models import ObjectIdPydanticAnnotation
+from src.schedule_mail.models import (
     ScheduleMailRequestBody,
     SendScheduledMailRequestBody,
     ScheduleMailWithSenderDetails,
 )
-from backend.src.schedule_mail.service import ScheduleMailService
-from backend.src.authentication.service import ApiKeyBasedAuthentication, access_security
+from src.schedule_mail.service import ScheduleMailService
+from src.authentication.service import ApiKeyBasedAuthentication, access_security
 
 router = APIRouter(
     prefix="/api/schedule-mail",

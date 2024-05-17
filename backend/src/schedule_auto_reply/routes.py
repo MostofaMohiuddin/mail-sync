@@ -4,14 +4,14 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, status, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from backend.src.authentication.service import access_security
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.schedule_auto_reply.models import (
+from src.authentication.service import access_security
+from src.common.models import ObjectIdPydanticAnnotation
+from src.schedule_auto_reply.models import (
     ScheduleAutoReplyRequestBody,
     ScheduleAutoReplyResponse,
     ScheduleAutoReplyUpdateRequestBody,
 )
-from backend.src.schedule_auto_reply.service import ScheduleAutoReplyService
+from src.schedule_auto_reply.service import ScheduleAutoReplyService
 
 
 router = APIRouter(

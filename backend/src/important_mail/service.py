@@ -1,9 +1,9 @@
 from fastapi import Depends
 
-from backend.src.important_mail.models import ImportantMailNotification
-from backend.src.important_mail.repositories import ImportantMailNotificationRepository
-from backend.src.link_mail_address.service import LinkMailAddressService
-from backend.src.openai.openai_client import OpenAIClient
+from src.important_mail.models import ImportantMailNotification
+from src.important_mail.repositories import ImportantMailNotificationRepository
+from src.link_mail_address.service import LinkMailAddressService
+from src.openai.openai_client import OpenAIClient
 
 from dateutil.parser import parse
 

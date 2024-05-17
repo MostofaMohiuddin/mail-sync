@@ -3,15 +3,15 @@ from bson import ObjectId
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from backend.src.common.database.connection import get_db_session
-from backend.src.common.base_repository import BaseRepository
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.schedule_auto_reply.models import (
+from src.common.database.connection import get_db_session
+from src.common.base_repository import BaseRepository
+from src.common.models import ObjectIdPydanticAnnotation
+from src.schedule_auto_reply.models import (
     ScheduleAutoReply,
     ScheduleAutoReplyUpdateRequestBody,
     ScheduleAutoReplyResponse,
 )
-from backend.src.schedule_mail.models import SenderDetails
+from src.schedule_mail.models import SenderDetails
 
 
 class ScheduleAutoReplyRepository(BaseRepository):
