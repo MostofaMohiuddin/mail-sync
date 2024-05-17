@@ -5,12 +5,12 @@ from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
-from backend.src.common.base_repository import BaseRepository
-from backend.src.common.database.connection import get_db_session
-from backend.src.common.exceptions.http import ConflictException
+from src.common.base_repository import BaseRepository
+from src.common.database.connection import get_db_session
+from src.common.exceptions.http import ConflictException
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.link_mail_address.models import LinkMailAddress, OauthTokenResponse, LinkMailAddressUpdateRequest
+from src.common.models import ObjectIdPydanticAnnotation
+from src.link_mail_address.models import LinkMailAddress, OauthTokenResponse, LinkMailAddressUpdateRequest
 
 
 class LinkMailAddressRepository(BaseRepository):

@@ -3,11 +3,11 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.important_mail.dtos import ImportantMailDetectRequest, ImportantMailNotificationRequest
-from backend.src.important_mail.models import ImportantMailNotification
-from backend.src.important_mail.service import ImportantMailService
-from backend.src.authentication.service import access_security
+from src.common.models import ObjectIdPydanticAnnotation
+from src.important_mail.dtos import ImportantMailDetectRequest, ImportantMailNotificationRequest
+from src.important_mail.models import ImportantMailNotification
+from src.important_mail.service import ImportantMailService
+from src.authentication.service import access_security
 
 router = APIRouter(
     prefix="/api/important-mail",

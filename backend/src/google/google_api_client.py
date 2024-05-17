@@ -9,9 +9,9 @@ import httplib2
 from googleapiclient.discovery import build as googleapiclient_builder
 
 import google.oauth2.credentials
-from backend.src.common.exceptions.http import RequestTimeoutException
-from backend.src.logger.default_logger import LOGGER
-from backend.src.mails.models import MailRequestBody
+from src.common.exceptions.http import RequestTimeoutException
+from src.logger.default_logger import LOGGER
+from src.mails.models import MailRequestBody
 
 from .models import EmailBody, EmailFullData, GoogleOAuthCredentials, UserInfo, EmailMetadata, GmailMetadataList
 

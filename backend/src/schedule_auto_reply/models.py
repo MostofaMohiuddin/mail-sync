@@ -5,10 +5,10 @@ from dateutil.parser import parse
 from bson import ObjectId
 from pydantic import BaseModel, model_validator
 
-from backend.src.common.fastapi_http_exceptions import BadRequestException
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.mails.models import MailBody
-from backend.src.schedule_mail.models import SenderDetails
+from src.common.fastapi_http_exceptions import BadRequestException
+from src.common.models import ObjectIdPydanticAnnotation
+from src.mails.models import MailBody
+from src.schedule_mail.models import SenderDetails
 
 
 class ScheduleAutoReply(BaseModel):

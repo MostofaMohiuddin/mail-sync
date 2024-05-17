@@ -48,7 +48,7 @@ def init_handlers(fastapi_app: FastAPI):
 def create_app():
     # new_app = FastAPI(dependencies=[Depends(get_global_dependency)])  # if you want to use a global dependency
     new_app = FastAPI(
-        root_path="" if RUNTIME_ENVIRONMENT == "local" else "/dex-fastapi-boilerplate"
+        root_path="" if RUNTIME_ENVIRONMENT == "local" else "/mail-sync"
     )  # assuming it is deployed in /dex-fastapi-boilerplate
 
     # add your middlewares here. Some Sample middlewares are given below

@@ -3,8 +3,8 @@ from typing import Annotated, Optional
 from bson import ObjectId
 from pydantic import BaseModel
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.google.models import EmailMetadata
+from src.common.models import ObjectIdPydanticAnnotation
+from src.google.models import EmailMetadata
 
 
 class NotificationStatus(str, Enum):

@@ -6,9 +6,9 @@ from typing import Annotated, Any, Optional
 from bson import ObjectId
 from pydantic import BaseModel, model_validator
 
-from backend.src.common.fastapi_http_exceptions import BadRequestException
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.mails.models import MailBody
+from src.common.fastapi_http_exceptions import BadRequestException
+from src.common.models import ObjectIdPydanticAnnotation
+from src.mails.models import MailBody
 
 
 class ScheduleMailStatus(str, Enum):

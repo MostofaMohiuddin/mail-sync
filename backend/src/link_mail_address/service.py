@@ -3,11 +3,11 @@ from typing import Annotated
 from bson import ObjectId
 from fastapi import Depends
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.google.google_api_client import GoogleApiClient
-from backend.src.google.google_oath import GoogleOauthService
-from backend.src.google.models import GoogleOAuthCredentials
-from backend.src.link_mail_address.models import (
+from src.common.models import ObjectIdPydanticAnnotation
+from src.google.google_api_client import GoogleApiClient
+from src.google.google_oath import GoogleOauthService
+from src.google.models import GoogleOAuthCredentials
+from src.link_mail_address.models import (
     EmailType,
     LinkMailAddress,
     LinkMailRequest,
@@ -17,7 +17,7 @@ from backend.src.link_mail_address.models import (
     LinkMailAddressUpdateRequest,
 )
 
-from backend.src.link_mail_address.repositories import LinkMailAddressRepository
+from src.link_mail_address.repositories import LinkMailAddressRepository
 
 
 class LinkMailAddressService:

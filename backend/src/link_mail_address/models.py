@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 from bson import ObjectId
 from pydantic import BaseModel, model_serializer
 
-from backend.src.common.models import ObjectIdPydanticAnnotation
+from src.common.models import ObjectIdPydanticAnnotation
 
 
 class EmailType(Enum):

@@ -1,7 +1,7 @@
 from typing import Any
 from fastapi import APIRouter, Depends, status
 
-from backend.src.web_socket.service import WebSocketService
+from src.web_socket.service import WebSocketService
 
 
 router = APIRouter(
