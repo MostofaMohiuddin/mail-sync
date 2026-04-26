@@ -3,6 +3,7 @@ import FeatureGrid from './FeatureGrid';
 import HowItWorks from './HowItWorks';
 import InboxMockup from './InboxMockup';
 import LandingFAQ from './LandingFAQ';
+import LandingFooter from './LandingFooter';
 import LandingHero from './LandingHero';
 import LandingNav from './LandingNav';
 import { useThemeMode } from '../../hooks/useThemeMode';
@@ -19,6 +20,7 @@ export default function Landing() {
         <LandingFAQ />
         <CTABand />
       </main>
+      <LandingFooter />
     </div>
   );
 }
