@@ -1,6 +1,7 @@
 import './fullcalendar.css';
 
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 
 import type { DateSelectArg, EventClickArg, EventContentArg } from '@fullcalendar/core/index.js';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -51,6 +52,7 @@ export default function Calendar({
   setSelectedSchedule,
 }: CalendarProps) {
   const { colors } = useThemeMode();
+  const [currentView, setCurrentView] = useState<string>('dayGridMonth');
 
   const schedulesById = schedules.reduce<Record<string, IScheduleAutoReply>>((acc, s) => {
     acc[s.id] = s;
@@ -100,7 +102,7 @@ export default function Calendar({
       </div>
     );
     return (
-      <Tooltip title={tooltip} placement="top" mouseEnterDelay={0.2}>
+      <Tooltip title={tooltip} placement="top" mouseEnterDelay={0.2} destroyTooltipOnHide>
         <div
           style={{
             display: 'flex',
@@ -145,9 +147,10 @@ export default function Calendar({
         dayMaxEvents={true}
         weekends={true}
         height="auto"
+        datesSet={(arg) => setCurrentView(arg.view.type)}
       />
 
-      {schedules.length === 0 && (
+      {schedules.length === 0 && currentView === 'dayGridMonth' && (
         <div
           style={{
             position: 'absolute',
