@@ -26,8 +26,11 @@ export default function InboxMockup() {
   const activeMenu = 'inbox';
 
   return (
-    <div className="inbox-mockup-wrapper" style={{ position: 'relative' }}>
-      <div className="inbox-mockup-tilt" style={{ position: 'relative' }}>
+    <div
+      className="inbox-mockup-wrapper"
+      style={{ position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }}
+    >
+      <div className="inbox-mockup-tilt" style={{ position: 'relative', minWidth: 0 }}>
         {/* Floating AI assist pill — sits above the frame and tilts with it */}
         <div
           className="inbox-mockup-pill"

@@ -188,6 +188,10 @@ export default function LandingHero({ visual }: LandingHeroProps) {
 
       <style>{`
         @media (max-width: 900px) {
+          .landing-hero {
+            min-height: auto !important;
+            padding: 96px 20px 56px !important;
+          }
           .landing-hero-grid {
             grid-template-columns: 1fr !important;
             gap: 40px !important;
@@ -197,6 +201,9 @@ export default function LandingHero({ visual }: LandingHeroProps) {
           }
         }
         @media (max-width: 540px) {
+          .landing-hero {
+            padding: 88px 16px 48px !important;
+          }
           .landing-hero-h1 {
             font-size: 32px !important;
           }
