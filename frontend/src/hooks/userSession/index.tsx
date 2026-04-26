@@ -9,6 +9,7 @@ import * as mailApi from '../../api/LinkMailAddress';
 import * as userApi from '../../api/User';
 import type { IImportantMailNotification, ISignInData, IUser, IUserLinkedMail } from '../../common/types';
 import Loader from '../../components/Loader';
+import { useNotificationStream } from '../useNotificationStream';
 
 interface IUserCtx {
   user: IUser | null;
@@ -56,8 +57,10 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const { data: notificationData, isLoading: isNotificationLoading } = useSWR(
     hasAccessToken ? '/important-mail/notifications' : null,
     importantMailNotificationApi.getImportantMailNotifications,
-    { refreshInterval: 10000 },
   );
+
+  useNotificationStream({ enabled: hasAccessToken });
+
   const { data: linkedMailAddressResponse, isLoading: isLinkMailAddressLoading } = useSWR(
     hasAccessToken ? '/link-mail-address' : null,
     mailApi.getLinkedMailAddress,
