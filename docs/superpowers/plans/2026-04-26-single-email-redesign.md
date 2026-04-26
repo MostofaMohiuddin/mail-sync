@@ -121,12 +121,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.mails.models import (
+from backend.src.mails.models import (
     ProcessMailWithAIRequestBody,
     ProcessMailWithAIRequestTone,
     ProcessMailWithAIRequestType,
 )
-from src.mails.service import MailSyncService
+from backend.src.mails.service import MailSyncService
 
 
 @pytest.fixture
@@ -190,7 +190,9 @@ def test_generate_prompt_ignores_tone(service):
 
 - [ ] **Step 3: Run the tests — they must fail**
 
-Run: `cd backend && poetry run pytest tests/mails/test_service.py -v`
+Run: `cd backend && PYTHONPATH=.. poetry run pytest tests/mails/test_service.py -v`
+
+(The `PYTHONPATH=..` is required because the codebase imports its own modules as `backend.src.*`; this puts the repo root on `sys.path` so `backend.*` resolves. This is a pre-existing infrastructure quirk, not introduced by this plan.)
 Expected: 4 failures — the parametrized `test_reply_prompt_with_tone_appends_tone_instruction` cases all fail because tone is not yet honored. `test_reply_prompt_without_tone_matches_default`, `test_summary_prompt_ignores_tone`, and `test_generate_prompt_ignores_tone` should pass already (default behavior is unchanged so far).
 
 - [ ] **Step 4: Commit failing tests**
@@ -211,10 +213,10 @@ git commit -m "test(backend): cover tone injection in process-with-ai prompt bui
 
 Open `backend/src/mails/service.py`. Find the existing `_generate_prompt` method (currently at lines 158–175). Replace it with the version below, and add the `TONE_INSTRUCTIONS` mapping at module scope just above the `MailSyncService` class.
 
-Add at module scope (immediately above `class MailSyncService`):
+Add at module scope (immediately above `class MailSyncService`). The existing service file already imports `ProcessMailWithAIRequestBody` and `ProcessMailWithAIRequestType` from `backend.src.mails.models` — extend that import to include the new tone enum:
 
 ```python
-from src.mails.models import (
+from backend.src.mails.models import (
     ProcessMailWithAIRequestBody,
     ProcessMailWithAIRequestTone,
     ProcessMailWithAIRequestType,
@@ -272,7 +274,9 @@ Replace the body of `_generate_prompt`:
 
 - [ ] **Step 2: Run the tests — all should pass**
 
-Run: `cd backend && poetry run pytest tests/mails/test_service.py -v`
+Run: `cd backend && PYTHONPATH=.. poetry run pytest tests/mails/test_service.py -v`
+
+(The `PYTHONPATH=..` is required because the codebase imports its own modules as `backend.src.*`; this puts the repo root on `sys.path` so `backend.*` resolves. This is a pre-existing infrastructure quirk, not introduced by this plan.)
 Expected: 8 passed (1 default + 5 parametrized tone cases + 1 SUMMARY ignore + 1 GENERATE ignore).
 
 - [ ] **Step 3: Run the full backend test suite to confirm no regressions**
