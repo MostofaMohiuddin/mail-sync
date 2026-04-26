@@ -85,6 +85,14 @@ export enum IProcessEmailType {
   SUMMARY = 'SUMMARY',
 }
 
+export enum IProcessMailTone {
+  FRIENDLY = 'FRIENDLY',
+  CONCISE = 'CONCISE',
+  FORMAL = 'FORMAL',
+  DECLINE = 'DECLINE',
+  ENTHUSIASTIC = 'ENTHUSIASTIC',
+}
+
 export interface IUserLinkedMail {
   id: string;
   username: string;
