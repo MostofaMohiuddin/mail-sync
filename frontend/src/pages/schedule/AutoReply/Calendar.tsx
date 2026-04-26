@@ -1,4 +1,4 @@
-import './fullcalendar.css';
+import '../../../components/fullcalendar.css';
 
 import type { ReactNode } from 'react';
 import { useState } from 'react';

@@ -1,4 +1,4 @@
-/* FullCalendar theme overrides for the Auto Reply page.
+/* FullCalendar theme overrides shared by AutoReply and the Calendar page.
    Scoped under .fc so other FullCalendar usages (if any) are unaffected. */
 
 :root[data-theme='light'] .fc {
