@@ -11,19 +11,21 @@ type Config struct {
 	MongoDBURI     string
 	MailSyncApiUrl string
 	ApiKey         string
+	RedisURL       string
 }
 
 // New returns a new Config instance
 func New() *Config {
 	// Load environment variables from .env file
 	if err := godotenv.Load(); err != nil {
-		panic(err)
+		// .env is optional in container envs
 	}
 
 	return &Config{
 		MongoDBURI:     getEnv("MONGODB_URI", "mongodb://admin:password@localhost:27017"),
 		MailSyncApiUrl: getEnv("MAIL_SYNC_API_URL", "http://localhost:7900/api"),
 		ApiKey:         getEnv("API_KEY", "557573f1-471a-4de0-99f1-626cb4848e11"),
+		RedisURL:       getEnv("REDIS_URL", "redis://redis:6379/0"),
 	}
 }
 
