@@ -7,8 +7,8 @@ import useSWR from 'swr';
 
 import * as api from '../../api/LinkMailAddress';
 import { EmailType } from '../../common/types';
-import GlassCard from '../../components/ui/GlassCard';
 import Loader from '../../components/Loader';
+import GlassCard from '../../components/ui/GlassCard';
 import { useThemeMode } from '../../hooks/useThemeMode';
 
 export default function OauthCallback() {

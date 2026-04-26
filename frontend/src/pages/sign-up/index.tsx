@@ -37,9 +37,7 @@ export default function SignUp() {
         <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', color: colors.text }}>
           Create account
         </h2>
-        <p style={{ margin: '6px 0 0', color: colors.textSecondary, fontSize: 14 }}>
-          It only takes a moment.
-        </p>
+        <p style={{ margin: '6px 0 0', color: colors.textSecondary, fontSize: 14 }}>It only takes a moment.</p>
       </div>
 
       <Form name="signUp" initialValues={{ remember: true }} onFinish={onFinish} layout="vertical" requiredMark={false}>

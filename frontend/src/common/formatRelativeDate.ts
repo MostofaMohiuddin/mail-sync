@@ -25,5 +25,8 @@ export function formatRelativeDate(input: string | number | Date, now: Date = ne
   }
 
   const sameYear = date.getFullYear() === now.getFullYear();
-  return date.toLocaleDateString(undefined, sameYear ? { month: 'short', day: '2-digit' } : { month: 'short', day: '2-digit', year: 'numeric' });
+  return date.toLocaleDateString(
+    undefined,
+    sameYear ? { month: 'short', day: '2-digit' } : { month: 'short', day: '2-digit', year: 'numeric' },
+  );
 }

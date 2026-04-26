@@ -15,8 +15,8 @@ import { Avatar, Button, Dropdown, Layout, Menu, Tooltip } from 'antd';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import CustomHeader from './Header';
-import { useThemeMode } from '../../hooks/useThemeMode';
 import { useSession } from '../../hooks/userSession';
+import { useThemeMode } from '../../hooks/useThemeMode';
 import { palette, radius, shadow, shadowDark } from '../../themes/tokens';
 import Logo from '../ui/Logo';
 
@@ -41,21 +41,15 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
     navigate(e.key);
   };
 
-  const getItem = (
-    label: React.ReactNode,
-    key: React.Key,
-    icon?: React.ReactNode,
-    children?: MenuItem[],
-  ): MenuItem => ({ key, icon, children, label }) as MenuItem;
+  const getItem = (label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem =>
+    ({ key, icon, children, label }) as MenuItem;
 
   const linkedMailSubItems = useMemo<MenuItem[]>(() => {
     const items: MenuItem[] = [getItem('All Inbox', '/emails', <InboxOutlined />)];
     linkedMailAddresses?.forEach((linkedMailAddress) =>
       items.push(
         getItem(
-          linkedMailAddress.email.length > 18
-            ? linkedMailAddress.email.slice(0, 18) + '…'
-            : linkedMailAddress.email,
+          linkedMailAddress.email.length > 18 ? linkedMailAddress.email.slice(0, 18) + '…' : linkedMailAddress.email,
           `/emails/link-mail-addresses/${linkedMailAddress.email}`,
         ),
       ),

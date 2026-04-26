@@ -141,5 +141,7 @@ export interface Palette {
   sidebarHover: string;
 }
 
+// eslint-disable-next-line quotes
 export const fontFamily =
+  // eslint-disable-next-line quotes
   "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif";

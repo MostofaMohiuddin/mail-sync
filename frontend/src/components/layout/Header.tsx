@@ -17,8 +17,8 @@ import { useSWRConfig } from 'swr';
 
 import * as api from '../../api/ImportantMailNotification';
 import { formatRelativeDate } from '../../common/formatRelativeDate';
-import { useThemeMode } from '../../hooks/useThemeMode';
 import { useSession } from '../../hooks/userSession';
+import { useThemeMode } from '../../hooks/useThemeMode';
 import { radius } from '../../themes/tokens';
 import EmptyState from '../ui/EmptyState';
 import GlassCard from '../ui/GlassCard';

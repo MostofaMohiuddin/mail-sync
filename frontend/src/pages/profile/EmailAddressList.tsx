@@ -69,7 +69,11 @@ export default function EmailAddressList() {
         description="Mail and calendar are pulled from these connected accounts."
         action={
           <Dropdown menu={{ items }} trigger={['hover']} placement="bottomRight" arrow>
-            <Button type="primary" icon={<PlusOutlined />} style={{ background: colors.primaryGradient, border: 'none' }}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              style={{ background: colors.primaryGradient, border: 'none' }}
+            >
               Add account
             </Button>
           </Dropdown>

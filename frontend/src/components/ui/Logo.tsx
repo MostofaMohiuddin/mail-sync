@@ -41,13 +41,25 @@ export default function Logo({ collapsed = false, size = 'md' }: LogoProps) {
         }}
         aria-hidden
       >
-        <svg width={s.mark * 0.55} height={s.mark * 0.55} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width={s.mark * 0.55}
+          height={s.mark * 0.55}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M3 7.5C3 6.11929 4.11929 5 5.5 5H18.5C19.8807 5 21 6.11929 21 7.5V16.5C21 17.8807 19.8807 19 18.5 19H5.5C4.11929 19 3 17.8807 3 16.5V7.5Z"
             stroke="#FFFFFF"
             strokeWidth="1.6"
           />
-          <path d="M4 7.5L12 13L20 7.5" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M4 7.5L12 13L20 7.5"
+            stroke="#FFFFFF"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           <circle cx="18.5" cy="6" r="2.2" fill="#FFFFFF" />
         </svg>
       </div>

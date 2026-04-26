@@ -85,7 +85,7 @@ export default function EmailList({
         }
         endMessage={
           <Divider plain style={{ color: colors.textTertiary, fontSize: 12 }}>
-            You're all caught up · {data.length} message{data.length === 1 ? '' : 's'}
+            You&apos;re all caught up · {data.length} message{data.length === 1 ? '' : 's'}
           </Divider>
         }
         scrollableTarget="scrollableDiv"

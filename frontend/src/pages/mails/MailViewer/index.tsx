@@ -9,8 +9,8 @@ import MailViewer from './MailViewer';
 import SummarizeMail from './SummarizeMail';
 import * as api from '../../../api/Mail';
 import type { IEmailFullData } from '../../../common/types';
-import GlassCard from '../../../components/ui/GlassCard';
 import Loader from '../../../components/Loader';
+import GlassCard from '../../../components/ui/GlassCard';
 import SectionHeader from '../../../components/ui/SectionHeader';
 import { useThemeMode } from '../../../hooks/useThemeMode';
 import ReplyMail from '../ReplyMail';
@@ -79,14 +79,7 @@ export default function Mail() {
         </div>
       </div>
 
-      <Drawer
-        title="Reply"
-        placement="right"
-        width={'45%'}
-        onClose={onCloseDrawer}
-        open={openDrawer}
-        mask={false}
-      >
+      <Drawer title="Reply" placement="right" width={'45%'} onClose={onCloseDrawer} open={openDrawer} mask={false}>
         <ReplyMail receivedMail={mail} />
       </Drawer>
 

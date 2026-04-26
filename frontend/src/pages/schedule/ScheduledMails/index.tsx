@@ -111,10 +111,7 @@ export default function ScheduledMails() {
 
   return (
     <>
-      <PageHeader
-        title="Scheduled Mails"
-        subtitle="Mail you've queued for later — cancel any time before send."
-      />
+      <PageHeader title="Scheduled Mails" subtitle="Mail you've queued for later — cancel any time before send." />
       <GlassCard variant="solid" padding={0}>
         {scheduleMails.length === 0 && !isLoading ? (
           <div style={{ padding: 40 }}>

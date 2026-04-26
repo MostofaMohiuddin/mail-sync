@@ -6,8 +6,8 @@ import EmailAddressList from './EmailAddressList';
 import * as api from '../../api/LinkMailAddress';
 import GlassCard from '../../components/ui/GlassCard';
 import PageHeader from '../../components/ui/PageHeader';
-import { useThemeMode } from '../../hooks/useThemeMode';
 import { useSession } from '../../hooks/userSession';
+import { useThemeMode } from '../../hooks/useThemeMode';
 
 export default function Profile() {
   const { user } = useSession();

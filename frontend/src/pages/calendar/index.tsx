@@ -11,8 +11,8 @@ import DayCalendar from './DayCalendar';
 import * as calendarApi from '../../api/Calendar';
 import * as linkedMailApi from '../../api/LinkMailAddress';
 import type { IEvent, IEventsResponse, IUserLinkedMail } from '../../common/types';
-import GlassCard from '../../components/ui/GlassCard';
 import Loader from '../../components/Loader';
+import GlassCard from '../../components/ui/GlassCard';
 import PageHeader from '../../components/ui/PageHeader';
 
 export default function Calendar() {
@@ -79,10 +79,18 @@ export default function Calendar() {
       />
 
       <Flex justify="space-between" gap={20} wrap="wrap">
-        <GlassCard variant="solid" padding={16} style={{ flex: '1 1 480px', minWidth: 0, height: '78vh', overflow: 'auto' }}>
+        <GlassCard
+          variant="solid"
+          padding={16}
+          style={{ flex: '1 1 480px', minWidth: 0, height: '78vh', overflow: 'auto' }}
+        >
           <CalendarView setSelectedDay={handleDateChange} events={sortedEvents} userLinkedMail={userLinkedMail} />
         </GlassCard>
-        <GlassCard variant="solid" padding={16} style={{ flex: '1 1 380px', minWidth: 0, height: '78vh', overflow: 'hidden' }}>
+        <GlassCard
+          variant="solid"
+          padding={16}
+          style={{ flex: '1 1 380px', minWidth: 0, height: '78vh', overflow: 'hidden' }}
+        >
           <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 600, color: 'var(--as-text-secondary)' }}>
             {selectedDay.format('dddd, MMMM D')}
           </div>

@@ -1,8 +1,8 @@
 import { Avatar, Tooltip, Typography } from 'antd';
 import parse from 'html-react-parser';
 
-import type { IEmailFullData } from '../../../common/types';
 import { formatRelativeDate } from '../../../common/formatRelativeDate';
+import type { IEmailFullData } from '../../../common/types';
 import { generateAvatarText, generateRandomColor } from '../../../common/utility';
 import GlassCard from '../../../components/ui/GlassCard';
 import { useThemeMode } from '../../../hooks/useThemeMode';

@@ -23,6 +23,7 @@ export default function SignIn() {
 
   useEffect(() => {
     if (isAuthenticated) navigate('/');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isAuthenticated) return null;

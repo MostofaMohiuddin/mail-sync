@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 
 import { CalendarOutlined, MailOutlined, ThunderboltOutlined } from '@ant-design/icons';
 
+import Logo from '../../components/ui/Logo';
 import { useThemeMode } from '../../hooks/useThemeMode';
 import { radius, shadow, shadowDark } from '../../themes/tokens';
-import Logo from '../../components/ui/Logo';
 
 const features = [
   { icon: <MailOutlined />, title: 'Unified inbox', desc: 'All your mail accounts in one place.' },
@@ -12,7 +12,17 @@ const features = [
   { icon: <ThunderboltOutlined />, title: 'AI assist', desc: 'Summaries and replies that save you time.' },
 ];
 
-export default function AuthShell({ children, eyebrow, headline, subhead }: { children: ReactNode; eyebrow?: string; headline: string; subhead?: string }) {
+export default function AuthShell({
+  children,
+  eyebrow,
+  headline,
+  subhead,
+}: {
+  children: ReactNode;
+  eyebrow?: string;
+  headline: string;
+  subhead?: string;
+}) {
   const { colors, mode } = useThemeMode();
   const shadows = mode === 'dark' ? shadowDark : shadow;
 

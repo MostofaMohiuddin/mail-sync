@@ -59,9 +59,7 @@ export default function EmptyState({ icon, title, description, action, size = 'm
       >
         {title}
       </div>
-      {description && (
-        <div style={{ fontSize: s.desc, color: colors.textSecondary, maxWidth: 340 }}>{description}</div>
-      )}
+      {description && <div style={{ fontSize: s.desc, color: colors.textSecondary, maxWidth: 340 }}>{description}</div>}
       {action && <div style={{ marginTop: 14 }}>{action}</div>}
     </div>
   );
