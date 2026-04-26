@@ -17,8 +17,22 @@ from backend.src.openai.openai_client import OpenAIClient
 from backend.src.mails.models import (
     MailRequestBody,
     ProcessMailWithAIRequestBody,
+    ProcessMailWithAIRequestTone,
     ProcessMailWithAIRequestType,
 )
+
+TONE_INSTRUCTIONS = {
+    ProcessMailWithAIRequestTone.FRIENDLY:
+        "Use a warm, friendly tone with a personal touch.",
+    ProcessMailWithAIRequestTone.CONCISE:
+        "Keep the reply short and to the point — 2 to 3 sentences.",
+    ProcessMailWithAIRequestTone.FORMAL:
+        "Use a professional, formal tone suitable for business correspondence.",
+    ProcessMailWithAIRequestTone.DECLINE:
+        "Politely decline the request while remaining respectful.",
+    ProcessMailWithAIRequestTone.ENTHUSIASTIC:
+        "Express genuine enthusiasm and positivity.",
+}
 
 
 class MailSyncService:
@@ -171,8 +185,19 @@ class MailSyncService:
             },
         }
 
-        # Get the prompt based on the request type
-        return prompts.get(request.request_type, prompts[ProcessMailWithAIRequestType.GENERATE])
+        selected = prompts.get(request.request_type, prompts[ProcessMailWithAIRequestType.GENERATE])
+
+        if (
+            request.request_type == ProcessMailWithAIRequestType.REPLY
+            and request.tone is not None
+        ):
+            tone_instruction = TONE_INSTRUCTIONS[request.tone]
+            selected = {
+                **selected,
+                "system_prompt": f"{selected['system_prompt']}\n\nTone: {tone_instruction}",
+            }
+
+        return selected
 
     async def process_mail_with_ai(
         self,
