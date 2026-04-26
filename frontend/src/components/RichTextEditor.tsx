@@ -45,13 +45,14 @@ const RichTextEditor = ({
   };
 
   return (
-    <div>
+    <div style={{ height, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       <div
         style={{
           cursor: 'text',
           background: colors.surface,
           color: colors.text,
-          height,
+          flex: 1,
+          minHeight: 0,
           overflow: 'auto',
           padding: '12px 14px',
         }}

@@ -30,10 +30,66 @@ export default function ComposerSheet({ recipientLabel, subject, defaultOpen = f
   const minimize = () => setState('minimized');
   const close = () => setState('collapsed');
 
-  let content: ReactNode;
+  // Sheet stays mounted while not collapsed, even when minimized — that
+  // preserves the children's internal state across minimize/restore.
+  // When collapsed, the sheet unmounts and a fresh draft starts on next open.
+  const sheet =
+    state !== 'collapsed' ? (
+      <div
+        style={{
+          position: 'fixed',
+          right: SHEET_OFFSET,
+          bottom: SHEET_OFFSET,
+          zIndex: SHEET_Z_INDEX,
+          width: SHEET_WIDTH,
+          maxWidth: `calc(100vw - ${SHEET_OFFSET * 2}px)`,
+          height: SHEET_HEIGHT,
+          maxHeight: `calc(100vh - ${SHEET_OFFSET * 2}px)`,
+          background: colors.surfaceElevated,
+          border: `1px solid ${colors.border}`,
+          borderRadius: 20,
+          boxShadow: shadows.xl,
+          display: state === 'expanded' ? 'flex' : 'none',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            height: 48,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 12px 0 16px',
+            background: colors.primaryGradient,
+            color: '#FFFFFF',
+          }}
+        >
+          <span
+            style={{
+              flex: 1,
+              fontSize: 13,
+              fontWeight: 600,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {subject || 'New message'}
+          </span>
+          <Tooltip title="Minimize">
+            <Button type="text" size="small" icon={<MinusOutlined />} onClick={minimize} style={{ color: '#FFFFFF' }} />
+          </Tooltip>
+          <Tooltip title="Close">
+            <Button type="text" size="small" icon={<CloseOutlined />} onClick={close} style={{ color: '#FFFFFF' }} />
+          </Tooltip>
+        </div>
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>{children({ editorHeight: '100%' })}</div>
+      </div>
+    ) : null;
 
-  if (state === 'collapsed') {
-    content = (
+  const pill =
+    state === 'collapsed' ? (
       <button
         type="button"
         onClick={open}
@@ -61,9 +117,7 @@ export default function ComposerSheet({ recipientLabel, subject, defaultOpen = f
         <EditOutlined />
         <span>Reply{recipientLabel ? ` to ${recipientLabel}` : ''}…</span>
       </button>
-    );
-  } else if (state === 'minimized') {
-    content = (
+    ) : state === 'minimized' ? (
       <button
         type="button"
         onClick={open}
@@ -101,62 +155,13 @@ export default function ComposerSheet({ recipientLabel, subject, defaultOpen = f
           {subject || 'Draft reply'}
         </span>
       </button>
-    );
-  } else {
-    content = (
-      <div
-        style={{
-          position: 'fixed',
-          right: SHEET_OFFSET,
-          bottom: SHEET_OFFSET,
-          zIndex: SHEET_Z_INDEX,
-          width: SHEET_WIDTH,
-          maxWidth: `calc(100vw - ${SHEET_OFFSET * 2}px)`,
-          height: SHEET_HEIGHT,
-          maxHeight: `calc(100vh - ${SHEET_OFFSET * 2}px)`,
-          background: colors.surfaceElevated,
-          border: `1px solid ${colors.border}`,
-          borderRadius: 20,
-          boxShadow: shadows.xl,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            height: 48,
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 12px 0 16px',
-            background: colors.primaryGradient,
-            color: '#FFFFFF',
-          }}
-        >
-          <span
-            style={{
-              flex: 1,
-              fontSize: 13,
-              fontWeight: 600,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {subject || 'New message'}
-          </span>
-          <Tooltip title="Minimize">
-            <Button type="text" size="small" icon={<MinusOutlined />} onClick={minimize} style={{ color: '#FFFFFF' }} />
-          </Tooltip>
-          <Tooltip title="Close">
-            <Button type="text" size="small" icon={<CloseOutlined />} onClick={close} style={{ color: '#FFFFFF' }} />
-          </Tooltip>
-        </div>
-        <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>{children({ editorHeight: '100%' })}</div>
-      </div>
-    );
-  }
+    ) : null;
 
-  return createPortal(content, document.body);
+  return createPortal(
+    <>
+      {sheet}
+      {pill}
+    </>,
+    document.body,
+  );
 }

@@ -215,6 +215,8 @@ export default function UserReplyMail({
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
+        height: '100%',
+        minHeight: 0,
       }}
     >
       <ReplyDataInput label="To" value={receiver} setValue={setReceiver} placeholder="recipient@example.com" />
@@ -320,7 +322,9 @@ export default function UserReplyMail({
         </div>
       )}
 
-      <RichTextEditor editorState={editorState} setEditorState={setEditorState} height={editorHeight} hideToolbar />
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <RichTextEditor editorState={editorState} setEditorState={setEditorState} height={editorHeight} hideToolbar />
+      </div>
 
       <div
         style={{
