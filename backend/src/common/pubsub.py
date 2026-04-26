@@ -3,8 +3,8 @@ from typing import Annotated, AsyncIterator
 from aioredis import Redis
 from fastapi import Depends
 
-from backend.src.common.database.connection import get_redis_session
-from backend.src.logger import LOGGER
+from src.common.database.connection import get_redis_session
+from src.logger import LOGGER
 
 
 class PubSubService:
