@@ -75,7 +75,7 @@ export default function CTABand() {
         >
           Bring everything together in a workspace that&apos;s actually pleasant to use.
         </p>
-        <div style={{ marginTop: 28 }}>
+        <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
           <Link to="/sign-up">
             <Button
               size="large"
@@ -88,7 +88,7 @@ export default function CTABand() {
                 paddingInline: 26,
                 fontSize: 15,
                 boxShadow: '0 14px 28px rgba(0,0,0,0.25)',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
               }}
