@@ -1,3 +1,4 @@
+import InboxMockup from './InboxMockup';
 import LandingHero from './LandingHero';
 import LandingNav from './LandingNav';
 import { useThemeMode } from '../../hooks/useThemeMode';
@@ -8,7 +9,7 @@ export default function Landing() {
     <div style={{ minHeight: '100vh', background: colors.appBgGradient, color: colors.text }}>
       <LandingNav />
       <main>
-        <LandingHero />
+        <LandingHero visual={<InboxMockup />} />
       </main>
     </div>
   );
