@@ -17,13 +17,15 @@ class ImportantMailNotificationRepository(BaseRepository):
         self.collection = self.db["important_mail_notifications"]
 
     async def add_notifications(self, notifications: list[ImportantMailNotification]):
-        return await self.insert_many(
-            self.collection,
-            notifications,
-        )
+        if not notifications:
+            return []
+        docs = [n.dict(exclude_none=True) for n in notifications]
+        result = await self.collection.insert_many(docs)
+        for notif, _id in zip(notifications, result.inserted_ids):
+            notif.id = _id
+        return notifications
 
     async def get_notifications(self, linked_mail_address_ids: list[Annotated[ObjectId, ObjectIdPydanticAnnotation]]):
-        print("linked_mail_address_ids", linked_mail_address_ids)
         condition = {"linked_mail_address_id": {"$in": linked_mail_address_ids}}
 
         data = await self.aggregate(
@@ -70,6 +72,7 @@ class ImportantMailClassificationRepository(BaseRepository):
     async def upsert_many(self, rows: list["ImportantMailClassification"]) -> None:
         if not rows:
             return
+        await self.ensure_indexes()
         for row in rows:
             await self.collection.update_one(
                 {"mail_id": row.mail_id},

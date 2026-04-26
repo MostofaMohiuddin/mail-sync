@@ -59,6 +59,8 @@ export function useNotificationStream({ enabled }: { enabled: boolean }): { conn
       source.addEventListener('ready', () => {
         backoffRef.current = BACKOFF_INITIAL_MS;
         setConnected(true);
+        // Catch any notifications published between ticket exchange and subscribe.
+        mutate(NOTIFICATIONS_KEY);
       });
 
       source.addEventListener('new', (event: MessageEvent) => {
