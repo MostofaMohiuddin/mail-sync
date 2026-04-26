@@ -1,24 +1,23 @@
 import { convert } from 'html-to-text';
 
-import AiGenerateMail from './AiGenerateMail';
-import AiReplyMail from './AiReplyMail';
 import UserReplyMail from './UserReplyMail';
 import type { IEmailFullData } from '../../../common/types';
 
-export default function ReplyMail({ receivedMail }: { receivedMail?: IEmailFullData }) {
+interface ReplyMailProps {
+  receivedMail?: IEmailFullData;
+  editorHeight?: number | string;
+}
+
+export default function ReplyMail({ receivedMail, editorHeight }: ReplyMailProps) {
+  const receivedBody = receivedMail
+    ? receivedMail.body.plain || convert(receivedMail.body.html ?? '') || ''
+    : '';
   return (
-    <>
-      {receivedMail ? (
-        <AiReplyMail receivedMailBody={receivedMail?.body.plain || convert(receivedMail.body.html ?? '') || ''} />
-      ) : (
-        <AiGenerateMail />
-      )}
-      <div style={{ marginTop: 32 }}>
-        <UserReplyMail
-          receiverEmail={receivedMail?.sender.email}
-          replySubject={receivedMail?.subject ? `RE: ${receivedMail.subject}` : ''}
-        />
-      </div>
-    </>
+    <UserReplyMail
+      receiverEmail={receivedMail?.sender.email}
+      replySubject={receivedMail?.subject ? `RE: ${receivedMail.subject}` : ''}
+      receivedMailBody={receivedBody}
+      editorHeight={editorHeight}
+    />
   );
 }
