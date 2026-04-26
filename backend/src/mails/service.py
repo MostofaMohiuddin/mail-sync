@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import time
 from typing import Annotated, Any
 
@@ -15,11 +16,13 @@ from backend.src.link_mail_address.service import LinkMailAddressService
 from backend.src.openai.openai_client import OpenAIClient
 
 from backend.src.mails.models import (
+    AISummary,
     MailRequestBody,
     ProcessMailWithAIRequestBody,
     ProcessMailWithAIRequestTone,
     ProcessMailWithAIRequestType,
 )
+from backend.src.mails.repositories import AISummaryRepository
 
 TONE_INSTRUCTIONS = {
     ProcessMailWithAIRequestTone.FRIENDLY:
@@ -37,13 +40,51 @@ assert set(TONE_INSTRUCTIONS) == set(ProcessMailWithAIRequestTone), (
     "TONE_INSTRUCTIONS must cover every ProcessMailWithAIRequestTone value"
 )
 
+# In-process TTL cache for AI replies. Replies are exploratory (the user
+# may try several tones) and not worth persisting — a short-lived cache
+# avoids re-spending tokens on the same (message, tone) within a session.
+_REPLY_CACHE: dict[str, tuple[float, str]] = {}
+_REPLY_CACHE_TTL_SECONDS = 3600
+_REPLY_CACHE_MAX_ENTRIES = 256
+
+
+def _hash_content(*parts: str) -> str:
+    h = hashlib.sha256()
+    for part in parts:
+        h.update(part.encode("utf-8"))
+        h.update(b"\x00")
+    return h.hexdigest()
+
+
+def _reply_cache_get(key: str) -> str | None:
+    entry = _REPLY_CACHE.get(key)
+    if entry is None:
+        return None
+    expires_at, value = entry
+    if expires_at < time.time():
+        _REPLY_CACHE.pop(key, None)
+        return None
+    return value
+
+
+def _reply_cache_set(key: str, value: str) -> None:
+    if len(_REPLY_CACHE) >= _REPLY_CACHE_MAX_ENTRIES:
+        # Evict the oldest entry (smallest expires_at) — bounded simple LRU-ish.
+        oldest = min(_REPLY_CACHE.items(), key=lambda kv: kv[1][0])[0]
+        _REPLY_CACHE.pop(oldest, None)
+    _REPLY_CACHE[key] = (time.time() + _REPLY_CACHE_TTL_SECONDS, value)
+
 
 class MailSyncService:
     def __init__(
-        self, link_mail_address_service: LinkMailAddressService = Depends(), openai_client: OpenAIClient = Depends()
+        self,
+        link_mail_address_service: LinkMailAddressService = Depends(),
+        openai_client: OpenAIClient = Depends(),
+        ai_summary_repository: AISummaryRepository = Depends(),
     ):
         self.link_mail_address_service = link_mail_address_service
         self.openai_client = openai_client
+        self.ai_summary_repository = ai_summary_repository
 
     async def get_mails(self, username: str, next_page_tokens_query=None) -> Any:
         start = time.time()
@@ -217,6 +258,36 @@ class MailSyncService:
         self,
         request: ProcessMailWithAIRequestBody,
     ) -> dict:
+        # SUMMARY: persistent cache in MongoDB, keyed by content hash.
+        if request.request_type == ProcessMailWithAIRequestType.SUMMARY:
+            content_hash = _hash_content("SUMMARY", request.message)
+            cached = await self.ai_summary_repository.get_by_hash(content_hash)
+            if cached and cached.get("summary"):
+                return {"processed_mail": cached["summary"]}
+
+            prompt = self._generate_prompt(request)
+            processed_mail = self.openai_client.get_completion(**prompt) or ""
+            if processed_mail:
+                await self.ai_summary_repository.insert_summary(
+                    AISummary(content_hash=content_hash, summary=processed_mail)
+                )
+            return {"processed_mail": processed_mail}
+
+        # REPLY: short-lived in-process cache, keyed by (message, tone).
+        if request.request_type == ProcessMailWithAIRequestType.REPLY:
+            tone_key = request.tone.value if request.tone else ""
+            cache_key = _hash_content("REPLY", tone_key, request.message)
+            cached_reply = _reply_cache_get(cache_key)
+            if cached_reply is not None:
+                return {"processed_mail": cached_reply}
+
+            prompt = self._generate_prompt(request)
+            processed_mail = self.openai_client.get_completion(**prompt) or ""
+            if processed_mail:
+                _reply_cache_set(cache_key, processed_mail)
+            return {"processed_mail": processed_mail}
+
+        # GENERATE: passthrough — user-prompt driven, not worth caching.
         prompt = self._generate_prompt(request)
         processed_mail = self.openai_client.get_completion(**prompt)
         return {"processed_mail": processed_mail}

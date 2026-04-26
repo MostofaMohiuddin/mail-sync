@@ -1,6 +1,7 @@
+from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class MailBody(BaseModel):
@@ -33,3 +34,9 @@ class ProcessMailWithAIRequestBody(BaseModel):
     message: str
     request_type: ProcessMailWithAIRequestType
     tone: ProcessMailWithAIRequestTone | None = None
+
+
+class AISummary(BaseModel):
+    content_hash: str
+    summary: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
