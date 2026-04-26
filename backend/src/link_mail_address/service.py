@@ -92,3 +92,6 @@ class LinkMailAddressService:
         request_body: LinkMailAddressUpdateRequest,
     ) -> None:
         await self.link_mail_address_repository.update_linked_mail_address(linked_mail_address_id, request_body)
+
+    async def get_usernames_by_ids(self, ids: list) -> dict:
+        return await self.link_mail_address_repository.get_usernames_by_ids(ids)

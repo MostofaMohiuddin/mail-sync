@@ -63,3 +63,12 @@ class LinkMailAddressRepository(BaseRepository):
         query = {"_id": linked_mail_address_id}
         data = request_body.dict(exclude_unset=True, exclude_none=True)
         await self.update(self.collection, query, data)
+
+    async def get_usernames_by_ids(self, ids: list[ObjectId]) -> dict[ObjectId, str]:
+        if not ids:
+            return {}
+        cursor = self.collection.find({"_id": {"$in": ids}}, {"_id": 1, "username": 1})
+        out: dict[ObjectId, str] = {}
+        async for doc in cursor:
+            out[doc["_id"]] = doc["username"]
+        return out

@@ -1,7 +1,10 @@
+import json
+from collections import defaultdict
 from datetime import datetime, timezone
 
 from fastapi import Depends
 
+from backend.src.common.pubsub import PubSubService
 from backend.src.important_mail.dtos import (
     ClassifyBatchRequest,
     ClassifyBatchResponse,
@@ -65,11 +68,13 @@ class ImportantMailService:
         important_mail_notification_repository: ImportantMailNotificationRepository = Depends(),
         important_mail_classification_repository: ImportantMailClassificationRepository = Depends(),
         link_mail_address_service: LinkMailAddressService = Depends(),
+        pubsub: PubSubService = Depends(),
     ):
         self.important_mail_notification_repository = important_mail_notification_repository
         self.important_mail_classification_repository = important_mail_classification_repository
         self.openai_client = openai_client
         self.link_mail_address_service = link_mail_address_service
+        self.pubsub = pubsub
 
     def _contains_affirmative(self, text):
         affirmatives = ["true", "1", "t", "y", "yes", "yeah", "yup", "certainly", "uh-huh"]
@@ -156,7 +161,34 @@ class ImportantMailService:
         )
 
     async def create_important_mail_notification(self, notifications: list[ImportantMailNotification]):
-        return await self.important_mail_notification_repository.add_notifications(notifications)
+        if not notifications:
+            return []
+
+        inserted = await self.important_mail_notification_repository.add_notifications(notifications)
+
+        addr_ids = list({n.linked_mail_address_id for n in inserted})
+        username_by_addr = await self.link_mail_address_service.get_usernames_by_ids(addr_ids)
+
+        grouped: dict[str, list[ImportantMailNotification]] = defaultdict(list)
+        for n in inserted:
+            username = username_by_addr.get(n.linked_mail_address_id)
+            if username:
+                grouped[username].append(n)
+
+        for username, items in grouped.items():
+            payload = json.dumps(
+                {
+                    "type": "new_important_mail",
+                    "notifications": [json.loads(item.json()) for item in items],
+                }
+            )
+            try:
+                await self.pubsub.publish(f"notif:{username}", payload)
+            except Exception:
+                # Publish failures should not break the insert — Mongo already happened.
+                pass
+
+        return inserted
 
     async def get_important_mail_notifications(self, username: str) -> list[ImportantMailNotification]:
         link_mail_addresses = await self.link_mail_address_service.get_all_linked_mail_address(username)
