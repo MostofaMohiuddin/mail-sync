@@ -14,22 +14,29 @@ import Editor from '@draft-js-plugins/editor';
 import createToolbarPlugin from '@draft-js-plugins/static-toolbar';
 import { EditorState } from 'draft-js';
 
+import { useThemeMode } from '../hooks/useThemeMode';
+
 const toolbarPlugin = createToolbarPlugin();
 const { Toolbar } = toolbarPlugin;
 const plugins = [toolbarPlugin];
 
+interface RichTextEditorProps {
+  editorState: EditorState;
+  setEditorState: (editorState: EditorState) => void;
+  height?: number | string;
+  hideToolbar?: boolean;
+}
+
 const RichTextEditor = ({
   editorState,
   setEditorState,
-}: {
-  editorState: EditorState;
-  setEditorState: (editorState: EditorState) => void;
-}) => {
+  height = '25rem',
+  hideToolbar = false,
+}: RichTextEditorProps) => {
   const editorRef = useRef<Editor>(null);
+  const { colors } = useThemeMode();
 
   const onChange = (newEditorState: EditorState) => {
-    // setPlainValue(newEditorState.getCurrentContent().getPlainText());
-    // setHtmlValue(stateToHTML(newEditorState.getCurrentContent()));
     setEditorState(newEditorState);
   };
 
@@ -41,14 +48,12 @@ const RichTextEditor = ({
     <div>
       <div
         style={{
-          border: '1px solid #ddd',
           cursor: 'text',
-          // borderRadius: '8px 8px 0 0',
-          marginBottom: '',
-          background: ' #fefefe',
-          height: '25rem',
-          overflow: 'scroll',
-          padding: '8px 12px',
+          background: colors.surface,
+          color: colors.text,
+          height,
+          overflow: 'auto',
+          padding: '12px 14px',
         }}
         onClick={focus}
       >
@@ -57,28 +62,28 @@ const RichTextEditor = ({
           onChange={onChange}
           plugins={plugins}
           ref={editorRef}
-          formatPastedText={(text, html) => {
-            return { html: html, text: text };
-          }}
+          formatPastedText={(text, html) => ({ html, text })}
         />
       </div>
-      <Toolbar>
-        {(externalProps) => (
-          <>
-            <BoldButton {...externalProps} />
-            <ItalicButton {...externalProps} />
-            <UnderlineButton {...externalProps} />
-            <CodeButton {...externalProps} />
-            {/* <Separator {...externalProps} /> */}
-            <UnorderedListButton {...externalProps} />
-            <OrderedListButton {...externalProps} />
-            <BlockquoteButton {...externalProps} />
-            <CodeBlockButton {...externalProps} />
-          </>
-        )}
-      </Toolbar>
+      {!hideToolbar && (
+        <Toolbar>
+          {(externalProps) => (
+            <>
+              <BoldButton {...externalProps} />
+              <ItalicButton {...externalProps} />
+              <UnderlineButton {...externalProps} />
+              <CodeButton {...externalProps} />
+              <UnorderedListButton {...externalProps} />
+              <OrderedListButton {...externalProps} />
+              <BlockquoteButton {...externalProps} />
+              <CodeBlockButton {...externalProps} />
+            </>
+          )}
+        </Toolbar>
+      )}
     </div>
   );
 };
 
+export { Toolbar as RichTextToolbar };
 export default RichTextEditor;
