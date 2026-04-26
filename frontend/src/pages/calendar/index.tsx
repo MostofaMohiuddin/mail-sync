@@ -1,102 +1,213 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { Flex } from 'antd';
-import type { Dayjs } from 'dayjs';
+import type { DatesSetArg, EventClickArg, EventContentArg } from '@fullcalendar/core/index.js';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import FullCalendar from '@fullcalendar/react';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
 
-import CalendarView from './Calendar';
-import DayCalendar from './DayCalendar';
+import { colorForAccount } from './eventColors';
+import EventDetails from './EventDetails';
 import * as calendarApi from '../../api/Calendar';
-import * as linkedMailApi from '../../api/LinkMailAddress';
-import type { IEvent, IEventsResponse, IUserLinkedMail } from '../../common/types';
+import type { IEvent, IEventsResponse } from '../../common/types';
 import Loader from '../../components/Loader';
-import GlassCard from '../../components/ui/GlassCard';
 import PageHeader from '../../components/ui/PageHeader';
+import '../../components/fullcalendar.css';
+import { useThemeMode } from '../../hooks/useThemeMode';
 
-export default function Calendar() {
+const PANEL_WIDTH = 440;
+const PANEL_HEIGHT = 'min(640px, calc(100vh - 160px))';
+const PANEL_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const PANEL_TRANSITION = `width 300ms ${PANEL_EASING}, margin-left 300ms ${PANEL_EASING}`;
+
+export default function CalendarPage() {
+  const { colors } = useThemeMode();
   const [events, setEvents] = useState<IEvent[]>([]);
-  const [sortedEvents, setSortedEvents] = useState({} as Record<string, IEvent[]>);
-  const [userLinkedMail, setUserLinkedMail] = useState({});
-  const [selectedDay, setSelectedDay] = useState<Dayjs>(dayjs());
-  const getFormattedDateString = (date: Dayjs) => date.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
-  const { data, isLoading } = useSWR(['/calendars/events', selectedDay.format('YYYY MM')], () =>
-    calendarApi.getEvents({
-      query: `time_min=${getFormattedDateString(selectedDay.startOf('month'))}&time_max=${getFormattedDateString(selectedDay.endOf('month'))}`,
-    }),
+  const [currentView, setCurrentView] = useState<string>('dayGridMonth');
+  const [visibleRange, setVisibleRange] = useState<{ start: Date; end: Date } | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [referenceMonth, setReferenceMonth] = useState<dayjs.Dayjs>(dayjs());
+
+  const { data, isLoading } = useSWR(
+    ['/calendars/events', referenceMonth.format('YYYY-MM')],
+    () =>
+      calendarApi.getEvents({
+        query: `time_min=${referenceMonth.startOf('month').toISOString()}&time_max=${referenceMonth.endOf('month').toISOString()}`,
+      }),
+    { revalidateOnFocus: true },
   );
-  const { data: linkedMailAddressResponse, isLoading: isLoadingMailAddresses } = useSWR(
-    '/link-mail-address',
-    linkedMailApi.getLinkedMailAddress,
-    { revalidateOnMount: true, revalidateOnFocus: true },
-  );
-  const calendarRef = useRef<any>(null);
 
   useEffect(() => {
-    const events: IEvent[] = [];
+    const flat: IEvent[] = [];
     data?.data.forEach((item: IEventsResponse) => {
-      events.push(...item.events.map((event) => ({ ...event, userEmail: item.email })));
+      flat.push(...item.events.map((event) => ({ ...event, userEmail: item.email })));
     });
-    setEvents(events || []);
+    setEvents(flat);
   }, [data]);
 
   useEffect(() => {
-    const sortedEvents: Record<string, IEvent[]> = {};
-    events.forEach((event) => {
-      const start = dayjs(event.start);
-      sortedEvents[start.format('MMDD')] = [...(sortedEvents[start.format('MMDD')] || []), event];
+    const id = window.setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+    return () => window.clearTimeout(id);
+  }, [isPanelOpen]);
+
+  const closePanel = () => setIsPanelOpen(false);
+
+  const visibleEvents = useMemo(() => {
+    if (!visibleRange) return events;
+    const { start, end } = visibleRange;
+    return events.filter((e) => {
+      const eventStart = new Date(e.start);
+      return eventStart >= start && eventStart < end;
     });
-    for (const [key, value] of Object.entries(sortedEvents)) {
-      sortedEvents[key] = value.sort((a, b) => (dayjs(a.start).isBefore(dayjs(b.start)) ? -1 : 1));
+  }, [events, visibleRange]);
+
+  const subtitle = useMemo(() => {
+    const n = visibleEvents.length;
+    const noun = currentView === 'dayGridMonth' ? 'this month' : currentView === 'timeGridWeek' ? 'this week' : 'today';
+    if (n === 0) return `No events ${noun}.`;
+    if (n === 1) return `1 event ${noun}.`;
+    return `${n} events ${noun}.`;
+  }, [visibleEvents.length, currentView]);
+
+  const fcEvents = useMemo(
+    () =>
+      events.map((e) => {
+        const color = colorForAccount(e.userEmail);
+        return {
+          id: e.id,
+          title: e.title,
+          start: e.start,
+          end: e.end,
+          backgroundColor: color,
+          borderColor: color,
+          textColor: '#ffffff',
+          extendedProps: { event: e },
+        };
+      }),
+    [events],
+  );
+
+  const handleDatesSet = (arg: DatesSetArg) => {
+    setCurrentView(arg.view.type);
+    setVisibleRange({ start: arg.start, end: arg.end });
+    // Re-anchor the SWR fetch to whichever month covers the middle of the range.
+    const middle = dayjs(arg.start.getTime() + (arg.end.getTime() - arg.start.getTime()) / 2);
+    if (middle.format('YYYY-MM') !== referenceMonth.format('YYYY-MM')) {
+      setReferenceMonth(middle);
     }
-    setSortedEvents(sortedEvents);
-  }, [events]);
+  };
 
-  useEffect(() => {
-    const userLinkedMail: { [key: string]: string } = {};
-    linkedMailAddressResponse?.data.forEach((item: IUserLinkedMail) => {
-      userLinkedMail[item.email] = item.picture;
-    });
-    setUserLinkedMail(userLinkedMail);
-  }, [linkedMailAddressResponse]);
+  const handleEventClick = (clickInfo: EventClickArg) => {
+    const ev = (clickInfo.event.extendedProps as { event?: IEvent }).event;
+    if (ev) {
+      setSelectedEvent(ev);
+      setIsPanelOpen(true);
+    }
+  };
 
-  const handleDateChange = (date: Dayjs) => {
-    setSelectedDay(date);
-    if (!calendarRef.current) return;
-    const calendarApi = calendarRef.current.getApi();
-    const dateToSet = date.toDate();
-    calendarApi.gotoDate(dateToSet);
+  const renderEventContent = (arg: EventContentArg): ReactNode => {
+    const isTimeGrid = arg.view.type !== 'dayGridMonth';
+    return (
+      <div style={{ overflow: 'hidden', lineHeight: 1.25, padding: '0 2px', width: '100%' }}>
+        <div
+          style={{
+            fontWeight: 600,
+            fontSize: 12,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {arg.event.title}
+        </div>
+        {isTimeGrid && arg.timeText ? (
+          <div
+            style={{
+              fontSize: 11,
+              opacity: 0.85,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {arg.timeText}
+          </div>
+        ) : null}
+      </div>
+    );
   };
 
   return (
     <>
-      <Loader loading={isLoading || isLoadingMailAddresses} />
+      <Loader loading={isLoading} />
+      <PageHeader title="Calendar" subtitle={subtitle} />
 
-      <PageHeader
-        title="Calendar"
-        subtitle={`${selectedDay.format('MMMM YYYY')} · ${events.length} event${events.length === 1 ? '' : 's'}`}
-      />
+      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div style={{ flex: 1, minWidth: 0, position: 'relative', minHeight: 600 }}>
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            events={fcEvents}
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            }}
+            buttonText={{ today: 'Today', month: 'Month', week: 'Week', day: 'Day' }}
+            editable={false}
+            selectable={false}
+            eventClick={handleEventClick}
+            eventContent={renderEventContent}
+            datesSet={handleDatesSet}
+            dayMaxEvents={true}
+            weekends={true}
+            height="auto"
+          />
 
-      <Flex justify="space-between" gap={20} wrap="wrap">
-        <GlassCard
-          variant="solid"
-          padding={16}
-          style={{ flex: '1 1 480px', minWidth: 0, height: '78vh', overflow: 'auto' }}
+          {events.length === 0 && currentView === 'dayGridMonth' ? (
+            <div
+              style={{
+                position: 'absolute',
+                top: '55%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: colors.surface,
+                border: `1px dashed ${colors.border}`,
+                borderRadius: 12,
+                padding: '12px 18px',
+                color: colors.textSecondary,
+                fontSize: 13,
+                pointerEvents: 'none',
+                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)',
+              }}
+            >
+              No events this month.
+            </div>
+          ) : null}
+        </div>
+
+        <div
+          aria-hidden={!isPanelOpen}
+          {...({ inert: !isPanelOpen ? '' : undefined } as Record<string, unknown>)}
+          style={{
+            width: isPanelOpen ? PANEL_WIDTH : 0,
+            marginLeft: isPanelOpen ? 16 : 0,
+            overflow: 'hidden',
+            transition: PANEL_TRANSITION,
+            flexShrink: 0,
+            position: 'sticky',
+            top: 16,
+            height: PANEL_HEIGHT,
+          }}
         >
-          <CalendarView setSelectedDay={handleDateChange} events={sortedEvents} userLinkedMail={userLinkedMail} />
-        </GlassCard>
-        <GlassCard
-          variant="solid"
-          padding={16}
-          style={{ flex: '1 1 380px', minWidth: 0, height: '78vh', overflow: 'hidden' }}
-        >
-          <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 600, color: 'var(--as-text-secondary)' }}>
-            {selectedDay.format('dddd, MMMM D')}
+          <div style={{ width: PANEL_WIDTH, height: '100%' }}>
+            <EventDetails event={selectedEvent} closePanel={closePanel} />
           </div>
-          <DayCalendar events={events} calendarRef={calendarRef} initialDate={selectedDay} />
-        </GlassCard>
-      </Flex>
+        </div>
+      </div>
     </>
   );
 }
