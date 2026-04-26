@@ -70,10 +70,7 @@ export function useNotificationStream({ enabled }: { enabled: boolean }): { conn
             (current: { data?: IImportantMailNotification[] } | undefined) => {
               const existing = current?.data ?? [];
               const seen = new Set(existing.map((n) => n.id));
-              const merged = [
-                ...incoming.filter((n) => !seen.has(n.id)),
-                ...existing,
-              ];
+              const merged = [...incoming.filter((n) => !seen.has(n.id)), ...existing];
               return current ? { ...current, data: merged } : { data: merged };
             },
             { revalidate: false },
