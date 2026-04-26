@@ -21,6 +21,15 @@ class ProcessMailWithAIRequestType(Enum):
     GENERATE = "GENERATE"
 
 
+class ProcessMailWithAIRequestTone(str, Enum):
+    FRIENDLY = "FRIENDLY"
+    CONCISE = "CONCISE"
+    FORMAL = "FORMAL"
+    DECLINE = "DECLINE"
+    ENTHUSIASTIC = "ENTHUSIASTIC"
+
+
 class ProcessMailWithAIRequestBody(BaseModel):
     message: str
     request_type: ProcessMailWithAIRequestType
+    tone: ProcessMailWithAIRequestTone | None = None
