@@ -146,8 +146,8 @@ export default function CalendarPage() {
       <Loader loading={isLoading} />
       <PageHeader title="Calendar" subtitle={subtitle} />
 
-      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-        <div style={{ flex: 1, minWidth: 0, position: 'relative', minHeight: 600 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
+        <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
