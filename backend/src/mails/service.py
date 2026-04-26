@@ -33,6 +33,9 @@ TONE_INSTRUCTIONS = {
     ProcessMailWithAIRequestTone.ENTHUSIASTIC:
         "Express genuine enthusiasm and positivity.",
 }
+assert set(TONE_INSTRUCTIONS) == set(ProcessMailWithAIRequestTone), (
+    "TONE_INSTRUCTIONS must cover every ProcessMailWithAIRequestTone value"
+)
 
 
 class MailSyncService:
