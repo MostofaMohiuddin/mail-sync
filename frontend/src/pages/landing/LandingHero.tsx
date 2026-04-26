@@ -19,7 +19,11 @@ export default function LandingHero({ visual }: LandingHeroProps) {
       style={{
         position: 'relative',
         overflow: 'hidden',
-        padding: '140px 24px 96px',
+        padding: '120px 24px 64px',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        boxSizing: 'border-box',
       }}
     >
       {/* Floating orbs */}
@@ -59,6 +63,7 @@ export default function LandingHero({ visual }: LandingHeroProps) {
         style={{
           position: 'relative',
           zIndex: 1,
+          width: '100%',
           maxWidth: 1200,
           margin: '0 auto',
           display: 'grid',
