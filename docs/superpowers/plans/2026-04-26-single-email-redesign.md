@@ -193,7 +193,7 @@ def test_generate_prompt_ignores_tone(service):
 Run: `cd backend && PYTHONPATH=.. poetry run pytest tests/mails/test_service.py -v`
 
 (The `PYTHONPATH=..` is required because the codebase imports its own modules as `backend.src.*`; this puts the repo root on `sys.path` so `backend.*` resolves. This is a pre-existing infrastructure quirk, not introduced by this plan.)
-Expected: 4 failures — the parametrized `test_reply_prompt_with_tone_appends_tone_instruction` cases all fail because tone is not yet honored. `test_reply_prompt_without_tone_matches_default`, `test_summary_prompt_ignores_tone`, and `test_generate_prompt_ignores_tone` should pass already (default behavior is unchanged so far).
+Expected: `5 failed, 3 passed` — the 5 parametrized `test_reply_prompt_with_tone_appends_tone_instruction` cases (one per tone) all fail because tone is not yet honored. `test_reply_prompt_without_tone_matches_default`, `test_summary_prompt_ignores_tone`, and `test_generate_prompt_ignores_tone` should pass already (default behavior is unchanged so far).
 
 - [ ] **Step 4: Commit failing tests**
 
