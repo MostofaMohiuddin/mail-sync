@@ -16,7 +16,16 @@ import { EditorState } from 'draft-js';
 
 import { useThemeMode } from '../hooks/useThemeMode';
 
-const toolbarPlugin = createToolbarPlugin();
+const toolbarPlugin = createToolbarPlugin({
+  theme: {
+    toolbarStyles: { toolbar: 'ms-rt-toolbar' },
+    buttonStyles: {
+      button: 'ms-rt-btn',
+      buttonWrapper: 'ms-rt-btn-wrapper',
+      active: 'ms-rt-btn-active',
+    },
+  },
+});
 const { Toolbar } = toolbarPlugin;
 const plugins = [toolbarPlugin];
 

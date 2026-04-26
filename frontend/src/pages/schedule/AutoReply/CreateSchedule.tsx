@@ -151,7 +151,12 @@ export default function CreateSchedule({
         }}
       >
         <span style={{ fontWeight: 600, fontSize: 14, color: colors.text }}>New auto reply</span>
-        <Button type="text" size="small" icon={<CloseOutlined />} onClick={closePanel} aria-label="Close panel" />
+        <Flex align="center" gap={4}>
+          <Button type="text" size="small" onClick={resetData} disabled={isClearDisabled()}>
+            Clear
+          </Button>
+          <Button type="text" size="small" icon={<CloseOutlined />} onClick={closePanel} aria-label="Close panel" />
+        </Flex>
       </div>
 
       <div
@@ -218,14 +223,15 @@ export default function CreateSchedule({
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           gap: 8,
           padding: '8px 12px',
           borderTop: `1px solid ${colors.border}`,
           background: colors.surfaceMuted,
         }}
       >
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, minWidth: 0 }}>
           <RichTextToolbar>
             {(externalProps) => (
               <>
@@ -241,21 +247,17 @@ export default function CreateSchedule({
             )}
           </RichTextToolbar>
         </div>
-        <Flex align="center" justify="end" gap={8}>
-          <Button type="link" size="small" onClick={resetData} disabled={isClearDisabled()}>
-            Clear
-          </Button>
-          <Button
-            ref={createButtonRef}
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={createSchedule}
-            loading={isCreatingSchedule}
-            disabled={isCreateDisabled()}
-          >
-            Create Schedule
-          </Button>
-        </Flex>
+        <Button
+          ref={createButtonRef}
+          type="primary"
+          size="small"
+          icon={<PlusOutlined />}
+          onClick={createSchedule}
+          loading={isCreatingSchedule}
+          disabled={isCreateDisabled()}
+        >
+          Create
+        </Button>
       </div>
     </div>
   );

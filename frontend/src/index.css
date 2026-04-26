@@ -39,8 +39,17 @@ body {
   padding: 0;
   background: var(--as-app-bg-gradient);
   color: var(--as-text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-    'Helvetica Neue', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Helvetica Neue',
+    sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -150,7 +159,8 @@ code {
 
 /* MailListItem ----------------------------------------------------- */
 .as-mail-row {
-  transition: transform var(--as-duration-base) var(--as-easing-entrance),
+  transition:
+    transform var(--as-duration-base) var(--as-easing-entrance),
     box-shadow var(--as-duration-base) var(--as-easing-entrance),
     background-color var(--as-duration-fast) var(--as-easing-entrance);
 }
@@ -438,4 +448,54 @@ code {
   border-right: 1px solid rgba(15, 23, 42, 0.08);
   height: 24px;
   margin: 0 0.5em;
+}
+
+/* Mail Sync rich-text toolbar overrides — replace the default white pill */
+.ms-rt-toolbar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.ms-rt-btn-wrapper {
+  display: inline-flex;
+}
+.ms-rt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--as-text-secondary);
+  cursor: pointer;
+  transition:
+    background 120ms,
+    color 120ms;
+}
+.ms-rt-btn:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--as-text);
+}
+.ms-rt-btn-active {
+  background: rgba(99, 102, 241, 0.18);
+  color: var(--as-text);
+}
+[data-theme='dark'] .ms-rt-btn:hover {
+  background: rgba(129, 140, 248, 0.16);
+}
+[data-theme='dark'] .ms-rt-btn-active {
+  background: rgba(129, 140, 248, 0.22);
+}
+.ms-rt-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
 }
