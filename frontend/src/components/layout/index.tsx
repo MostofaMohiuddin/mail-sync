@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   CalendarOutlined,
   ClockCircleOutlined,
+  HomeOutlined,
   InboxOutlined,
   LogoutOutlined,
   MailOutlined,
@@ -61,8 +62,7 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
     const getSelectedKeys = () => {
       const keys: string[] = [];
       if (location.pathname === '/') {
-        keys.push('/emailsSection');
-        keys.push('/emails');
+        keys.push('/');
       } else if (location.pathname.includes('/emails')) {
         keys.push('/emailsSection');
         if (location.pathname.includes('/emails/link-mail-addresses') && param.address) {
@@ -85,6 +85,7 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
   }, [location.pathname, param.address]);
 
   const items: MenuItem[] = [
+    getItem('Home', '/', <HomeOutlined />),
     getItem('Mail', '/emailsSection', <MailOutlined />, linkedMailSubItems),
     getItem('Calendar', '/calendar', <CalendarOutlined />),
     getItem('Schedule', '/schedule', <ClockCircleOutlined />, [

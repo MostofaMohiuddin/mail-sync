@@ -1,4 +1,5 @@
 import Calendar from './pages/calendar';
+import Home from './pages/home';
 import Mail from './pages/mails';
 import MailViewer from './pages/mails/MailViewer';
 import OauthCallback from './pages/oauth';
@@ -8,12 +9,12 @@ import ScheduledMails from './pages/schedule/ScheduledMails';
 
 const routes = [
   {
-    title: 'Mails',
+    title: 'Home',
     path: '/',
-    component: <Mail />,
+    component: <Home />,
   },
   {
-    title: 'Emails',
+    title: 'Inbox',
     path: '/emails',
     component: <Mail />,
   },
