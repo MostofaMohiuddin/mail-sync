@@ -1,3 +1,4 @@
+import FeatureGrid from './FeatureGrid';
 import HowItWorks from './HowItWorks';
 import InboxMockup from './InboxMockup';
 import LandingHero from './LandingHero';
@@ -12,6 +13,7 @@ export default function Landing() {
       <main>
         <LandingHero visual={<InboxMockup />} />
         <HowItWorks />
+        <FeatureGrid />
       </main>
     </div>
   );
