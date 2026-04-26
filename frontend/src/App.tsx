@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { SWRConfig } from 'swr';
 
 import { RequireAuth } from './components/auth';
+import { RootGate } from './components/auth/RootGate';
 import Layout from './components/layout';
 import { SessionProvider } from './hooks/userSession';
 import { ThemeModeProvider, useThemeMode } from './hooks/useThemeMode';
@@ -26,11 +27,15 @@ function ThemedApp() {
         >
           <SessionProvider>
             <Routes>
-              {routes.map(({ path, component, title }) => (
-                <Route element={<RequireAuth />} key={path} path={path}>
-                  <Route element={<Layout title={title}>{component}</Layout>} path="" />
-                </Route>
-              ))}
+              {/* `/` is gated separately so logged-out visitors see the landing page */}
+              <Route path="/" element={<RootGate />} />
+              {routes
+                .filter(({ path }) => path !== '/')
+                .map(({ path, component, title }) => (
+                  <Route element={<RequireAuth />} key={path} path={path}>
+                    <Route element={<Layout title={title}>{component}</Layout>} path="" />
+                  </Route>
+                ))}
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
             </Routes>
