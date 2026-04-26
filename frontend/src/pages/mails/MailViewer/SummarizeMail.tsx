@@ -4,25 +4,15 @@ import parse from 'html-react-parser';
 import useSWR from 'swr';
 
 import * as api from '../../../api/Mail';
+import { useThemeMode } from '../../../hooks/useThemeMode';
 
 interface SummarizeMailProps {
   text: string;
   onGradient?: boolean;
 }
 
-const SkeletonLine = ({ width, opacity }: { width: string; opacity: number }) => (
-  <div
-    style={{
-      width,
-      height: 12,
-      borderRadius: 6,
-      background: `rgba(255,255,255,${opacity})`,
-      marginBottom: 10,
-    }}
-  />
-);
-
 export default function SummarizeMail({ text, onGradient = false }: SummarizeMailProps) {
+  const { colors, mode } = useThemeMode();
   const [summary, setSummary] = useState('');
 
   const { data, isLoading } = useSWR(['/mails/process-with-ai', text, 'SUMMARY'], () =>
@@ -33,12 +23,27 @@ export default function SummarizeMail({ text, onGradient = false }: SummarizeMai
     setSummary(data?.data?.processed_mail || '');
   }, [data]);
 
+  const skeletonColor = onGradient
+    ? 'rgba(255,255,255,0.35)'
+    : mode === 'dark'
+      ? 'rgba(255,255,255,0.08)'
+      : 'rgba(15,23,42,0.08)';
+
   if (isLoading) {
     return (
       <div style={{ paddingTop: 4 }}>
-        <SkeletonLine width="92%" opacity={onGradient ? 0.35 : 0.18} />
-        <SkeletonLine width="78%" opacity={onGradient ? 0.3 : 0.14} />
-        <SkeletonLine width="60%" opacity={onGradient ? 0.25 : 0.12} />
+        {[{ width: '92%' }, { width: '78%' }, { width: '60%' }].map((line, i) => (
+          <div
+            key={i}
+            style={{
+              width: line.width,
+              height: 12,
+              borderRadius: 6,
+              background: skeletonColor,
+              marginBottom: 10,
+            }}
+          />
+        ))}
       </div>
     );
   }
@@ -48,7 +53,7 @@ export default function SummarizeMail({ text, onGradient = false }: SummarizeMai
       style={{
         fontSize: '0.95rem',
         lineHeight: 1.6,
-        color: onGradient ? 'rgba(255,255,255,0.95)' : undefined,
+        color: onGradient ? 'rgba(255,255,255,0.95)' : colors.text,
       }}
     >
       {parse(summary)}
