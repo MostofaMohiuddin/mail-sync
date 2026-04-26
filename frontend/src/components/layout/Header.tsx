@@ -1,36 +1,54 @@
 import { useMemo, useState } from 'react';
 
-import { UserOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
-import { Avatar, Badge, Dropdown, Empty, Flex, List, Popover, Typography, theme } from 'antd';
+import {
+  BellOutlined,
+  CheckOutlined,
+  InboxOutlined,
+  LogoutOutlined,
+  SearchOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { Avatar, Badge, Button, Dropdown, Flex, Input, Popover, Tooltip, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import { Header } from 'antd/es/layout/layout';
-import dayjs from 'dayjs';
 import parse from 'html-react-parser';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSWRConfig } from 'swr';
 
 import * as api from '../../api/ImportantMailNotification';
+import { formatRelativeDate } from '../../common/formatRelativeDate';
+import { useThemeMode } from '../../hooks/useThemeMode';
 import { useSession } from '../../hooks/userSession';
+import { radius } from '../../themes/tokens';
+import EmptyState from '../ui/EmptyState';
+import GlassCard from '../ui/GlassCard';
+import ThemeToggle from '../ui/ThemeToggle';
 
 export default function CustomHeader({ title }: { title: string }) {
   const { mutate } = useSWRConfig();
   const navigate = useNavigate();
-  const {
-    token: { colorBgContainer, colorPrimary },
-  } = theme.useToken();
+  const { colors, mode } = useThemeMode();
   const { user, signOut, notifications } = useSession();
 
   const [openNotificationPanel, setOpenNotificationPanel] = useState(false);
 
-  const hideNotificationPanel = () => {
-    setOpenNotificationPanel(false);
+  const hideNotificationPanel = () => setOpenNotificationPanel(false);
+
+  const unreadCount = useMemo(
+    () => notifications?.filter(({ status }) => status === 'unread').length ?? 0,
+    [notifications],
+  );
+
+  const markAllAsRead = () => {
+    if (!notifications || unreadCount === 0) return;
+    const ids = notifications.filter(({ status }) => status === 'unread').map(({ id }) => id);
+    api.markImportantMailNotificationAsRead({ data: ids });
+    mutate('/important-mail/notifications');
   };
 
   const handleNotificationPanelOpenChange = (newOpen: boolean) => {
-    if (!newOpen && notifications && getUnreadNotificationCount > 0) {
-      const body = notifications.filter(({ status }) => status === 'unread').map(({ id }) => id);
-      api.markImportantMailNotificationAsRead({ data: body });
-      mutate('/important-mail/notifications');
+    if (!newOpen && unreadCount > 0) {
+      markAllAsRead();
     }
     setOpenNotificationPanel(newOpen);
   };
@@ -39,7 +57,7 @@ export default function CustomHeader({ title }: { title: string }) {
     {
       key: '1',
       label: (
-        <Link rel="noopener noreferrer" to="/profile" style={{ fontSize: '0.92rem' }}>
+        <Link rel="noopener noreferrer" to="/profile" style={{ fontSize: 13 }}>
           Profile
         </Link>
       ),
@@ -48,123 +66,246 @@ export default function CustomHeader({ title }: { title: string }) {
     {
       key: '2',
       label: (
-        <div rel="noopener noreferrer" style={{ fontSize: '0.92rem' }} onClick={signOut}>
+        <span rel="noopener noreferrer" style={{ fontSize: 13 }} onClick={signOut}>
           Sign Out
-        </div>
+        </span>
       ),
       icon: <LogoutOutlined />,
     },
   ];
 
-  const getNotificationList = () => {
-    return (
+  const notificationContent = (
+    <GlassCard variant="solid" padding={0} style={{ width: 420, maxHeight: 480, overflow: 'hidden' }}>
       <div
         style={{
-          maxHeight: 400,
-          minHeight: 150,
-          overflow: 'auto',
+          padding: '14px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: `1px solid ${colors.border}`,
         }}
       >
-        <List
-          style={{ width: '500px' }}
-          dataSource={notifications}
-          bordered
-          locale={{
-            emptyText: <Empty description={<span>No New Notification</span>} />,
-          }}
-          renderItem={({ id, mail_metadata, status }) => (
-            <List.Item
+        <div style={{ fontWeight: 600, fontSize: 14, color: colors.text }}>
+          Notifications
+          {unreadCount > 0 && (
+            <span
               style={{
-                cursor: 'pointer',
-                backgroundColor: status === 'unread' ? 'rgba(33, 87, 190, 0.1)' : 'transparent',
-                padding: '0.5rem',
-                transition: 'background-color 0.3s',
+                marginLeft: 8,
+                fontSize: 11,
+                padding: '2px 8px',
+                borderRadius: 999,
+                background: colors.primaryGradientSoft,
+                color: colors.primary,
+                fontWeight: 600,
               }}
-              key={id}
-              onClick={() => {
-                navigate(`/emails/${mail_metadata.receiver.email}/${mail_metadata.id}`);
-                hideNotificationPanel();
-              }}
-              extra={
-                <Flex vertical align="flex-end">
-                  <Typography.Text type="secondary" style={{ fontSize: '0.7rem' }}>
-                    {dayjs(mail_metadata.date).format('MMM DD')}
-                  </Typography.Text>
-                  <Typography.Text type="secondary" style={{ fontSize: '0.7rem' }}>
-                    {mail_metadata.receiver.email}
-                  </Typography.Text>
-                </Flex>
-              }
             >
-              <Flex>
-                <Flex>
-                  <Flex justify="space-between" align="flex-start" vertical>
-                    <Typography.Text strong style={{ fontSize: '0.9rem' }}>
+              {unreadCount} new
+            </span>
+          )}
+        </div>
+        {unreadCount > 0 && (
+          <Button type="text" size="small" icon={<CheckOutlined />} onClick={markAllAsRead}>
+            Mark all as read
+          </Button>
+        )}
+      </div>
+
+      <div style={{ maxHeight: 380, overflow: 'auto', padding: 8 }}>
+        {!notifications || notifications.length === 0 ? (
+          <EmptyState
+            size="sm"
+            icon={<InboxOutlined />}
+            title="You're all caught up"
+            description="New important mail will appear here."
+          />
+        ) : (
+          notifications.map(({ id, mail_metadata, status }) => {
+            const isUnread = status === 'unread';
+            return (
+              <div
+                key={id}
+                onClick={() => {
+                  navigate(`/emails/${mail_metadata.receiver.email}/${mail_metadata.id}`);
+                  hideNotificationPanel();
+                }}
+                style={{
+                  padding: '10px 12px',
+                  marginBottom: 6,
+                  borderRadius: radius.md,
+                  background: isUnread ? colors.primaryGradientSoft : 'transparent',
+                  cursor: 'pointer',
+                  transition: 'background 150ms',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isUnread) e.currentTarget.style.background = colors.surfaceMuted;
+                }}
+                onMouseLeave={(e) => {
+                  if (!isUnread) e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <Flex justify="space-between" align="flex-start" gap={8}>
+                  <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+                    <Typography.Text
+                      strong
+                      style={{
+                        display: 'block',
+                        fontSize: 13,
+                        color: colors.text,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
                       {mail_metadata.sender.email}
                     </Typography.Text>
-                    <Typography.Text strong ellipsis style={{ width: '200px', fontSize: '0.8rem' }}>
+                    <Typography.Text
+                      style={{
+                        display: 'block',
+                        fontSize: 12.5,
+                        fontWeight: isUnread ? 600 : 500,
+                        color: colors.text,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
                       {mail_metadata.subject}
                     </Typography.Text>
-                    <Typography.Text type="secondary" ellipsis style={{ width: '300px', fontSize: '0.75rem' }}>
-                      {parse(mail_metadata.snippet)}
+                    <Typography.Text
+                      style={{
+                        display: 'block',
+                        fontSize: 12,
+                        color: colors.textSecondary,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        marginTop: 2,
+                      }}
+                    >
+                      {parse(mail_metadata.snippet || '')}
+                    </Typography.Text>
+                  </div>
+                  <Flex vertical align="flex-end" style={{ flexShrink: 0 }}>
+                    <Typography.Text
+                      style={{ fontSize: 11, color: colors.textTertiary, fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {formatRelativeDate(mail_metadata.date)}
+                    </Typography.Text>
+                    <Typography.Text
+                      style={{
+                        fontSize: 10.5,
+                        color: colors.textTertiary,
+                        marginTop: 2,
+                        maxWidth: 140,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {mail_metadata.receiver.email}
                     </Typography.Text>
                   </Flex>
                 </Flex>
-              </Flex>
-            </List.Item>
-          )}
-        ></List>
+              </div>
+            );
+          })
+        )}
       </div>
-    );
-  };
+    </GlassCard>
+  );
 
-  const getUnreadNotificationCount = useMemo(() => {
-    return notifications?.filter(({ status }) => status === 'unread').length;
-  }, [notifications]);
   return (
     <Header
       style={{
-        padding: '0 16px',
-        background: colorBgContainer,
+        padding: '0 24px',
+        background: mode === 'dark' ? 'rgba(17,25,51,0.62)' : 'rgba(255,255,255,0.72)',
+        backdropFilter: 'blur(16px) saturate(140%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+        borderBottom: `1px solid ${colors.border}`,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
       }}
     >
-      <div style={{ fontWeight: 'bold', fontSize: '1.3rem' }}>{title}</div>
-      <Flex>
+      <div
+        style={{
+          fontWeight: 700,
+          fontSize: 18,
+          letterSpacing: '-0.01em',
+          color: colors.text,
+        }}
+      >
+        {title}
+      </div>
+
+      <Flex align="center" gap={10}>
+        <Tooltip title="Search coming soon" placement="bottom">
+          <Input
+            disabled
+            prefix={<SearchOutlined style={{ color: colors.textTertiary }} />}
+            placeholder="Search mail, people, events…"
+            style={{
+              width: 320,
+              borderRadius: 999,
+              background: colors.surfaceMuted,
+              border: `1px solid ${colors.border}`,
+            }}
+          />
+        </Tooltip>
+
+        <ThemeToggle />
+
         <Popover
-          content={getNotificationList()}
-          style={{ width: '50vw' }}
-          trigger={['hover']}
+          content={notificationContent}
+          trigger={['click']}
           placement="bottomRight"
           open={openNotificationPanel}
           onOpenChange={handleNotificationPanelOpenChange}
+          arrow={false}
+          overlayInnerStyle={{ padding: 0, background: 'transparent', boxShadow: 'none' }}
         >
-          <div style={{ cursor: 'pointer' }}>
-            <Badge count={getUnreadNotificationCount}>
-              <Avatar
-                style={{
-                  border: getUnreadNotificationCount > 0 ? `1px solid ${colorPrimary}` : 'none',
-                  backgroundColor: 'transparent',
-                  verticalAlign: 'middle',
-                  fontWeight: 'bold',
-                  fontSize: '1.2rem',
-                }}
+          <div style={{ cursor: 'pointer', display: 'inline-flex' }}>
+            <Badge count={unreadCount} offset={[-4, 4]}>
+              <Button
+                type="text"
+                shape="circle"
                 size="large"
-              >
-                <BellOutlined style={{ color: colorPrimary }} />
-              </Avatar>
+                icon={<BellOutlined />}
+                style={{
+                  color: unreadCount > 0 ? colors.primary : colors.textSecondary,
+                  fontSize: 18,
+                }}
+                aria-label="Notifications"
+              />
             </Badge>
           </div>
         </Popover>
-        <Dropdown menu={{ items }} trigger={['hover']} placement="bottomRight">
-          <div style={{ cursor: 'pointer', marginLeft: '1rem' }}>
+
+        <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+          <div
+            style={{
+              cursor: 'pointer',
+              padding: '4px',
+              borderRadius: 999,
+              transition: 'background 150ms',
+              display: 'inline-flex',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = colors.surfaceMuted)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          >
             <Avatar
-              style={{ backgroundColor: colorPrimary, verticalAlign: 'middle', fontWeight: 'bold', fontSize: '1.2rem' }}
-              size="large"
+              size={36}
+              style={{
+                background: colors.primaryGradient,
+                fontWeight: 700,
+                fontSize: 14,
+                boxShadow: '0 4px 12px rgba(99,102,241,0.35)',
+              }}
             >
-              {user?.username.charAt(0).toUpperCase()}
+              {user?.username?.charAt(0).toUpperCase()}
             </Avatar>
           </div>
         </Dropdown>
