@@ -39,16 +39,16 @@ export default function CustomHeader({ title }: { title: string }) {
     [notifications],
   );
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     if (!notifications || unreadCount === 0) return;
     const ids = notifications.filter(({ status }) => status === 'unread').map(({ id }) => id);
-    api.markImportantMailNotificationAsRead({ data: ids });
-    mutate('/important-mail/notifications');
+    await api.markImportantMailNotificationAsRead({ data: ids });
+    await mutate('/important-mail/notifications');
   };
 
   const handleNotificationPanelOpenChange = (newOpen: boolean) => {
     if (!newOpen && unreadCount > 0) {
-      markAllAsRead();
+      void markAllAsRead();
     }
     setOpenNotificationPanel(newOpen);
   };
