@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import axiosClient from './AxiosClient';
 import type { IApiResponse, IApiRequest } from '../common/types';
@@ -56,7 +56,7 @@ const authorizedApiRequestWrapper =
 
 const authorizedApiRequestWrapper2 =
   (apiEndpoint: string, method: AxiosRequestConfig['method']) =>
-  async (request?: IApiRequest): Promise<any> => {
+  async (request?: IApiRequest): Promise<AxiosResponse> => {
     const { data, query, param } = request || {};
     // const accessToken = localStorage.getItem('access_token');
     let url = apiEndpoint;

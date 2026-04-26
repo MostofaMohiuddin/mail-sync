@@ -8,21 +8,21 @@ export const useLinkMailAddress = () => {
 
   const getLinkedMails = useCallback(async (): Promise<IUserLinkedMail[]> => {
     setLoading(true);
-    const { response } = await api.getLinkedMailAddress();
+    const response = await api.getLinkedMailAddress();
     setLoading(false);
     return response?.data;
   }, []);
 
   const getOauthUrl = useCallback(async (email_type: EmailType) => {
     setLoading(true);
-    const { response } = await api.getOauthUrl({ query: `email_type=${email_type}` });
+    const response = await api.getOauthUrl({ query: `email_type=${email_type}` });
     setLoading(false);
     return response?.data;
   }, []);
 
   const linkMailAddress = useCallback(async (code: string, email_type: EmailType) => {
     setLoading(true);
-    const { response } = await api.linkMailAddress({ data: { code, email_type } });
+    const response = await api.linkMailAddress({ data: { code, email_type } });
     setLoading(false);
     return response?.data;
   }, []);

@@ -41,8 +41,6 @@ export default function CreateSchedule({
     if (dates && dates[0] && dates[1]) {
       setStartDate(dates[0]);
       setEndDate(dates[1]);
-    } else {
-      console.log('Clear');
     }
   };
   const linkedMailAddressesDropdownOptions: SelectProps['options'] = linkedMailAddresses?.map((mail) => {

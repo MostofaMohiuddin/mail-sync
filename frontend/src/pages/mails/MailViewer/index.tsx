@@ -24,10 +24,10 @@ export default function Mail() {
   const onCloseDrawer = () => setOpenDrawer(false);
   const onOpenDrawer = () => setOpenDrawer(true);
 
-  const { data, isLoading } = useSWR(`/mails/${params.address}/${params.id}`, () => {
-    if (!params?.id || !params?.address) return Promise.resolve({ data: null });
-    return api.getMail({ param: { mail_id: params?.id || '', mail_address: params?.address || '' } });
-  });
+  const { data, isLoading } = useSWR(
+    params?.id && params?.address ? `/mails/${params.address}/${params.id}` : null,
+    () => api.getMail({ param: { mail_id: params.id!, mail_address: params.address! } }),
+  );
 
   useEffect(() => {
     setMail(data?.data);

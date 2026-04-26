@@ -58,15 +58,6 @@ const RichTextEditor = ({
           plugins={plugins}
           ref={editorRef}
           formatPastedText={(text, html) => {
-            console.log('text', text);
-            console.log('html', html);
-
-            // if (!html) {
-            //   return {
-            //     text: text,
-            //     html: text,
-            //   };
-            // }
             return { html: html, text: text };
           }}
         />

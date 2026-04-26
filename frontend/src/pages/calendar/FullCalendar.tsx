@@ -46,12 +46,7 @@ export default function MyCalendar({ events }: { events: IEvent[] }) {
       dates.push(current);
       current = new Date(current.getTime() + 24 * 60 * 60 * 1000); // Increment current date by one day
     }
-
-    console.log('Currently displayed dates:', dates);
-    // You can perform your logic with the displayed dates here
   };
-
-  console.log(eventsMapById);
 
   return (
     <>

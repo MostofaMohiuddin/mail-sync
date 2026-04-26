@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type RefObject, useState } from 'react';
 
 import { type EventClickArg } from '@fullcalendar/core/index.js';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -16,7 +16,7 @@ export default function DayCalendar({
   initialDate,
 }: {
   events: IEvent[];
-  calendarRef: any;
+  calendarRef: RefObject<FullCalendar>;
   initialDate?: Dayjs;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);

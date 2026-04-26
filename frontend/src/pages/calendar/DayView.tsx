@@ -15,8 +15,6 @@ export default function DayView({
   events: IEvent[];
   userLinkedMail: Record<string, string>;
 }) {
-  console.log(events);
-
   const getChildrenItem = ({
     icon,
     text,
