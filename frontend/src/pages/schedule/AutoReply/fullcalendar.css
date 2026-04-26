@@ -1,0 +1,64 @@
+/* FullCalendar theme overrides for the Auto Reply page.
+   Scoped under .fc so other FullCalendar usages (if any) are unaffected. */
+
+:root[data-theme='light'] .fc {
+  --fc-border-color: #e5e9f0;
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #f1f5f9;
+  --fc-neutral-text-color: #64748b;
+  --fc-today-bg-color: rgba(99, 102, 241, 0.08);
+  --fc-event-bg-color: #6366f1;
+  --fc-event-border-color: #6366f1;
+  --fc-event-text-color: #ffffff;
+  --fc-button-bg-color: #ffffff;
+  --fc-button-text-color: #0f172a;
+  --fc-button-border-color: #e5e9f0;
+  --fc-button-hover-bg-color: #f1f5f9;
+  --fc-button-hover-border-color: #e5e9f0;
+  --fc-button-active-bg-color: #6366f1;
+  --fc-button-active-border-color: #6366f1;
+}
+
+:root[data-theme='dark'] .fc {
+  --fc-border-color: #1f2a4d;
+  --fc-page-bg-color: #111933;
+  --fc-neutral-bg-color: #0f172a;
+  --fc-neutral-text-color: #94a3b8;
+  --fc-today-bg-color: rgba(129, 140, 248, 0.14);
+  --fc-event-bg-color: #818cf8;
+  --fc-event-border-color: #818cf8;
+  --fc-event-text-color: #0b1020;
+  --fc-button-bg-color: #172044;
+  --fc-button-text-color: #e2e8f0;
+  --fc-button-border-color: #1f2a4d;
+  --fc-button-hover-bg-color: #1f2a4d;
+  --fc-button-hover-border-color: #1f2a4d;
+  --fc-button-active-bg-color: #818cf8;
+  --fc-button-active-border-color: #818cf8;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.fc .fc-button {
+  text-transform: none;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.fc .fc-event {
+  border-radius: 6px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: filter 150ms;
+}
+
+.fc .fc-event:hover {
+  filter: brightness(1.05);
+}
+
+.fc .fc-daygrid-event {
+  white-space: normal;
+}
