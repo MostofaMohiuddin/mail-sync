@@ -179,12 +179,23 @@ class MailSyncService:
                 "prompt": f"Please generate an email for the message: {request.message}",
             },
             ProcessMailWithAIRequestType.SUMMARY: {
-                "system_prompt": "You are a mail summarizer. You summarize the mail. and reply in bullet points. use div tag for each point.",
-                "prompt": f"Please help summarize the email: {request.message}.",
+                "system_prompt": (
+                    "You are a mail summarizer. Summarize the email as a brief HTML "
+                    "unordered list using <ul><li>...</li></ul>. Produce 3 to 5 short "
+                    "single-sentence bullets covering the key points, decisions, "
+                    "questions, and any deadlines or action items. Do not include any "
+                    "text outside the <ul>."
+                ),
+                "prompt": f"Summarize this email:\n\n{request.message}",
             },
             ProcessMailWithAIRequestType.REPLY: {
-                "system_prompt": "You are a mail writer. You write a reply to the mail. and use div tag for new line.",
-                "prompt": f"Please help me write a reply to the email: {request.message}",
+                "system_prompt": (
+                    "You are a mail writer. Write a reply to the email using HTML "
+                    "paragraphs: wrap each paragraph in <p>...</p>. Start with a brief "
+                    "greeting, then 1 to 3 body paragraphs, then a short sign-off. Do "
+                    "not include a subject line or any text outside the paragraphs."
+                ),
+                "prompt": f"Write a reply to this email:\n\n{request.message}",
             },
         }
 

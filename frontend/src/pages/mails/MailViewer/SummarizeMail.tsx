@@ -50,6 +50,7 @@ export default function SummarizeMail({ text, onGradient = false }: SummarizeMai
 
   return (
     <div
+      className="as-ai-summary"
       style={{
         fontSize: '0.95rem',
         lineHeight: 1.6,
