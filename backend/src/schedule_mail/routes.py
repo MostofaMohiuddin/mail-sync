@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("", status_code=status.HTTP_200_OK)
 async def get_scheduled_mails(
     schedule_mail_service: ScheduleMailService = Depends(),
     jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
@@ -27,7 +27,7 @@ async def get_scheduled_mails(
     return await schedule_mail_service.get_scheduled_mails(jwt_credentials.subject.get("username"))
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def schedule_mail(
     request_body: ScheduleMailRequestBody,
     schedule_mail_service: ScheduleMailService = Depends(),

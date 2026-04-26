@@ -20,7 +20,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("", status_code=status.HTTP_200_OK)
 async def get_scheduled_auto_replies(
     schedule_auto_reply_service: ScheduleAutoReplyService = Depends(),
     jwt_credentials: JwtAuthorizationCredentials = Security(access_security),
@@ -28,7 +28,7 @@ async def get_scheduled_auto_replies(
     return await schedule_auto_reply_service.get_scheduled_auto_replies(jwt_credentials.subject.get("username"))
 
 
-@router.post("/", status_code=status.HTTP_200_OK)
+@router.post("", status_code=status.HTTP_200_OK)
 async def schedule_auto_reply(
     request_body: ScheduleAutoReplyRequestBody,
     schedule_auto_reply_service: ScheduleAutoReplyService = Depends(),
