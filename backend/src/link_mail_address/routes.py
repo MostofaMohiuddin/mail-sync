@@ -31,7 +31,7 @@ def get_oauth_url(
     return link_mail_address_service.create_oauth_url(email_type)
 
 
-@router.post("/", status_code=status.HTTP_200_OK)
+@router.post("", status_code=status.HTTP_200_OK)
 async def link_mail_address(
     request_body: LinkMailRequest,
     link_mail_address_service: LinkMailAddressService = Depends(),
@@ -40,7 +40,7 @@ async def link_mail_address(
     return await link_mail_address_service.save_oauth_tokens(credentials.subject.get("username"), request_body)
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("", status_code=status.HTTP_200_OK)
 async def get_linked_mail_address(
     link_mail_address_service: LinkMailAddressService = Depends(),
     credentials: JwtAuthorizationCredentials = Security(access_security),
@@ -57,7 +57,7 @@ async def update_linked_mail_address(
     await link_mail_address_service.update_linked_mail_address(linked_mail_address_id, request_body)
 
 
-@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
 async def unlink_mail_address(
     email: str,
     link_mail_address_service: LinkMailAddressService = Depends(),

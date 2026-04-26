@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("", status_code=status.HTTP_200_OK)
 async def get_user(
     user_service: UserService = Depends(),
     credentials: JwtAuthorizationCredentials = Security(access_security),
@@ -20,7 +20,7 @@ async def get_user(
     return await user_service.get_user(credentials.subject.get("username"))
 
 
-@router.put("/", status_code=status.HTTP_200_OK)
+@router.put("", status_code=status.HTTP_200_OK)
 async def update_user(
     user: UserUpdate,
     user_service: UserService = Depends(),

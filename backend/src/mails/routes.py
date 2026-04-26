@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("", status_code=status.HTTP_200_OK)
 async def get_mails(
     next_page_tokens: str = None,
     mail_sync_service: MailSyncService = Depends(),
@@ -48,7 +48,7 @@ async def get_mail(
     return await mail_sync_service.get_mail(jwt_credentials.subject.get("username"), mail_id, mail_address)
 
 
-@router.post("/", status_code=status.HTTP_200_OK)
+@router.post("", status_code=status.HTTP_200_OK)
 async def send_mail(
     message: MailRequestBody,
     mail_sync_service: MailSyncService = Depends(),

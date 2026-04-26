@@ -14,6 +14,6 @@ COPY ./poetry.lock ./pyproject.toml ./
 # We don't copy everything, as we only want to reinstall dependencies if poetry.lock / pyproject.toml change.
 # At each step, docker build doesn't use cache if any of the workdir files have changed since last build.
 
-RUN poetry config virtualenvs.create false && poetry install --only main --no-interaction
+RUN poetry config virtualenvs.create false && poetry install --only main --no-interaction --no-root
 
 COPY . ./backend

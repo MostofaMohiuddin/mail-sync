@@ -2,7 +2,7 @@ import { notification } from 'antd';
 import axios, { AxiosError } from 'axios';
 
 const axiosClient = axios.create({
-  baseURL: 'http://mailsync.com:7900/api',
+  baseURL: 'https://mailsync.com/api',
 });
 
 axiosClient.interceptors.request.use(
