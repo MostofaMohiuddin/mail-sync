@@ -9,9 +9,7 @@ interface ReplyMailProps {
 }
 
 export default function ReplyMail({ receivedMail, editorHeight }: ReplyMailProps) {
-  const receivedBody = receivedMail
-    ? receivedMail.body.plain || convert(receivedMail.body.html ?? '') || ''
-    : '';
+  const receivedBody = receivedMail ? receivedMail.body.plain || convert(receivedMail.body.html ?? '') || '' : '';
   return (
     <UserReplyMail
       receiverEmail={receivedMail?.sender.email}
