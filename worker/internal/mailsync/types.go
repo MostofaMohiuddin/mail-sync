@@ -67,3 +67,16 @@ type ImportantMailNotification struct {
 type ImportantMailNotificationApiRequest struct {
 	Notifications []ImportantMailNotification `json:"notifications"`
 }
+
+type ClassifyBatchRequest struct {
+	Mails []MailMetaData `json:"mails"`
+}
+
+type ClassifyBatchResultRow struct {
+	MailID      string `json:"mail_id"`
+	IsImportant bool   `json:"is_important"`
+}
+
+type ClassifyBatchResponse struct {
+	Results []ClassifyBatchResultRow `json:"results"`
+}
