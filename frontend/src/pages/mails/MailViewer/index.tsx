@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { EditOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Drawer, FloatButton } from 'antd';
+import { ThunderboltOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
 
@@ -10,86 +9,68 @@ import SummarizeMail from './SummarizeMail';
 import * as api from '../../../api/Mail';
 import type { IEmailFullData } from '../../../common/types';
 import Loader from '../../../components/Loader';
-import GlassCard from '../../../components/ui/GlassCard';
-import SectionHeader from '../../../components/ui/SectionHeader';
 import { useThemeMode } from '../../../hooks/useThemeMode';
 import ReplyMail from '../ReplyMail';
+import ComposerSheet from '../ReplyMail/ComposerSheet';
 
 export default function Mail() {
   const params = useParams();
-  const { colors } = useThemeMode();
+  const { colors, mode } = useThemeMode();
   const [mail, setMail] = useState<IEmailFullData | null>(null);
-  const [openDrawer, setOpenDrawer] = useState(false);
 
-  const onCloseDrawer = () => setOpenDrawer(false);
-  const onOpenDrawer = () => setOpenDrawer(true);
-
-  const { data, isLoading } = useSWR(
-    params?.id && params?.address ? `/mails/${params.address}/${params.id}` : null,
-    () => api.getMail({ param: { mail_id: params.id!, mail_address: params.address! } }),
-  );
+  const { data, isLoading } = useSWR(`/mails/${params.address}/${params.id}`, () => {
+    if (!params?.id || !params?.address) return Promise.resolve({ data: null });
+    return api.getMail({ param: { mail_id: params?.id || '', mail_address: params?.address || '' } });
+  });
 
   useEffect(() => {
-    setMail(data?.data);
+    setMail(data?.data ?? null);
   }, [data]);
 
-  return isLoading || !mail ? (
-    <Loader loading={isLoading} />
-  ) : (
-    <>
-      <div style={{ width: openDrawer ? '50%' : '100%', transition: 'all 0.3s' }}>
-        <MailViewer mail={mail} />
+  if (isLoading || !mail) {
+    return <Loader loading={isLoading} />;
+  }
 
-        <div style={{ marginTop: 24 }}>
-          <SectionHeader
-            eyebrow="AI"
-            title="Summary"
-            description="Quick recap so you don't have to read the whole thread."
-          />
-          <GlassCard
-            variant="solid"
-            padding={20}
+  const senderLabel = mail.sender.name || mail.sender.email;
+
+  return (
+    <>
+      <div style={{ width: '100%' }}>
+        <div
+          style={{
+            marginBottom: 20,
+            padding: 20,
+            borderRadius: 16,
+            background: colors.primaryGradient,
+            boxShadow: mode === 'dark' ? '0 12px 32px rgba(99,102,241,0.25)' : '0 12px 32px rgba(99,102,241,0.18)',
+          }}
+        >
+          <div
             style={{
-              background: colors.primaryGradientSoft,
-              border: `1px solid ${colors.border}`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 10,
+              color: '#FFFFFF',
+              opacity: 0.9,
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              fontWeight: 600,
             }}
           >
-            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 10,
-                  background: colors.primaryGradient,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF',
-                  fontSize: 16,
-                  flexShrink: 0,
-                }}
-              >
-                <ThunderboltOutlined />
-              </div>
-              <div style={{ flex: '1 1 auto' }}>
-                <SummarizeMail text={mail?.body?.plain || ''} />
-              </div>
-            </div>
-          </GlassCard>
+            <ThunderboltOutlined />
+            <span>AI Summary</span>
+          </div>
+          <SummarizeMail text={mail?.body?.plain || ''} onGradient />
         </div>
+
+        <MailViewer mail={mail} />
       </div>
 
-      <Drawer title="Reply" placement="right" width={'45%'} onClose={onCloseDrawer} open={openDrawer} mask={false}>
-        <ReplyMail receivedMail={mail} />
-      </Drawer>
-
-      <FloatButton
-        tooltip={<div>Reply</div>}
-        onClick={onOpenDrawer}
-        icon={<EditOutlined />}
-        type="primary"
-        style={{ right: 40, bottom: '8vh', width: 56, height: 56 }}
-      />
+      <ComposerSheet recipientLabel={senderLabel} subject={mail.subject ? `RE: ${mail.subject}` : 'New message'}>
+        {({ editorHeight }) => <ReplyMail receivedMail={mail} editorHeight={editorHeight} />}
+      </ComposerSheet>
     </>
   );
 }
