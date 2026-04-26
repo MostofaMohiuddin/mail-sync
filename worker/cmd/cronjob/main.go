@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"log"
 	"os"
 	"os/signal"
@@ -11,21 +10,21 @@ import (
 	"github.com/MostofaMohiuddin/mail-sync/internal/cron"
 	"github.com/MostofaMohiuddin/mail-sync/internal/db/mongodb"
 	"github.com/MostofaMohiuddin/mail-sync/internal/important_mail_notification"
+	redisclient "github.com/MostofaMohiuddin/mail-sync/internal/redis"
 	"github.com/MostofaMohiuddin/mail-sync/internal/scheduled_auto_replies"
 	"github.com/MostofaMohiuddin/mail-sync/internal/scheduled_mails"
 )
 
 func main() {
 	fmt.Println("Starting cron job...")
-	// Initialize MongoDB client
+
 	mongodb.NewClient()
+	redisClient := redisclient.Client()
 
-	// Initialize Schedule Mail Service
 	scheduleMailService := scheduled_mails.NewMailService()
-	ScheduledAutoReplyService := scheduled_auto_replies.NewScheduledAutoReplyService()
-	NewImportantMailNotificationService := important_mail_notification.NewImportantMailNotificationService()
+	scheduledAutoReplyService := scheduled_auto_replies.NewScheduledAutoReplyService()
+	importantMailNotificationService := important_mail_notification.NewImportantMailNotificationService(redisClient)
 
-	// Initialize Jobs
 	jobs := []cron.Job{
 		{
 			Title:          "SendScheduledMail",
@@ -34,23 +33,19 @@ func main() {
 		},
 		{
 			Title:          "ScheduledAutoReplyService",
-			CronFunction:   ScheduledAutoReplyService.SendScheduledReplies,
+			CronFunction:   scheduledAutoReplyService.SendScheduledReplies,
 			CronExpression: "@every 1m",
 		},
 		{
 			Title:          "AddImportantMailNotification",
-			CronFunction:   NewImportantMailNotificationService.AddNotification,
-			CronExpression: "@every 2m",
+			CronFunction:   importantMailNotificationService.AddNotification,
+			CronExpression: "@every 30s",
 		},
 	}
 
-	// Initialize CronJob
 	c := cron.NewCronJob(jobs)
-
-	// Start the cron job
 	c.Start()
 
-	// Graceful shutdown
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 	<-shutdown
