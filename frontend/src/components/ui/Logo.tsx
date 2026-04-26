@@ -12,7 +12,7 @@ const sizes = {
 };
 
 export default function Logo({ collapsed = false, size = 'md' }: LogoProps) {
-  const { colors } = useThemeMode();
+  const { colors, mode } = useThemeMode();
   const s = sizes[size];
 
   return (
@@ -72,14 +72,17 @@ export default function Logo({ collapsed = false, size = 'md' }: LogoProps) {
           }}
         >
           <span
+            key={mode}
             style={{
               fontSize: s.font,
               fontWeight: 700,
               letterSpacing: '-0.02em',
-              background: colors.primaryGradient,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              backgroundImage: colors.primaryGradient,
+              backgroundColor: 'transparent',
               backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              WebkitTextFillColor: 'transparent',
             }}
           >
             MailSync
