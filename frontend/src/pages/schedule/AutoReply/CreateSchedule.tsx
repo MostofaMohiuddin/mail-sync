@@ -1,56 +1,89 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { PlusOutlined } from '@ant-design/icons';
+import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  BoldButton,
+  ItalicButton,
+  UnderlineButton,
+  CodeButton,
+  UnorderedListButton,
+  OrderedListButton,
+  BlockquoteButton,
+  CodeBlockButton,
+} from '@draft-js-plugins/buttons';
 import { createEditorStateWithText } from '@draft-js-plugins/editor';
-import { DatePicker, Select, notification, type SelectProps, Flex, Button } from 'antd';
+import { DatePicker, Select, notification, Flex, Button } from 'antd';
 import type { Dayjs } from 'dayjs';
 import type { EditorState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { useSWRConfig } from 'swr';
 
 import * as api from '../../../api/Schedule';
-import RichTextEditor from '../../../components/RichTextEditor';
+import RichTextEditor, { RichTextToolbar } from '../../../components/RichTextEditor';
 import { useSession } from '../../../hooks/userSession';
+import { useThemeMode } from '../../../hooks/useThemeMode';
+
+interface CreateScheduleProps {
+  startDate: Dayjs | null;
+  endDate: Dayjs | null;
+  setStartDate: (date: Dayjs | null) => void;
+  setEndDate: (date: Dayjs | null) => void;
+  closePanel: () => void;
+  formRef: React.RefObject<HTMLDivElement>;
+  createButtonRef: React.RefObject<HTMLButtonElement>;
+}
+
+const ROW_LABEL_STYLE = {
+  width: 72,
+  flexShrink: 0,
+  fontSize: 12,
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.04em',
+};
 
 export default function CreateSchedule({
   startDate,
   endDate,
   setStartDate,
   setEndDate,
-  isDrawerOpen,
-  closeDrawer,
+  closePanel,
   formRef,
   createButtonRef,
-}: {
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
-  setStartDate: (date: Dayjs | null) => void;
-  setEndDate: (date: Dayjs | null) => void;
-  closeDrawer: () => void;
-  isDrawerOpen: boolean;
-  formRef: React.RefObject<HTMLDivElement>;
-  createButtonRef: React.RefObject<HTMLButtonElement>;
-}) {
+}: CreateScheduleProps) {
+  const { colors } = useThemeMode();
   const [editorState, setEditorState] = useState<EditorState>(createEditorStateWithText(''));
   const [mailAddresses, setMailAddresses] = useState<string[]>([]);
   const [isCreatingSchedule, setIsCreatingSchedule] = useState(false);
   const { linkedMailAddresses } = useSession();
   const { mutate } = useSWRConfig();
+
   const onRangeChange = (dates: null | (Dayjs | null)[]) => {
     if (dates && dates[0] && dates[1]) {
       setStartDate(dates[0]);
       setEndDate(dates[1]);
+    } else {
+      setStartDate(null);
+      setEndDate(null);
     }
   };
-  const linkedMailAddressesDropdownOptions: SelectProps['options'] = linkedMailAddresses?.map((mail) => {
-    return { label: mail.email, value: mail.email };
-  });
 
-  const isSendButtonDisabled = () => {
+  const senderOptions = linkedMailAddresses?.map((mail) => ({
+    value: mail.email,
+    label: `${mail.email_name} <${mail.email}>`,
+    email: mail.email,
+    name: mail.email_name,
+    picture: mail.picture,
+  }));
+
+  const isCreateDisabled = () => {
     const plainBody = editorState.getCurrentContent().getPlainText();
     const htmlBody = stateToHTML(editorState.getCurrentContent());
     return !startDate || !endDate || mailAddresses.length === 0 || !plainBody || !htmlBody;
+  };
+
+  const isClearDisabled = () => {
+    const plainBody = editorState.getCurrentContent().getPlainText();
+    return !startDate && !endDate && mailAddresses.length === 0 && !plainBody;
   };
 
   const resetData = () => {
@@ -59,11 +92,6 @@ export default function CreateSchedule({
     setStartDate(null);
     setEndDate(null);
   };
-
-  useEffect(() => {
-    if (!isDrawerOpen) resetData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDrawerOpen]);
 
   const createSchedule = async () => {
     const plainBody = editorState.getCurrentContent().getPlainText();
@@ -78,10 +106,7 @@ export default function CreateSchedule({
           mail_addresses: mailAddresses,
           start_time: startDate.toISOString(),
           end_time: endDate.toISOString(),
-          body: {
-            html: htmlBody,
-            plain: plainBody,
-          },
+          body: { html: htmlBody, plain: plainBody },
         },
       });
       if (res?.status === 200) {
@@ -89,9 +114,9 @@ export default function CreateSchedule({
           message: 'Schedule Auto Reply Created',
           description: 'Your schedule auto reply has been created successfully.',
         });
-
         mutate('/get-schedule-auto-reply');
-        closeDrawer();
+        resetData();
+        closePanel();
       }
     } catch (_) {
       /* empty */
@@ -101,37 +126,132 @@ export default function CreateSchedule({
   };
 
   return (
-    <>
-      <div ref={formRef}>
+    <div
+      ref={formRef}
+      style={{
+        background: colors.surface,
+        border: `1px solid ${colors.border}`,
+        borderRadius: 14,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minHeight: 0,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          padding: '10px 14px',
+          borderBottom: `1px solid ${colors.border}`,
+          background: colors.surfaceMuted,
+        }}
+      >
+        <span style={{ fontWeight: 600, fontSize: 14, color: colors.text }}>New auto reply</span>
+        <Button type="text" size="small" icon={<CloseOutlined />} onClick={closePanel} aria-label="Close panel" />
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '6px 12px',
+          borderBottom: `1px solid ${colors.border}`,
+        }}
+      >
+        <span style={{ ...ROW_LABEL_STYLE, color: colors.textSecondary }}>Senders</span>
         <Select
           mode="multiple"
           allowClear
-          style={{ width: '100%', marginBottom: '0.5rem' }}
-          placeholder="Please select"
+          variant="borderless"
+          style={{ width: '100%', fontSize: '0.9rem' }}
+          placeholder="Choose linked addresses"
           onChange={setMailAddresses}
           value={mailAddresses}
-          options={linkedMailAddressesDropdownOptions}
+          options={senderOptions}
+          optionRender={(option) => (
+            <Flex align="center" justify="start">
+              <img
+                src={option.data.picture}
+                alt={option.data.name}
+                style={{ width: 24, height: 24, borderRadius: '50%' }}
+              />
+              <span style={{ paddingLeft: 8 }}>{option.data.email}</span>
+            </Flex>
+          )}
         />
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '6px 12px',
+          borderBottom: `1px solid ${colors.border}`,
+        }}
+      >
+        <span style={{ ...ROW_LABEL_STYLE, color: colors.textSecondary }}>When</span>
         <DatePicker.RangePicker
           showTime
+          variant="borderless"
+          style={{ width: '100%', fontSize: '0.9rem', padding: 0 }}
           onChange={onRangeChange}
           value={[startDate, endDate]}
-          style={{ width: '100%', marginBottom: '1rem' }}
         />
-        <RichTextEditor editorState={editorState} setEditorState={setEditorState} />
       </div>
-      <Flex justify="flex-end" style={{ marginTop: '8px' }}>
-        <Button
-          ref={createButtonRef}
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={createSchedule}
-          loading={isCreatingSchedule}
-          disabled={isSendButtonDisabled()}
-        >
-          Create
-        </Button>
-      </Flex>
-    </>
+
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <RichTextEditor editorState={editorState} setEditorState={setEditorState} height="100%" hideToolbar />
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          padding: '8px 12px',
+          borderTop: `1px solid ${colors.border}`,
+          background: colors.surfaceMuted,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <RichTextToolbar>
+            {(externalProps) => (
+              <>
+                <BoldButton {...externalProps} />
+                <ItalicButton {...externalProps} />
+                <UnderlineButton {...externalProps} />
+                <CodeButton {...externalProps} />
+                <UnorderedListButton {...externalProps} />
+                <OrderedListButton {...externalProps} />
+                <BlockquoteButton {...externalProps} />
+                <CodeBlockButton {...externalProps} />
+              </>
+            )}
+          </RichTextToolbar>
+        </div>
+        <Flex align="center" gap={8}>
+          <Button type="link" size="small" onClick={resetData} disabled={isClearDisabled()}>
+            Clear
+          </Button>
+          <Button
+            ref={createButtonRef}
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={createSchedule}
+            loading={isCreatingSchedule}
+            disabled={isCreateDisabled()}
+          >
+            Create Schedule
+          </Button>
+        </Flex>
+      </div>
+    </div>
   );
 }
