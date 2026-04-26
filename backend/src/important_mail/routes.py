@@ -3,11 +3,16 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 
+from backend.src.authentication.service import ApiKeyBasedAuthentication, access_security
 from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.important_mail.dtos import ImportantMailDetectRequest, ImportantMailNotificationRequest
+from backend.src.important_mail.dtos import (
+    ClassifyBatchRequest,
+    ClassifyBatchResponse,
+    ImportantMailDetectRequest,
+    ImportantMailNotificationRequest,
+)
 from backend.src.important_mail.models import ImportantMailNotification
 from backend.src.important_mail.service import ImportantMailService
-from backend.src.authentication.service import access_security
 
 router = APIRouter(
     prefix="/api/important-mail",
@@ -24,10 +29,20 @@ async def detect_important_mail(
     return {"is_important": is_important}
 
 
+@router.post("/classify-batch", status_code=200)
+async def classify_batch(
+    request_body: ClassifyBatchRequest,
+    import_mail_service: ImportantMailService = Depends(),
+    _=Depends(ApiKeyBasedAuthentication()),
+) -> ClassifyBatchResponse:
+    return await import_mail_service.classify_batch(request_body)
+
+
 @router.post("/notifications", status_code=200)
 async def create_important_mail_notification(
     request_body: ImportantMailNotificationRequest,
     import_mail_service: ImportantMailService = Depends(),
+    _=Depends(ApiKeyBasedAuthentication()),
 ):
     return await import_mail_service.create_important_mail_notification(request_body.notifications)
 
