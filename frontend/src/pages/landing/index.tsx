@@ -1,6 +1,7 @@
 import FeatureGrid from './FeatureGrid';
 import HowItWorks from './HowItWorks';
 import InboxMockup from './InboxMockup';
+import LandingFAQ from './LandingFAQ';
 import LandingHero from './LandingHero';
 import LandingNav from './LandingNav';
 import { useThemeMode } from '../../hooks/useThemeMode';
@@ -14,6 +15,7 @@ export default function Landing() {
         <LandingHero visual={<InboxMockup />} />
         <HowItWorks />
         <FeatureGrid />
+        <LandingFAQ />
       </main>
     </div>
   );
