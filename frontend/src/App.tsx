@@ -2,8 +2,7 @@ import { ConfigProvider, App as AntApp } from 'antd';
 import { Route, Routes } from 'react-router-dom';
 import { SWRConfig } from 'swr';
 
-import { RequireAuth } from './components/auth';
-import { RootGate } from './components/auth/RootGate';
+import { RequireAuth, RootGate } from './components/auth';
 import Layout from './components/layout';
 import { SessionProvider } from './hooks/userSession';
 import { ThemeModeProvider, useThemeMode } from './hooks/useThemeMode';

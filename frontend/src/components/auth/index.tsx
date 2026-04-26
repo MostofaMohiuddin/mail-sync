@@ -6,3 +6,5 @@ export const RequireAuth = () => {
   const { isAuthenticated } = useSession();
   return isAuthenticated ? <Outlet /> : <Navigate to="/sign-in" />;
 };
+
+export { RootGate } from './RootGate';
