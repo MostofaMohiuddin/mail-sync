@@ -11,7 +11,9 @@ import DayCalendar from './DayCalendar';
 import * as calendarApi from '../../api/Calendar';
 import * as linkedMailApi from '../../api/LinkMailAddress';
 import type { IEvent, IEventsResponse, IUserLinkedMail } from '../../common/types';
+import GlassCard from '../../components/ui/GlassCard';
 import Loader from '../../components/Loader';
+import PageHeader from '../../components/ui/PageHeader';
 
 export default function Calendar() {
   const [events, setEvents] = useState<IEvent[]>([]);
@@ -27,21 +29,14 @@ export default function Calendar() {
   const { data: linkedMailAddressResponse, isLoading: isLoadingMailAddresses } = useSWR(
     '/link-mail-address',
     linkedMailApi.getLinkedMailAddress,
-    {
-      revalidateOnMount: true,
-      revalidateOnFocus: true,
-    },
+    { revalidateOnMount: true, revalidateOnFocus: true },
   );
   const calendarRef = useRef<any>(null);
 
   useEffect(() => {
     const events: IEvent[] = [];
     data?.data.forEach((item: IEventsResponse) => {
-      events.push(
-        ...item.events.map((event) => {
-          return { ...event, userEmail: item.email };
-        }),
-      );
+      events.push(...item.events.map((event) => ({ ...event, userEmail: item.email })));
     });
     setEvents(events || []);
   }, [data]);
@@ -53,9 +48,7 @@ export default function Calendar() {
       sortedEvents[start.format('MMDD')] = [...(sortedEvents[start.format('MMDD')] || []), event];
     });
     for (const [key, value] of Object.entries(sortedEvents)) {
-      sortedEvents[key] = value.sort((a, b) => {
-        return dayjs(a.start).isBefore(dayjs(b.start)) ? -1 : 1;
-      });
+      sortedEvents[key] = value.sort((a, b) => (dayjs(a.start).isBefore(dayjs(b.start)) ? -1 : 1));
     }
     setSortedEvents(sortedEvents);
   }, [events]);
@@ -72,20 +65,29 @@ export default function Calendar() {
     setSelectedDay(date);
     if (!calendarRef.current) return;
     const calendarApi = calendarRef.current.getApi();
-    const dateToSet = date.toDate(); // Set your desired date here
+    const dateToSet = date.toDate();
     calendarApi.gotoDate(dateToSet);
   };
+
   return (
     <>
       <Loader loading={isLoading || isLoadingMailAddresses} />
 
-      <Flex justify="space-between" style={{ height: '80vh' }}>
-        <div style={{ width: '50%' }}>
+      <PageHeader
+        title="Calendar"
+        subtitle={`${selectedDay.format('MMMM YYYY')} · ${events.length} event${events.length === 1 ? '' : 's'}`}
+      />
+
+      <Flex justify="space-between" gap={20} wrap="wrap">
+        <GlassCard variant="solid" padding={16} style={{ flex: '1 1 480px', minWidth: 0, height: '78vh', overflow: 'auto' }}>
           <CalendarView setSelectedDay={handleDateChange} events={sortedEvents} userLinkedMail={userLinkedMail} />
-        </div>
-        <div style={{ width: '45%' }}>
+        </GlassCard>
+        <GlassCard variant="solid" padding={16} style={{ flex: '1 1 380px', minWidth: 0, height: '78vh', overflow: 'hidden' }}>
+          <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 600, color: 'var(--as-text-secondary)' }}>
+            {selectedDay.format('dddd, MMMM D')}
+          </div>
           <DayCalendar events={events} calendarRef={calendarRef} initialDate={selectedDay} />
-        </div>
+        </GlassCard>
       </Flex>
     </>
   );

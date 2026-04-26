@@ -9,6 +9,8 @@ import CreateSchedule from './CreateSchedule';
 import ViewSchedule from './ViewSchedule';
 import * as api from '../../../api/Schedule';
 import type { IScheduleAutoReply } from '../../../common/types';
+import GlassCard from '../../../components/ui/GlassCard';
+import PageHeader from '../../../components/ui/PageHeader';
 
 export default function ScheduleAutoReply() {
   const calendarRef = useRef(null);
@@ -99,15 +101,21 @@ export default function ScheduleAutoReply() {
 
   return (
     <>
-      <div style={{ width: isDrawerOpen ? '50%' : '100%' }} ref={calendarRef}>
-        <Calendar
-          schedules={schedules}
-          setStartDate={setStartDate}
-          setEndDate={setEndDate}
-          openDrawer={openDrawer}
-          showModal={showModal}
-          setSelectedSchedule={setSelectedSchedule}
-        />
+      <PageHeader
+        title="Auto Reply"
+        subtitle="Schedule out-of-office or away replies for any of your linked accounts."
+      />
+      <div style={{ width: isDrawerOpen ? '50%' : '100%', transition: 'all 0.3s' }} ref={calendarRef}>
+        <GlassCard variant="solid" padding={16}>
+          <Calendar
+            schedules={schedules}
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
+            openDrawer={openDrawer}
+            showModal={showModal}
+            setSelectedSchedule={setSelectedSchedule}
+          />
+        </GlassCard>
       </div>
 
       <Modal

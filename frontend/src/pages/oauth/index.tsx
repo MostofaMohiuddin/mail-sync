@@ -1,88 +1,94 @@
 import { useEffect, useState } from 'react';
 
-import { SmileOutlined, FrownOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { useParams } from 'react-router';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 
 import * as api from '../../api/LinkMailAddress';
 import { EmailType } from '../../common/types';
+import GlassCard from '../../components/ui/GlassCard';
 import Loader from '../../components/Loader';
+import { useThemeMode } from '../../hooks/useThemeMode';
 
 export default function OauthCallback() {
   const params = useParams();
   const [searchParams] = useSearchParams();
+  const { colors } = useThemeMode();
 
   const [linkSuccess, setLinkSuccess] = useState<boolean | null>(null);
   const email_type = params.email_type === 'google' ? EmailType.GMAIL : EmailType.YAHOO;
   const code = searchParams.get('code');
-  // useEffect(() => {
-  // const email_type = params.email_type === 'google' ? EmailType.GMAIL : EmailType.YAHOO;
-  // const code = searchParams.get('code');
-  // //   const makeRequest = async () => {
-  // //     if (code) {
-  // //       const res = await linkMailAddress(code, email_type);
-  // //       console.log(res);
-
-  // //       if (res) setLinkSuccess(true);
-  // //       else setLinkSuccess(false);
-  // //     }
-  // //   };
-  // //   makeRequest();
-  // // }, []);
 
   const { data, isLoading } = useSWR(['/link-mail-address', code], () =>
     api.linkMailAddress({
-      data: {
-        code: code,
-        email_type: email_type,
-      },
+      data: { code, email_type },
     }),
   );
 
   useEffect(() => {
-    if (data) {
-      setLinkSuccess(true);
-    } else {
-      setLinkSuccess(false);
-    }
+    if (data) setLinkSuccess(true);
+    else setLinkSuccess(false);
   }, [data]);
 
-  const successMessage = () => (
-    <>
-      <SmileOutlined style={{ fontSize: 64 }} />
-      <h1>Success</h1>
-      <p style={{ fontSize: '1rem' }}>You have successfully linked your email</p>
-      <Link to="/profile">Click here to get back to app</Link>
-    </>
-  );
+  if (isLoading) return <Loader loading={isLoading} />;
+  if (linkSuccess === null) return null;
 
-  const errorMessage = () => (
-    <>
-      <FrownOutlined style={{ fontSize: 64 }} />
-      <h1>Failed</h1>
-      <p style={{ fontSize: '1rem' }}>Failed to link your email</p>
-      <Link to="/profile">Click here to get back to app</Link>
-    </>
-  );
+  const success = linkSuccess;
 
-  return isLoading ? (
-    <Loader loading={isLoading} />
-  ) : (
-    linkSuccess !== null && (
-      <>
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '70vh',
+        padding: 24,
+      }}
+    >
+      <GlassCard variant="solid" padding={36} style={{ maxWidth: 460, width: '100%', textAlign: 'center' }}>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'center',
+            width: 88,
+            height: 88,
+            borderRadius: '50%',
+            background: success ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+            color: success ? colors.success : colors.error,
+            display: 'inline-flex',
             alignItems: 'center',
-            flexDirection: 'column',
-            height: '70vh',
+            justifyContent: 'center',
+            fontSize: 44,
+            margin: '0 auto 16px',
           }}
         >
-          {linkSuccess ? successMessage() : errorMessage()}
+          {success ? <CheckCircleFilled /> : <CloseCircleFilled />}
         </div>
-      </>
-    )
+        <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', color: colors.text }}>
+          {success ? 'Account linked' : 'Linking failed'}
+        </h2>
+        <p style={{ marginTop: 8, color: colors.textSecondary, fontSize: 14 }}>
+          {success
+            ? 'Your email account has been connected. You can close this tab or head back to the app.'
+            : 'We could not link your email. Please try again from the profile page.'}
+        </p>
+        <div style={{ marginTop: 24 }}>
+          <Link
+            to="/profile"
+            style={{
+              display: 'inline-block',
+              padding: '10px 22px',
+              background: colors.primaryGradient,
+              color: '#FFFFFF',
+              borderRadius: 10,
+              fontWeight: 600,
+              fontSize: 14,
+              boxShadow: '0 8px 18px rgba(99,102,241,0.35)',
+            }}
+          >
+            Back to Profile
+          </Link>
+        </div>
+      </GlassCard>
+    </div>
   );
 }
