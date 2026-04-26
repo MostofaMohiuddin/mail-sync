@@ -1,3 +1,4 @@
+import CTABand from './CTABand';
 import FeatureGrid from './FeatureGrid';
 import HowItWorks from './HowItWorks';
 import InboxMockup from './InboxMockup';
@@ -16,6 +17,7 @@ export default function Landing() {
         <HowItWorks />
         <FeatureGrid />
         <LandingFAQ />
+        <CTABand />
       </main>
     </div>
   );
