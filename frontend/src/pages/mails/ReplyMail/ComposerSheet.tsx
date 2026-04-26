@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 
 import { CloseOutlined, EditOutlined, MinusOutlined, UpOutlined } from '@ant-design/icons';
 import { Button, Tooltip } from 'antd';
+import { createPortal } from 'react-dom';
 
 import { useThemeMode } from '../../../hooks/useThemeMode';
 import { shadow as lightShadow, shadowDark } from '../../../themes/tokens';
@@ -29,8 +30,10 @@ export default function ComposerSheet({ recipientLabel, subject, defaultOpen = f
   const minimize = () => setState('minimized');
   const close = () => setState('collapsed');
 
+  let content: ReactNode;
+
   if (state === 'collapsed') {
-    return (
+    content = (
       <button
         type="button"
         onClick={open}
@@ -59,10 +62,8 @@ export default function ComposerSheet({ recipientLabel, subject, defaultOpen = f
         <span>Reply{recipientLabel ? ` to ${recipientLabel}` : ''}…</span>
       </button>
     );
-  }
-
-  if (state === 'minimized') {
-    return (
+  } else if (state === 'minimized') {
+    content = (
       <button
         type="button"
         onClick={open}
@@ -101,59 +102,61 @@ export default function ComposerSheet({ recipientLabel, subject, defaultOpen = f
         </span>
       </button>
     );
-  }
-
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        right: SHEET_OFFSET,
-        bottom: SHEET_OFFSET,
-        zIndex: SHEET_Z_INDEX,
-        width: SHEET_WIDTH,
-        maxWidth: `calc(100vw - ${SHEET_OFFSET * 2}px)`,
-        height: SHEET_HEIGHT,
-        maxHeight: `calc(100vh - ${SHEET_OFFSET * 2}px)`,
-        background: colors.surfaceElevated,
-        border: `1px solid ${colors.border}`,
-        borderRadius: 20,
-        boxShadow: shadows.xl,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}
-    >
+  } else {
+    content = (
       <div
         style={{
-          height: 48,
-          flexShrink: 0,
+          position: 'fixed',
+          right: SHEET_OFFSET,
+          bottom: SHEET_OFFSET,
+          zIndex: SHEET_Z_INDEX,
+          width: SHEET_WIDTH,
+          maxWidth: `calc(100vw - ${SHEET_OFFSET * 2}px)`,
+          height: SHEET_HEIGHT,
+          maxHeight: `calc(100vh - ${SHEET_OFFSET * 2}px)`,
+          background: colors.surfaceElevated,
+          border: `1px solid ${colors.border}`,
+          borderRadius: 20,
+          boxShadow: shadows.xl,
           display: 'flex',
-          alignItems: 'center',
-          padding: '0 12px 0 16px',
-          background: colors.primaryGradient,
-          color: '#FFFFFF',
+          flexDirection: 'column',
+          overflow: 'hidden',
         }}
       >
-        <span
+        <div
           style={{
-            flex: 1,
-            fontSize: 13,
-            fontWeight: 600,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            height: 48,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 12px 0 16px',
+            background: colors.primaryGradient,
+            color: '#FFFFFF',
           }}
         >
-          {subject || 'New message'}
-        </span>
-        <Tooltip title="Minimize">
-          <Button type="text" size="small" icon={<MinusOutlined />} onClick={minimize} style={{ color: '#FFFFFF' }} />
-        </Tooltip>
-        <Tooltip title="Close">
-          <Button type="text" size="small" icon={<CloseOutlined />} onClick={close} style={{ color: '#FFFFFF' }} />
-        </Tooltip>
+          <span
+            style={{
+              flex: 1,
+              fontSize: 13,
+              fontWeight: 600,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {subject || 'New message'}
+          </span>
+          <Tooltip title="Minimize">
+            <Button type="text" size="small" icon={<MinusOutlined />} onClick={minimize} style={{ color: '#FFFFFF' }} />
+          </Tooltip>
+          <Tooltip title="Close">
+            <Button type="text" size="small" icon={<CloseOutlined />} onClick={close} style={{ color: '#FFFFFF' }} />
+          </Tooltip>
+        </div>
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>{children({ editorHeight: '100%' })}</div>
       </div>
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>{children({ editorHeight: '100%' })}</div>
-    </div>
-  );
+    );
+  }
+
+  return createPortal(content, document.body);
 }
