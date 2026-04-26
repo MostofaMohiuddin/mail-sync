@@ -18,3 +18,10 @@ class ImportantMailNotification(BaseModel):
     linked_mail_address_id: Annotated[ObjectId, ObjectIdPydanticAnnotation]
     mail_metadata: EmailMetadata
     status: NotificationStatus = NotificationStatus.UNREAD
+
+
+class ImportantMailClassification(BaseModel):
+    mail_id: str
+    is_important: bool
+    reason: Optional[str] = None
+    classified_at: str

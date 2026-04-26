@@ -8,7 +8,7 @@ from backend.src.common.base_repository import BaseRepository
 from backend.src.common.database.connection import get_db_session
 
 from backend.src.common.models import ObjectIdPydanticAnnotation
-from backend.src.important_mail.models import ImportantMailNotification, NotificationStatus
+from backend.src.important_mail.models import ImportantMailClassification, ImportantMailNotification, NotificationStatus
 
 
 class ImportantMailNotificationRepository(BaseRepository):
@@ -50,3 +50,29 @@ class ImportantMailNotificationRepository(BaseRepository):
             {"_id": {"$in": notification_ids}},
             {"status": NotificationStatus.READ},
         )
+
+
+class ImportantMailClassificationRepository(BaseRepository):
+    def __init__(self, db: Annotated[AsyncIOMotorDatabase, Depends(get_db_session)]):
+        super().__init__(db)
+        self.collection = self.db["important_mail_classifications"]
+
+    async def ensure_indexes(self):
+        await self.collection.create_index("mail_id", unique=True)
+
+    async def get_by_mail_ids(self, mail_ids: list[str]) -> dict[str, bool]:
+        cursor = self.collection.find({"mail_id": {"$in": mail_ids}})
+        out: dict[str, bool] = {}
+        async for doc in cursor:
+            out[doc["mail_id"]] = bool(doc["is_important"])
+        return out
+
+    async def upsert_many(self, rows: list["ImportantMailClassification"]) -> None:
+        if not rows:
+            return
+        for row in rows:
+            await self.collection.update_one(
+                {"mail_id": row.mail_id},
+                {"$set": row.dict()},
+                upsert=True,
+            )
