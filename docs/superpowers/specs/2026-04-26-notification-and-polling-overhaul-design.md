@@ -108,14 +108,16 @@ Same signature as today. The cron framework needs no change.
 
 **New endpoint:** `POST /api/important-mail/classify-batch`
 
-Request:
+Request body matches the worker's `MailMetaData` shape verbatim (the worker just forwards what `GET /history` returned):
 ```json
 { "mails": [
     { "id": "msg_abc",
+      "history_id": "12345",
       "subject": "...",
-      "sender": { "email": "...", "name": "..." },
+      "sender": { "email": "...", "name": "...", "picture": "" },
+      "receiver": { "email": "...", "name": "...", "picture": "" },
       "snippet": "...",
-      "headers": { "List-Unsubscribe": "...", "Precedence": "..." }
+      "date": "Fri, 26 Apr 2026 ..."
     }
 ] }
 ```
@@ -127,13 +129,11 @@ Response:
 
 **Service flow (`ImportantMailService.classify_batch`):**
 
-1. **Pre-filter** (no AI):
+1. **Pre-filter** (no AI). The worker doesn't fetch RFC822 headers (`List-Unsubscribe`, `Precedence`) — adding those would require another Gmail API call per message and is deferred. We rely on cheap email-pattern filtering only:
    - `is_important = false` if any of:
-     - `headers["List-Unsubscribe"]` is present, OR
-     - `headers["Precedence"]` ∈ `{"bulk", "list", "junk"}`, OR
-     - `sender.email` matches the receiver's own address (lookup via `linked_mail_address.address`), OR
-     - `sender.email` local-part starts with `noreply` / `no-reply` / `donotreply`, OR
-     - sender domain is in a small hardcoded `KNOWN_BULK_SENDERS` list (initially: `mailchimp.com`, `sendgrid.net`, `mailgun.org`, `notifications.github.com`).
+     - `sender.email == receiver.email` (self-sent), OR
+     - `sender.email` local-part starts with `noreply` / `no-reply` / `donotreply` / `do-not-reply` / `notifications` / `notification` (case-insensitive), OR
+     - sender domain is in a hardcoded `KNOWN_BULK_SENDERS` set (initially: `mailchimp.com`, `sendgrid.net`, `mailgun.org`, `notifications.github.com`, `e.linkedin.com`, `email.medium.com`).
    - Otherwise check the cache (next step).
 2. **Cache hit:** look up `mail_id` in new Mongo collection `important_mail_classifications`. If present, return the stored `is_important`.
 3. **Batch the remainder** into one `OpenAIClient.detect_important_batch(mails)` call. Uses `response_format=json_schema` (existing pattern in `openai_client.py`) with schema `[{ "id": str, "important": bool, "reason": str }]`.
@@ -309,3 +309,4 @@ Each step is independently shippable.
 - Browser `Notification` API (with a per-user opt-in toggle).
 - Per-user SSE connection cap (e.g. 5/user via Redis counter).
 - Backfill of `important_mail_classifications` cache from historical `important_mail_notifications`.
+- Header-based pre-filter (`List-Unsubscribe`, `Precedence`). Requires upstream `get_mail_history` to fetch and propagate Gmail message headers, which doubles Gmail API calls per mail. Will land alongside Gmail push when message bodies are also fetched.
