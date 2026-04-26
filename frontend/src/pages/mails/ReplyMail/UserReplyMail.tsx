@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { DownOutlined, ThunderboltOutlined, UndoOutlined } from '@ant-design/icons';
 import {
@@ -51,9 +51,11 @@ const TONE_PRESETS: { tone: IProcessMailTone; label: string }[] = [
   { tone: IProcessMailTone.ENTHUSIASTIC, label: 'Enthusiastic' },
 ];
 
+const normalizeHtml = (html: string): string => html.replace(/<div[^>]*>/gi, '<p>').replace(/<\/div>/gi, '</p>');
+
 const editorStateFromHtml = (html: string): EditorState => {
   if (!html) return createEditorStateWithText('');
-  const blocksFromHTML = convertFromHTML(html);
+  const blocksFromHTML = convertFromHTML(normalizeHtml(html));
   if (!blocksFromHTML.contentBlocks?.length) return createEditorStateWithText('');
   const content = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
   return EditorState.createWithContent(content);
@@ -79,6 +81,12 @@ export default function UserReplyMail({
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { linkedMailAddresses } = useSession();
+
+  useEffect(() => {
+    return () => {
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    };
+  }, []);
 
   const resetData = () => {
     setEditorState(createEditorStateWithText(''));
@@ -132,6 +140,7 @@ export default function UserReplyMail({
 
   const generateWithTone = async (tone: IProcessMailTone) => {
     if (!receivedMailBody || activeTone) return;
+    const snapshot = editorState;
     setActiveTone(tone);
     try {
       const res = await api.processMailWithAI({
@@ -143,7 +152,7 @@ export default function UserReplyMail({
       });
       const draftHtml = res?.data?.processed_mail || '';
       if (draftHtml) {
-        previousEditorStateRef.current = editorState;
+        previousEditorStateRef.current = snapshot;
         setEditorState(editorStateFromHtml(draftHtml));
         setShowUndo(true);
         if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
