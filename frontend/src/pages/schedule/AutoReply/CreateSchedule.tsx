@@ -206,21 +206,26 @@ export default function CreateSchedule({
       </div>
 
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        <RichTextEditor editorState={editorState} setEditorState={setEditorState} height="100%" hideToolbar />
+        <RichTextEditor
+          editorState={editorState}
+          setEditorState={setEditorState}
+          height="100%"
+          hideToolbar
+          placeholder="Write your auto reply…"
+        />
       </div>
 
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
+          flexDirection: 'column',
+          gap: 8,
           padding: '8px 12px',
           borderTop: `1px solid ${colors.border}`,
           background: colors.surfaceMuted,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
           <RichTextToolbar>
             {(externalProps) => (
               <>
@@ -236,7 +241,7 @@ export default function CreateSchedule({
             )}
           </RichTextToolbar>
         </div>
-        <Flex align="center" gap={8}>
+        <Flex align="center" justify="end" gap={8}>
           <Button type="link" size="small" onClick={resetData} disabled={isClearDisabled()}>
             Clear
           </Button>

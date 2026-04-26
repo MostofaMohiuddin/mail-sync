@@ -25,6 +25,7 @@ interface RichTextEditorProps {
   setEditorState: (editorState: EditorState) => void;
   height?: number | string;
   hideToolbar?: boolean;
+  placeholder?: string;
 }
 
 const RichTextEditor = ({
@@ -32,6 +33,7 @@ const RichTextEditor = ({
   setEditorState,
   height = '25rem',
   hideToolbar = false,
+  placeholder,
 }: RichTextEditorProps) => {
   const editorRef = useRef<Editor>(null);
   const { colors } = useThemeMode();
@@ -63,6 +65,7 @@ const RichTextEditor = ({
           onChange={onChange}
           plugins={plugins}
           ref={editorRef}
+          placeholder={placeholder}
           formatPastedText={(text, html) => ({ html, text })}
         />
       </div>

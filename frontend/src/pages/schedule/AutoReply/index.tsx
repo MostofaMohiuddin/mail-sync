@@ -13,7 +13,9 @@ import GlassCard from '../../../components/ui/GlassCard';
 import PageHeader from '../../../components/ui/PageHeader';
 
 const PANEL_WIDTH = 480;
-const PANEL_TRANSITION = 'width 300ms cubic-bezier(0.16, 1, 0.3, 1)';
+const PANEL_HEIGHT = 'min(640px, calc(100vh - 160px))';
+const PANEL_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const PANEL_TRANSITION = `width 300ms ${PANEL_EASING}, margin-left 300ms ${PANEL_EASING}`;
 
 export default function ScheduleAutoReply() {
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -38,6 +40,11 @@ export default function ScheduleAutoReply() {
       setSchedules(data.data);
     }
   }, [data, isLoading]);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => window.dispatchEvent(new Event('resize')), 320);
+    return () => window.clearTimeout(id);
+  }, [isPanelOpen]);
 
   const showModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -97,7 +104,7 @@ export default function ScheduleAutoReply() {
     <>
       <PageHeader title="Auto Reply" subtitle={subtitle} />
 
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
         <div style={{ flex: 1, minWidth: 0 }} ref={calendarRef}>
           <GlassCard variant="solid" padding={16}>
             <Calendar
@@ -113,11 +120,16 @@ export default function ScheduleAutoReply() {
 
         <div
           aria-hidden={!isPanelOpen}
+          {...({ inert: !isPanelOpen ? '' : undefined } as Record<string, unknown>)}
           style={{
             width: isPanelOpen ? PANEL_WIDTH : 0,
+            marginLeft: isPanelOpen ? 16 : 0,
             overflow: 'hidden',
             transition: PANEL_TRANSITION,
             flexShrink: 0,
+            position: 'sticky',
+            top: 16,
+            height: PANEL_HEIGHT,
           }}
         >
           <div style={{ width: PANEL_WIDTH, height: '100%' }}>
