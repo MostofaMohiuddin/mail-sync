@@ -29,16 +29,7 @@ export default function EventDetails({ event, closePanel }: EventDetailsProps) {
   const [showFullDescription, setShowFullDescription] = useState(false);
 
   if (!event) {
-    return (
-      <div
-        style={{
-          background: colors.surface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: 14,
-          height: '100%',
-        }}
-      />
-    );
+    return null;
   }
 
   const start = dayjs(event.start);
@@ -81,8 +72,6 @@ export default function EventDetails({ event, closePanel }: EventDetailsProps) {
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        height: '100%',
-        minHeight: 0,
       }}
     >
       <div
@@ -122,8 +111,19 @@ export default function EventDetails({ event, closePanel }: EventDetailsProps) {
         <Button type="text" size="small" icon={<CloseOutlined />} onClick={closePanel} aria-label="Close panel" />
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '0 14px' }}>
-        <Row icon={<CalendarOutlined />}>{dateText}</Row>
+      <div style={{ maxHeight: 'calc(100vh - 160px)', overflow: 'auto', padding: '0 14px' }}>
+        <Row icon={<CalendarOutlined />}>
+          {sameDay ? (
+            <>
+              <div style={{ fontWeight: 600 }}>{start.format('ddd, DD MMM YYYY')}</div>
+              <div style={{ color: colors.textSecondary, marginTop: 2 }}>
+                {start.format('hh:mm A')} – {end.format('hh:mm A')}
+              </div>
+            </>
+          ) : (
+            <div style={{ fontWeight: 600 }}>{dateText}</div>
+          )}
+        </Row>
         <Row icon={<UserOutlined />}>{event.userEmail}</Row>
         {event.location ? <Row icon={<EnvironmentOutlined />}>{event.location}</Row> : null}
         {description ? (

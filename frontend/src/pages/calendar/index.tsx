@@ -18,9 +18,10 @@ import '../../components/fullcalendar.css';
 import { useThemeMode } from '../../hooks/useThemeMode';
 
 const PANEL_WIDTH = 440;
-const PANEL_HEIGHT = 'min(640px, calc(100vh - 160px))';
+const PANEL_MAX_HEIGHT = 'calc(100vh - 32px)';
 const PANEL_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 const PANEL_TRANSITION = `width 300ms ${PANEL_EASING}, margin-left 300ms ${PANEL_EASING}`;
+const TIME_VIEW_HEIGHT = 'calc(100vh - 240px)';
 
 export default function CalendarPage() {
   const { colors } = useThemeMode();
@@ -164,7 +165,8 @@ export default function CalendarPage() {
             datesSet={handleDatesSet}
             dayMaxEvents={true}
             weekends={true}
-            height="auto"
+            height={currentView === 'dayGridMonth' ? 'auto' : TIME_VIEW_HEIGHT}
+            scrollTime="07:00:00"
           />
 
           {events.length === 0 && currentView === 'dayGridMonth' ? (
@@ -200,10 +202,10 @@ export default function CalendarPage() {
             flexShrink: 0,
             position: 'sticky',
             top: 16,
-            height: PANEL_HEIGHT,
+            maxHeight: PANEL_MAX_HEIGHT,
           }}
         >
-          <div style={{ width: PANEL_WIDTH, height: '100%' }}>
+          <div style={{ width: PANEL_WIDTH }}>
             <EventDetails event={selectedEvent} closePanel={closePanel} />
           </div>
         </div>
