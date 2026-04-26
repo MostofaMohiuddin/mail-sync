@@ -2,12 +2,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.mails.models import (
+from backend.src.mails.models import (
     ProcessMailWithAIRequestBody,
     ProcessMailWithAIRequestTone,
     ProcessMailWithAIRequestType,
 )
-from src.mails.service import MailSyncService
+from backend.src.mails.service import MailSyncService
 
 
 @pytest.fixture
