@@ -48,6 +48,21 @@ const RichTextEditor = ({
   const { colors } = useThemeMode();
 
   const onChange = (newEditorState: EditorState) => {
+    // Sticky toolbar: when the user toggles Bold/Italic/etc with no text
+    // selected, draft-js stores it as an inlineStyleOverride that gets
+    // cleared on the next selection change. That makes the button look like
+    // it deselects the moment the user clicks back into the editor. Preserve
+    // the override across pure selection moves (selection changed, content
+    // didn't) so the formatting stays armed until the user actually types.
+    const oldOverride = editorState.getInlineStyleOverride();
+    if (oldOverride && oldOverride.size > 0) {
+      const selectionMoved = !editorState.getSelection().equals(newEditorState.getSelection());
+      const contentChanged = editorState.getCurrentContent() !== newEditorState.getCurrentContent();
+      if (selectionMoved && !contentChanged) {
+        setEditorState(EditorState.setInlineStyleOverride(newEditorState, oldOverride));
+        return;
+      }
+    }
     setEditorState(newEditorState);
   };
 
