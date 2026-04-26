@@ -124,8 +124,8 @@ Card-based mail row replacing the current `<List.Item>` body inside `EmailList.t
 - Sender name + relative date (right).
 - Subject (1 line, semibold) + snippet (1 line, secondary, ellipsis).
 - Hover: lift (`translateY(-1px)`) + `shadow-md`.
-- Hover-revealed quick actions: open, mark-read (visual only — wire up only if existing API supports it; otherwise leave as inert hover state with tooltip "Coming soon").
-- Receiver email shown as a small Tag pill on hover (currently shown as plain text; this is a visual upgrade only — no behavior change).
+- Receiver email shown as a small Tag pill (currently plain text); this is a visual upgrade only — no behavior change.
+- No new row-level actions (no quick mark-read or trash buttons) — those would require API work that's out of scope.
 
 ### `StatusBadge.tsx`
 Small colored pill for things like scheduled-mail status, connection status. Variants: `success | warning | error | info | neutral`.
@@ -142,7 +142,7 @@ Returns `"just now"`, `"5m ago"`, `"3h ago"`, `"Yesterday"`, `"Mar 14"`, etc. Us
 
 ### `components/layout/index.tsx`
 - Sidebar: default **expanded** (`collapsed: false`), keep collapse toggle. Replace inline `LOGO` text with `<Logo />`. Apply gradient background to the sider header area; menu items use new selected style (rounded pill with primary tint at ~12% alpha, primary text color). Add a footer-pinned user chip (avatar + name + caret → opens existing user menu).
-- Header: glass background, height `64px`, left side shows the page breadcrumb/title (via `<PageHeader>` slot), right side has: global search input (visual placeholder — non-functional in this scope, marked with `disabled` tooltip "Search coming soon"), `<ThemeToggle />`, notification bell, user avatar dropdown.
+- Header: glass background, height `64px`, left side shows the current page title (continuing today's behavior — the in-page `<PageHeader>` is a separate component used inside the content area, not in the chrome). Right side has: global search input (visual placeholder — non-functional in this scope, marked with `disabled` tooltip "Search coming soon"), `<ThemeToggle />`, notification bell, user avatar dropdown.
 - Content: increase padding to `24/32px`, raise `borderRadiusLG` to `16`, switch to `shadow-md`. Add a subtle linear gradient background washing from top.
 - Footer: keep but restyle — small, centered, `text-secondary`, "MailSync · Crafted with care".
 
