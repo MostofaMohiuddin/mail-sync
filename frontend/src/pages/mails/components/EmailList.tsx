@@ -1,10 +1,12 @@
-import { Avatar, Divider, Empty, Flex, List, Skeleton, Typography } from 'antd';
-import parse from 'html-react-parser';
+import { InboxOutlined } from '@ant-design/icons';
+import { Divider, Skeleton } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 
 import type { IEmailMetadata } from '../../../common/types';
-import { generateAvatarText, generateRandomColor } from '../../../common/utility';
+import EmptyState from '../../../components/ui/EmptyState';
+import MailListItem from '../../../components/ui/MailListItem';
+import { useThemeMode } from '../../../hooks/useThemeMode';
 
 export default function EmailList({
   data,
@@ -20,85 +22,87 @@ export default function EmailList({
   isLoading: boolean;
 }) {
   const navigate = useNavigate();
-  const dataSource = data
-    ? data.map((item) => {
-        return {
-          sender: item.sender.name ? item.sender.name : item.sender.email,
-          subject: item.subject,
-          snippet: item.snippet,
-          date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
-          receiver: item.receiver.email,
-          id: item.id,
-        };
-      })
-    : [];
+  const { colors } = useThemeMode();
+
+  if (data.length === 0 && isLoading) {
+    return (
+      <div style={{ padding: 12 }}>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              padding: 14,
+              marginBottom: 8,
+              borderRadius: 14,
+              background: colors.surfaceMuted,
+            }}
+          >
+            <Skeleton avatar active paragraph={{ rows: 2, width: ['80%', '60%'] }} title={false} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div style={{ paddingTop: 48 }}>
+        <EmptyState
+          size="lg"
+          icon={<InboxOutlined />}
+          title="Your inbox is empty"
+          description="When new mail arrives, it will appear here."
+        />
+      </div>
+    );
+  }
+
   return (
-    <div id="scrollableDiv" style={{ height: '80vh', overflow: 'auto', padding: '0 16px' }}>
+    <div
+      id="scrollableDiv"
+      style={{
+        height: 'calc(100vh - 240px)',
+        overflow: 'auto',
+        paddingRight: 4,
+        transition: 'all 0.3s',
+      }}
+    >
       <InfiniteScroll
         dataLength={data.length}
         next={loadMoreData}
         hasMore={hasMore}
-        loader={<>{dataSource.length !== 0 && <Skeleton avatar paragraph={{ rows: 1 }} active />}</>}
-        endMessage={<>{dataSource.length !== 0 && <Divider plain>It is all, nothing more 🤐</Divider>}</>}
+        loader={
+          <div
+            style={{
+              padding: 14,
+              marginBottom: 8,
+              borderRadius: 14,
+              background: colors.surfaceMuted,
+            }}
+          >
+            <Skeleton avatar active paragraph={{ rows: 2 }} title={false} />
+          </div>
+        }
+        endMessage={
+          <Divider plain style={{ color: colors.textTertiary, fontSize: 12 }}>
+            You're all caught up · {data.length} message{data.length === 1 ? '' : 's'}
+          </Divider>
+        }
         scrollableTarget="scrollableDiv"
       >
-        <List
-          itemLayout="horizontal"
-          dataSource={dataSource}
-          locale={{
-            emptyText: <Empty description={<span>No emails found!</span>} />,
-          }}
-          loading={dataSource.length === 0 && isLoading}
-          renderItem={(item) => (
-            <List.Item
-              style={{ cursor: 'pointer' }}
-              key={item.date}
-              onClick={() => {
-                navigate(`/emails/${item.receiver}/${item.id}`);
-              }}
-              extra={
-                <Flex vertical align="flex-end">
-                  <Typography.Text type="secondary" style={{ fontSize: '0.8rem' }}>
-                    {item.date}
-                  </Typography.Text>
-                  <Typography.Text type="secondary" style={{ fontSize: '0.8rem' }}>
-                    {item.receiver}
-                  </Typography.Text>
-                </Flex>
-              }
-            >
-              <Flex>
-                <Flex>
-                  <div style={{ marginRight: '0.8rem', paddingTop: '0.2rem' }}>
-                    <Avatar style={{ backgroundColor: generateRandomColor(item.sender) }} size="large">
-                      {<span>{generateAvatarText(item.sender)}</span>}
-                    </Avatar>
-                  </div>
-                  <Flex justify="space-between" align="flex-start" vertical>
-                    <Typography.Text strong style={{ fontSize: '1rem' }}>
-                      {item.sender}
-                    </Typography.Text>
-                    <Typography.Text
-                      strong
-                      ellipsis
-                      style={{ width: isComposeMail ? '25vw' : '50vw', transition: 'all 0.3s' }}
-                    >
-                      {item.subject}
-                    </Typography.Text>
-                    <Typography.Text
-                      type="secondary"
-                      ellipsis
-                      style={{ width: isComposeMail ? '25vw' : '50vw', transition: 'all 0.3s' }}
-                    >
-                      {parse(item.snippet)}
-                    </Typography.Text>
-                  </Flex>
-                </Flex>
-              </Flex>
-            </List.Item>
-          )}
-        />
+        {data.map((item) => (
+          <MailListItem
+            key={`${item.id}-${item.receiver?.email}`}
+            sender={item.sender.name ? item.sender.name : item.sender.email}
+            subject={item.subject}
+            snippet={item.snippet}
+            date={item.date}
+            receiver={item.receiver.email}
+            onClick={() => navigate(`/emails/${item.receiver.email}/${item.id}`)}
+          />
+        ))}
       </InfiniteScroll>
+      {isComposeMail && null}
     </div>
   );
 }

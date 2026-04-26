@@ -110,13 +110,15 @@ export default function UserReplyMail({
     <>
       <div
         style={{
-          border: '1px solid #ddd',
-          borderBottom: 'none',
-          borderRadius: '8px 8px 0 0',
-          padding: '8px 10px',
-          backgroundColor: '#f5f5f5',
-          fontSize: '0.9rem',
-          fontWeight: 'bold',
+          borderRadius: '12px 12px 0 0',
+          padding: '10px 14px',
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.16) 0%, rgba(139,92,246,0.16) 100%)',
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          color: 'var(--as-text)',
+          borderBottom: '1px solid var(--as-app-bg)',
         }}
       >
         New Mail

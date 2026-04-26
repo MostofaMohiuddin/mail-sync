@@ -1,14 +1,13 @@
-// import { useEffect } from 'react';
-
 import { useState } from 'react';
 
-import { EditOutlined, PlusOutlined, LinkOutlined } from '@ant-design/icons';
+import { EditOutlined, LinkOutlined, PlusOutlined } from '@ant-design/icons';
 import { Drawer, FloatButton } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import AllMailBox from './AllMailBox';
 import ReplyMail from './ReplyMail';
 import SingleMailBox from './SingleMailBox';
+import PageHeader from '../../components/ui/PageHeader';
 import { useSession } from '../../hooks/userSession';
 
 export default function Mail() {
@@ -20,15 +19,17 @@ export default function Mail() {
 
   const navigate = useNavigate();
 
-  const closeDrawer = () => {
-    setIsDrawerOpen(false);
-  };
-  const openDrawer = () => {
-    setIsDrawerOpen(true);
-  };
+  const closeDrawer = () => setIsDrawerOpen(false);
+  const openDrawer = () => setIsDrawerOpen(true);
+
+  const subtitle = params.address
+    ? `Showing messages for ${params.address}`
+    : `All inboxes · ${linkedMailAddresses?.length ?? 0} linked account${(linkedMailAddresses?.length ?? 0) === 1 ? '' : 's'}`;
 
   return (
     <>
+      <PageHeader title={params.address ? params.address : 'Inbox'} subtitle={subtitle} />
+
       {params.address ? <SingleMailBox isDrawerOpen={isDrawerOpen} /> : <AllMailBox isDrawerOpen={isDrawerOpen} />}
 
       <Drawer
@@ -45,7 +46,7 @@ export default function Mail() {
       {linkedMailAddresses && linkedMailAddresses.length !== 0 ? (
         <FloatButton.Group
           shape="circle"
-          style={{ right: '40px', bottom: '8vh' }}
+          style={{ right: 40, bottom: '8vh' }}
           trigger="hover"
           type="primary"
           icon={<PlusOutlined />}
@@ -63,7 +64,7 @@ export default function Mail() {
           onClick={() => navigate('/profile')}
           icon={<LinkOutlined />}
           type="primary"
-          style={{ right: '40px', bottom: '8vh' }}
+          style={{ right: 40, bottom: '8vh' }}
         />
       )}
     </>
