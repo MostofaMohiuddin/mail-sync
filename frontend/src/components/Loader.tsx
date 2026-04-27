@@ -1,7 +1,8 @@
 import { Spin } from 'antd';
+import { createPortal } from 'react-dom';
 
 const Loader = ({ loading }: { loading: boolean }) => {
-  return <Spin size="large" spinning={loading} fullscreen />;
+  return createPortal(<Spin size="large" spinning={loading} fullscreen />, document.body);
 };
 
 export default Loader;
