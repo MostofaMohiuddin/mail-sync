@@ -251,8 +251,8 @@ export default function CustomLayout({ children, title }: { children: ReactNode;
 
       <Layout style={{ background: 'transparent' }}>
         <CustomHeader title={title} />
-        <Content style={{ padding: '20px 24px 32px' }}>
-          <div className="as-animate-fade-in-up" style={{ padding: '4px 4px 24px' }}>
+        <Content style={{ padding: '20px 24px 32px', display: 'flex', flexDirection: 'column' }}>
+          <div className="as-animate-fade-in-up" style={{ padding: '4px 4px 24px', flex: 1 }}>
             {children}
           </div>
           <div
