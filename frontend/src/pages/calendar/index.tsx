@@ -13,13 +13,14 @@ import EventDetails from './EventDetails';
 import * as calendarApi from '../../api/Calendar';
 import type { IEvent, IEventsResponse } from '../../common/types';
 import Loader from '../../components/Loader';
+import GlassCard from '../../components/ui/GlassCard';
 import PageHeader from '../../components/ui/PageHeader';
 import '../../components/fullcalendar.css';
 import { useThemeMode } from '../../hooks/useThemeMode';
 
 const PANEL_WIDTH = 440;
 const PANEL_MAX_HEIGHT = 'calc(100vh - 32px)';
-const CALENDAR_HEIGHT = 'calc(100vh - 180px)';
+const TIME_VIEW_HEIGHT = 'calc(100vh - 260px)';
 
 export default function CalendarPage() {
   const { colors } = useThemeMode();
@@ -144,49 +145,53 @@ export default function CalendarPage() {
       <Loader loading={isLoading} />
       <PageHeader title="Calendar" subtitle={subtitle} />
 
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: isPanelOpen ? 16 : 0 }}>
-        <div style={{ flex: 1, minWidth: 0, position: 'relative', height: CALENDAR_HEIGHT }}>
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            events={fcEvents}
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay',
-            }}
-            buttonText={{ today: 'Today', month: 'Month', week: 'Week', day: 'Day' }}
-            editable={false}
-            selectable={false}
-            eventClick={handleEventClick}
-            eventContent={renderEventContent}
-            datesSet={handleDatesSet}
-            dayMaxEvents={true}
-            weekends={true}
-            height="100%"
-            scrollTime="07:00:00"
-          />
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: isPanelOpen ? 16 : 0, width: '100%' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <GlassCard variant="solid" padding={16}>
+            <div style={{ position: 'relative' }}>
+              <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="dayGridMonth"
+                events={fcEvents}
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                }}
+                buttonText={{ today: 'Today', month: 'Month', week: 'Week', day: 'Day' }}
+                editable={false}
+                selectable={false}
+                eventClick={handleEventClick}
+                eventContent={renderEventContent}
+                datesSet={handleDatesSet}
+                dayMaxEvents={true}
+                weekends={true}
+                height={currentView === 'dayGridMonth' ? 'auto' : TIME_VIEW_HEIGHT}
+                scrollTime="07:00:00"
+              />
 
-          {events.length === 0 && currentView === 'dayGridMonth' ? (
-            <div
-              style={{
-                position: 'absolute',
-                top: '55%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                background: colors.surface,
-                border: `1px dashed ${colors.border}`,
-                borderRadius: 12,
-                padding: '12px 18px',
-                color: colors.textSecondary,
-                fontSize: 13,
-                pointerEvents: 'none',
-                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)',
-              }}
-            >
-              No events this month.
+              {events.length === 0 && currentView === 'dayGridMonth' ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '55%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: colors.surface,
+                    border: `1px dashed ${colors.border}`,
+                    borderRadius: 12,
+                    padding: '12px 18px',
+                    color: colors.textSecondary,
+                    fontSize: 13,
+                    pointerEvents: 'none',
+                    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)',
+                  }}
+                >
+                  No events this month.
+                </div>
+              ) : null}
             </div>
-          ) : null}
+          </GlassCard>
         </div>
 
         {isPanelOpen && selectedEvent ? (
