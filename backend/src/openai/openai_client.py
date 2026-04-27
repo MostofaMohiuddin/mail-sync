@@ -9,7 +9,7 @@ class OpenAIClient:
     def detect_important_email(self, subject: str, sender: str, snippet: str) -> str | None:
         return (
             self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4.1-nano",
                 messages=[
                     {
                         "role": "system",
@@ -28,7 +28,7 @@ class OpenAIClient:
     def get_completion(self, system_prompt: str, prompt: str) -> str | None:
         return (
             self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4.1-nano",
                 messages=[
                     {
                         "role": "system",
@@ -80,7 +80,7 @@ class OpenAIClient:
         import json
 
         completion = self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4.1-nano",
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": system},
