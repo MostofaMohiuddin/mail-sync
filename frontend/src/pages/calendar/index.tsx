@@ -19,9 +19,7 @@ import { useThemeMode } from '../../hooks/useThemeMode';
 
 const PANEL_WIDTH = 440;
 const PANEL_MAX_HEIGHT = 'calc(100vh - 32px)';
-const PANEL_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
-const PANEL_TRANSITION = `width 300ms ${PANEL_EASING}, margin-left 300ms ${PANEL_EASING}`;
-const TIME_VIEW_HEIGHT = 'calc(100vh - 240px)';
+const CALENDAR_HEIGHT = 'calc(100vh - 180px)';
 
 export default function CalendarPage() {
   const { colors } = useThemeMode();
@@ -146,8 +144,8 @@ export default function CalendarPage() {
       <Loader loading={isLoading} />
       <PageHeader title="Calendar" subtitle={subtitle} />
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
-        <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+      <div style={{ display: 'flex', alignItems: 'stretch', gap: isPanelOpen ? 16 : 0 }}>
+        <div style={{ flex: 1, minWidth: 0, position: 'relative', height: CALENDAR_HEIGHT }}>
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
@@ -165,7 +163,7 @@ export default function CalendarPage() {
             datesSet={handleDatesSet}
             dayMaxEvents={true}
             weekends={true}
-            height={currentView === 'dayGridMonth' ? 'auto' : TIME_VIEW_HEIGHT}
+            height="100%"
             scrollTime="07:00:00"
           />
 
@@ -191,24 +189,20 @@ export default function CalendarPage() {
           ) : null}
         </div>
 
-        <div
-          aria-hidden={!isPanelOpen}
-          {...({ inert: !isPanelOpen ? '' : undefined } as Record<string, unknown>)}
-          style={{
-            width: isPanelOpen ? PANEL_WIDTH : 0,
-            marginLeft: isPanelOpen ? 16 : 0,
-            overflow: 'hidden',
-            transition: PANEL_TRANSITION,
-            flexShrink: 0,
-            position: 'sticky',
-            top: 16,
-            maxHeight: PANEL_MAX_HEIGHT,
-          }}
-        >
-          <div style={{ width: PANEL_WIDTH }}>
+        {isPanelOpen && selectedEvent ? (
+          <div
+            style={{
+              width: PANEL_WIDTH,
+              flexShrink: 0,
+              position: 'sticky',
+              top: 16,
+              alignSelf: 'flex-start',
+              maxHeight: PANEL_MAX_HEIGHT,
+            }}
+          >
             <EventDetails event={selectedEvent} closePanel={closePanel} />
           </div>
-        </div>
+        ) : null}
       </div>
     </>
   );
